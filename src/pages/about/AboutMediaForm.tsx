@@ -40,12 +40,9 @@ export default function AboutMediaForm() {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(!!id);
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [desktopMediaFile, setDesktopMediaFile] = useState<File | null>(null);
-  const [mobileMediaFile, setMobileMediaFile] = useState<File | null>(null);
-  const [existingThumbnail, setExistingThumbnail] = useState<string>("");
-  const [existingDesktopMedia, setExistingDesktopMedia] = useState<string>("");
-  const [existingMobileMedia, setExistingMobileMedia] = useState<string>("");
+  const [thumbnailFile, setThumbnailFile] = useState<File | string | null>(null);
+  const [desktopMediaFile, setDesktopMediaFile] = useState<File | string | null>(null);
+  const [mobileMediaFile, setMobileMediaFile] = useState<File | string | null>(null);
 
   const isEditMode = !!id;
 
@@ -82,9 +79,15 @@ export default function AboutMediaForm() {
         sort_order: data.sort_order.toString(),
       });
 
-      setExistingThumbnail(data.thumbnail as string);
-      setExistingDesktopMedia(data.media_desktop_path as string);
-      setExistingMobileMedia(data.media_mobile_path as string);
+      if (data.thumbnail) {
+        setThumbnailFile(data.thumbnail as string);
+      }
+      if (data.media_desktop_path) {
+        setDesktopMediaFile(data.media_desktop_path as string);
+      }
+      if (data.media_mobile_path) {
+        setMobileMediaFile(data.media_mobile_path as string);
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -97,31 +100,17 @@ export default function AboutMediaForm() {
     }
   };
 
-  const handleThumbnailSelect = (file: File | null) => {
-    setThumbnailFile(file);
-    form.setValue("thumbnail", file);
-  };
-
-  const handleDesktopMediaSelect = (file: File | null) => {
-    setDesktopMediaFile(file);
-    form.setValue("media_desktop_file", file);
-  };
-
-  const handleMobileMediaSelect = (file: File | null) => {
-    setMobileMediaFile(file);
-    form.setValue("media_mobile_file", file);
-  };
 
   const onSubmit = async (data: AboutMediaFormData) => {
     try {
       setLoading(true);
 
       const submitData = {
-        thumbnail: thumbnailFile,
+        thumbnail: thumbnailFile instanceof File ? thumbnailFile : undefined,
         thumbnail_alt: data.thumbnail_alt || "",
         media_type: data.media_type,
-        media_desktop_file: desktopMediaFile,
-        media_mobile_file: mobileMediaFile,
+        media_desktop_file: desktopMediaFile instanceof File ? desktopMediaFile : undefined,
+        media_mobile_file: mobileMediaFile instanceof File ? mobileMediaFile : undefined,
         media_alt: data.media_alt || "",
         status: data.status,
         sort_order: parseInt(data.sort_order || "1"),
@@ -181,40 +170,115 @@ export default function AboutMediaForm() {
               <CardTitle>Media Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="media_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Media Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="media_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Media Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select media type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="image">
+                            <div className="flex items-center gap-2">
+                              <Image className="h-4 w-4" />
+                              Image
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="video">
+                            <div className="flex items-center gap-2">
+                              <Video className="h-4 w-4" />
+                              Video
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Choose whether this is an image or video content
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Media Alt Text</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select media type" />
-                        </SelectTrigger>
+                        <Input placeholder="Describe the media for accessibility" {...field} />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="image">
-                          <div className="flex items-center gap-2">
-                            <Image className="h-4 w-4" />
-                            Image
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="video">
-                          <div className="flex items-center gap-2">
-                            <Video className="h-4 w-4" />
-                            Video
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Choose whether this is an image or video content
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormDescription>
+                        Alternative text for the media content
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="media_desktop_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Desktop {watchedMediaType === "video" ? "Video" : "Image"}</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          label={`Desktop ${watchedMediaType === "video" ? "Video" : "Image"}`}
+                          value={desktopMediaFile}
+                          onChange={setDesktopMediaFile}
+                          accept={getMediaAccept()}
+                          maxSize={10485760} // 10MB for media
+                          placeholder={`Drop desktop ${watchedMediaType} here or click to browse`}
+                          preview={true}
+                          recommendedDimensions="1920×1080px"
+                          dimensionNote={`Desktop ${watchedMediaType} file`}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Upload {watchedMediaType} optimized for desktop viewing
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="media_mobile_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mobile {watchedMediaType === "video" ? "Video" : "Image"}</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          label={`Mobile ${watchedMediaType === "video" ? "Video" : "Image"}`}
+                          value={mobileMediaFile}
+                          onChange={setMobileMediaFile}
+                          accept={getMediaAccept()}
+                          maxSize={10485760} // 10MB for media
+                          placeholder={`Drop mobile ${watchedMediaType} here or click to browse`}
+                          preview={true}
+                          recommendedDimensions="768×1024px"
+                          dimensionNote={`Mobile ${watchedMediaType} file`}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Upload {watchedMediaType} optimized for mobile viewing
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -223,182 +287,54 @@ export default function AboutMediaForm() {
               <CardTitle>Thumbnail</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="thumbnail"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Thumbnail Image</FormLabel>
-                    <FormControl>
-                      <div className="space-y-4">
-                        {existingThumbnail && !thumbnailFile && (
-                          <div className="relative inline-block">
-                            <img
-                              src={`http://localhost:3000/${existingThumbnail}`}
-                              alt="Current thumbnail"
-                              className="max-w-xs h-32 object-cover rounded-lg border"
-                            />
-                            <div className="mt-2 text-sm text-muted-foreground">
-                              Current thumbnail
-                            </div>
-                          </div>
-                        )}
-                        
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="thumbnail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Thumbnail Image</FormLabel>
+                      <FormControl>
                         <FileUpload
+                          label="Thumbnail Image"
+                          value={thumbnailFile}
+                          onChange={setThumbnailFile}
                           accept="image/*"
-                          onFileSelect={handleThumbnailSelect}
-                          selectedFile={thumbnailFile}
-                          placeholder="Upload thumbnail image"
+                          maxSize={5242880} // 5MB
+                          placeholder="Drop thumbnail image here or click to browse"
+                          preview={true}
+                          recommendedDimensions="400×300px"
+                          dimensionNote="Thumbnail image for media preview"
                         />
-                      </div>
-                    </FormControl>
-                    <FormDescription>
-                      Upload a thumbnail image (JPEG, PNG, WebP, GIF)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormDescription>
+                        Upload a thumbnail image (JPEG, PNG, WebP, GIF)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="thumbnail_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Thumbnail Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Describe the thumbnail for accessibility" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Alternative text for the thumbnail image
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="thumbnail_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Thumbnail Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Describe the thumbnail for accessibility" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Alternative text for the thumbnail image
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Desktop Media</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="media_desktop_file"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Desktop {watchedMediaType === "video" ? "Video" : "Image"}</FormLabel>
-                    <FormControl>
-                      <div className="space-y-4">
-                        {existingDesktopMedia && !desktopMediaFile && (
-                          <div className="relative inline-block">
-                            {watchedMediaType === "video" ? (
-                              <video
-                                src={`http://localhost:3000/${existingDesktopMedia}`}
-                                className="max-w-xs h-32 object-cover rounded-lg border"
-                                controls
-                              />
-                            ) : (
-                              <img
-                                src={`http://localhost:3000/${existingDesktopMedia}`}
-                                alt="Current desktop media"
-                                className="max-w-xs h-32 object-cover rounded-lg border"
-                              />
-                            )}
-                            <div className="mt-2 text-sm text-muted-foreground">
-                              Current desktop {watchedMediaType}
-                            </div>
-                          </div>
-                        )}
-                        
-                        <FileUpload
-                          accept={getMediaAccept()}
-                          onFileSelect={handleDesktopMediaSelect}
-                          selectedFile={desktopMediaFile}
-                          placeholder={`Upload desktop ${watchedMediaType}`}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormDescription>
-                      Upload {watchedMediaType} optimized for desktop viewing
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Mobile Media</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="media_mobile_file"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mobile {watchedMediaType === "video" ? "Video" : "Image"}</FormLabel>
-                    <FormControl>
-                      <div className="space-y-4">
-                        {existingMobileMedia && !mobileMediaFile && (
-                          <div className="relative inline-block">
-                            {watchedMediaType === "video" ? (
-                              <video
-                                src={`http://localhost:3000/${existingMobileMedia}`}
-                                className="max-w-xs h-32 object-cover rounded-lg border"
-                                controls
-                              />
-                            ) : (
-                              <img
-                                src={`http://localhost:3000/${existingMobileMedia}`}
-                                alt="Current mobile media"
-                                className="max-w-xs h-32 object-cover rounded-lg border"
-                              />
-                            )}
-                            <div className="mt-2 text-sm text-muted-foreground">
-                              Current mobile {watchedMediaType}
-                            </div>
-                          </div>
-                        )}
-                        
-                        <FileUpload
-                          accept={getMediaAccept()}
-                          onFileSelect={handleMobileMediaSelect}
-                          selectedFile={mobileMediaFile}
-                          placeholder={`Upload mobile ${watchedMediaType}`}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormDescription>
-                      Upload {watchedMediaType} optimized for mobile viewing
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Media Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Describe the media for accessibility" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Alternative text for the media content
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
 
           <Card>
             <CardHeader>

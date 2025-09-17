@@ -162,35 +162,6 @@ export default function AboutOurJourneyList() {
       ),
     },
     {
-      accessorKey: "description",
-      header: "Description",
-      cell: ({ row }) => (
-        <div className="max-w-[300px]">
-          <div className="text-sm text-muted-foreground">
-            {truncateText(row.getValue("description"), 60)}
-          </div>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "media_path",
-      header: "Image",
-      cell: ({ row }) => {
-        const mediaPath = row.getValue("media_path") as string;
-        return mediaPath ? (
-          <div className="flex items-center justify-center">
-            <img
-              src={`http://localhost:3000/${mediaPath}`}
-              alt={row.original.media_alt || "Journey image"}
-              className="w-12 h-12 object-cover rounded-md border"
-            />
-          </div>
-        ) : (
-          <div className="text-center text-muted-foreground text-sm">No image</div>
-        );
-      },
-    },
-    {
       accessorKey: "sort_order",
       header: "Sort Order",
       cell: ({ row }) => (

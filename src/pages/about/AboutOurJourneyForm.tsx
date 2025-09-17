@@ -34,8 +34,7 @@ export default function AboutOurJourneyForm() {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(!!id);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [existingMediaPath, setExistingMediaPath] = useState<string>("");
+  const [mediaFile, setMediaFile] = useState<File | string | null>(null);
 
   const isEditMode = !!id;
 
@@ -72,7 +71,9 @@ export default function AboutOurJourneyForm() {
         sort_order: data.sort_order.toString(),
       });
 
-      setExistingMediaPath(data.media_path);
+      if (data.media_path) {
+        setMediaFile(data.media_path);
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -85,10 +86,6 @@ export default function AboutOurJourneyForm() {
     }
   };
 
-  const handleFileSelect = (file: File | null) => {
-    setSelectedFile(file);
-    form.setValue("media_file", file);
-  };
 
   const onSubmit = async (data: AboutOurJourneyFormData) => {
     try {
@@ -98,7 +95,7 @@ export default function AboutOurJourneyForm() {
         year: data.year,
         title: data.title,
         description: data.description,
-        media_file: selectedFile,
+        media_file: mediaFile instanceof File ? mediaFile : undefined,
         media_alt: data.media_alt || "",
         status: data.status,
         sort_order: parseInt(data.sort_order || "1"),
@@ -154,29 +151,129 @@ export default function AboutOurJourneyForm() {
               <CardTitle>Journey Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="year"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Year</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="2024"
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      The year this milestone occurred
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="year"
+                  name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Year</FormLabel>
+                      <FormLabel>Title</FormLabel>
                       <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="2024"
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                        />
+                        <Input placeholder="Enter journey milestone title" {...field} />
                       </FormControl>
                       <FormDescription>
-                        The year this milestone occurred
+                        A compelling title for this journey milestone
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe this milestone in our journey..."
+                          className="min-h-[120px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        A detailed description of this milestone
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Media</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="media_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          label="Journey Image"
+                          value={mediaFile}
+                          onChange={setMediaFile}
+                          accept="image/*"
+                          maxSize={5242880} // 5MB
+                          placeholder="Drop journey image here or click to browse"
+                          preview={true}
+                          recommendedDimensions="556×491px"
+                          dimensionNote="Journey milestone image"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Upload an image to represent this milestone (JPEG, PNG, WebP, GIF)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Describe the image for accessibility" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Alternative text for screen readers and accessibility
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="sort_order"
@@ -197,134 +294,28 @@ export default function AboutOurJourneyForm() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter journey milestone title" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      A compelling title for this journey milestone
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Describe this milestone in our journey..."
-                        className="min-h-[120px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      A detailed description of this milestone
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Media</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="media_file"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image</FormLabel>
-                    <FormControl>
-                      <div className="space-y-4">
-                        {existingMediaPath && !selectedFile && (
-                          <div className="relative inline-block">
-                            <img
-                              src={`http://localhost:3000/${existingMediaPath}`}
-                              alt="Current media"
-                              className="max-w-xs h-32 object-cover rounded-lg border"
-                            />
-                            <div className="mt-2 text-sm text-muted-foreground">
-                              Current image
-                            </div>
-                          </div>
-                        )}
-                        
-                        <FileUpload
-                          accept="image/*"
-                          onFileSelect={handleFileSelect}
-                          selectedFile={selectedFile}
-                          placeholder="Upload journey image"
-                        />
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Status</FormLabel>
+                        <FormDescription>
+                          Enable or disable this journey entry
+                        </FormDescription>
                       </div>
-                    </FormControl>
-                    <FormDescription>
-                      Upload an image to represent this milestone (JPEG, PNG, WebP, GIF)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Describe the image for accessibility" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Alternative text for screen readers and accessibility
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Status</FormLabel>
-                      <FormDescription>
-                        Enable or disable this journey entry
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 

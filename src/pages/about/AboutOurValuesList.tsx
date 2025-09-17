@@ -152,17 +152,6 @@ export default function AboutOurValuesList() {
       ),
     },
     {
-      accessorKey: "description",
-      header: "Description",
-      cell: ({ row }) => (
-        <div className="max-w-[300px]">
-          <div className="text-sm text-muted-foreground">
-            {truncateText(row.getValue("description"), 60)}
-          </div>
-        </div>
-      ),
-    },
-    {
       accessorKey: "sort_order",
       header: "Sort Order",
       cell: ({ row }) => (

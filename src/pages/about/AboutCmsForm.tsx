@@ -34,13 +34,6 @@ export default function AboutCmsForm() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   
-  // File states for all uploads
-  const [bannerDesktopFile, setBannerDesktopFile] = useState<File | string | null>(null);
-  const [bannerMobileFile, setBannerMobileFile] = useState<File | string | null>(null);
-  const [aboutDesktopFile, setAboutDesktopFile] = useState<File | string | null>(null);
-  const [aboutMobileFile, setAboutMobileFile] = useState<File | string | null>(null);
-  const [learnMoreFile, setLearnMoreFile] = useState<File | string | null>(null);
-  const [meetTeamFile, setMeetTeamFile] = useState<File | string | null>(null);
 
   const form = useForm<AboutCmsFormData>({
     resolver: zodResolver(aboutCmsSchema),
@@ -73,6 +66,12 @@ export default function AboutCmsForm() {
       media_description: "",
       contact_us_super_title: "",
       contact_us_title: "",
+      banner_media_desktop_file: null,
+      banner_media_mobile_file: null,
+      about_media_desktop_file: null,
+      about_media_mobile_file: null,
+      learn_more_media_file: null,
+      meet_team_media_file: null,
     },
   });
 
@@ -115,27 +114,13 @@ export default function AboutCmsForm() {
         media_description: data.media_description || "",
         contact_us_super_title: data.contact_us_super_title || "",
         contact_us_title: data.contact_us_title || "",
+        banner_media_desktop_file: data.banner_media_desktop_path || null,
+        banner_media_mobile_file: data.banner_media_mobile_path || null,
+        about_media_desktop_file: data.about_media_desktop_path || null,
+        about_media_mobile_file: data.about_media_mobile_path || null,
+        learn_more_media_file: data.learn_more_media_path || null,
+        meet_team_media_file: data.meet_team_media_path || null,
       });
-
-      // Set file paths if they exist
-      if (data.banner_media_desktop_path) {
-        setBannerDesktopFile(typeof data.banner_media_desktop_path === 'string' ? `${import.meta.env.VITE_URL}/${data.banner_media_desktop_path}` : data.banner_media_desktop_path);
-      }
-      if (data.banner_media_mobile_path) {
-        setBannerMobileFile(typeof data.banner_media_mobile_path === 'string' ? `${import.meta.env.VITE_URL}/${data.banner_media_mobile_path}` : data.banner_media_mobile_path);
-      }
-      if (data.about_media_desktop_path) {
-        setAboutDesktopFile(typeof data.about_media_desktop_path === 'string' ? `${import.meta.env.VITE_URL}/${data.about_media_desktop_path}` : data.about_media_desktop_path);
-      }
-      if (data.about_media_mobile_path) {
-        setAboutMobileFile(typeof data.about_media_mobile_path === 'string' ? `${import.meta.env.VITE_URL}/${data.about_media_mobile_path}` : data.about_media_mobile_path);
-      }
-      if (data.learn_more_media_path) {
-        setLearnMoreFile(typeof data.learn_more_media_path === 'string' ? `${import.meta.env.VITE_URL}/${data.learn_more_media_path}` : data.learn_more_media_path);
-      }
-      if (data.meet_team_media_path) {
-        setMeetTeamFile(typeof data.meet_team_media_path === 'string' ? `${import.meta.env.VITE_URL}/${data.meet_team_media_path}` : data.meet_team_media_path);
-      }
     } catch (error) {
       toast({
         title: "Error",
@@ -180,12 +165,12 @@ export default function AboutCmsForm() {
         media_description: data.media_description,
         contact_us_super_title: data.contact_us_super_title,
         contact_us_title: data.contact_us_title,
-        banner_media_desktop_file: bannerDesktopFile instanceof File ? bannerDesktopFile : undefined,
-        banner_media_mobile_file: bannerMobileFile instanceof File ? bannerMobileFile : undefined,
-        about_media_desktop_file: aboutDesktopFile instanceof File ? aboutDesktopFile : undefined,
-        about_media_mobile_file: aboutMobileFile instanceof File ? aboutMobileFile : undefined,
-        learn_more_media_file: learnMoreFile instanceof File ? learnMoreFile : undefined,
-        meet_team_media_file: meetTeamFile instanceof File ? meetTeamFile : undefined,
+        banner_media_desktop_file: data.banner_media_desktop_file instanceof File ? data.banner_media_desktop_file : undefined,
+        banner_media_mobile_file: data.banner_media_mobile_file instanceof File ? data.banner_media_mobile_file : undefined,
+        about_media_desktop_file: data.about_media_desktop_file instanceof File ? data.about_media_desktop_file : undefined,
+        about_media_mobile_file: data.about_media_mobile_file instanceof File ? data.about_media_mobile_file : undefined,
+        learn_more_media_file: data.learn_more_media_file instanceof File ? data.learn_more_media_file : undefined,
+        meet_team_media_file: data.meet_team_media_file instanceof File ? data.meet_team_media_file : undefined,
       });
 
       toast({
@@ -251,33 +236,51 @@ export default function AboutCmsForm() {
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <FileUpload
-                    label="Banner Desktop Image"
-                    value={bannerDesktopFile}
-                    onChange={setBannerDesktopFile}
-                    accept="image/*"
-                    maxSize={5242880} // 5MB
-                    placeholder="Drop desktop banner image here"
-                    preview={true}
-                    recommendedDimensions="1920×1080px"
-                    dimensionNote="Desktop banner image"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <FileUpload
-                    label="Banner Mobile Image"
-                    value={bannerMobileFile}
-                    onChange={setBannerMobileFile}
-                    accept="image/*"
-                    maxSize={5242880} // 5MB
-                    placeholder="Drop mobile banner image here"
-                    preview={true}
-                    recommendedDimensions="768×1024px"
-                    dimensionNote="Mobile banner image"
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="banner_media_desktop_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Banner Desktop Image</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          value={field.value}
+                          onChange={field.onChange}
+                          accept="image/*"
+                          maxSize={5242880} // 5MB
+                          placeholder="Drop desktop banner image here"
+                          preview={true}
+                          recommendedDimensions="1440×614px"
+                          dimensionNote="Desktop banner image"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="banner_media_mobile_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Banner Mobile Image</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          value={field.value}
+                          onChange={field.onChange}
+                          accept="image/*"
+                          maxSize={5242880} // 5MB
+                          placeholder="Drop mobile banner image here"
+                          preview={true}
+                          recommendedDimensions="768×1024px"
+                          dimensionNote="Mobile banner image"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <FormField
@@ -320,71 +323,92 @@ export default function AboutCmsForm() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="about_media_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>About Media Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select media type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="image">Image</SelectItem>
-                        <SelectItem value="video">Video</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <FileUpload
-                    label="About Desktop Media"
-                    value={aboutDesktopFile}
-                    onChange={setAboutDesktopFile}
-                    accept="image/*,video/*"
-                    maxSize={10485760} // 10MB
-                    placeholder="Drop desktop about media here"
-                    preview={true}
-                    recommendedDimensions="800×600px"
-                    dimensionNote="Desktop about media"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <FileUpload
-                    label="About Mobile Media"
-                    value={aboutMobileFile}
-                    onChange={setAboutMobileFile}
-                    accept="image/*,video/*"
-                    maxSize={10485760} // 10MB
-                    placeholder="Drop mobile about media here"
-                    preview={true}
-                    recommendedDimensions="400×300px"
-                    dimensionNote="Mobile about media"
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="about_media_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>About Media Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select media type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="image">Image</SelectItem>
+                          <SelectItem value="video">Video</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="about_media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>About Media Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter alt text for about media" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
-              <FormField
-                control={form.control}
-                name="about_media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>About Media Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter alt text for about media" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="about_media_desktop_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>About Desktop Media</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          value={field.value}
+                          onChange={field.onChange}
+                          accept="image/*,video/*"
+                          maxSize={10485760} // 10MB
+                          placeholder="Drop desktop about media here"
+                          preview={true}
+                          recommendedDimensions="1360×520px"
+                          dimensionNote="Desktop about media"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="about_media_mobile_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>About Mobile Media</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          value={field.value}
+                          onChange={field.onChange}
+                          accept="image/*,video/*"
+                          maxSize={10485760} // 10MB
+                          placeholder="Drop mobile about media here"
+                          preview={true}
+                          recommendedDimensions="400×300px"
+                          dimensionNote="Mobile about media"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
             </CardContent>
           </Card>
 
@@ -394,65 +418,78 @@ export default function AboutCmsForm() {
               <CardTitle>Learn More Section</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="learn_more_title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Learn More Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter learn more title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="learn_more_title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Learn More Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter learn more title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="learn_more_description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Learn More Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter learn more description..."
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="space-y-2">
-                <FileUpload
-                  label="Learn More Media"
-                  value={learnMoreFile}
-                  onChange={setLearnMoreFile}
-                  accept="image/*"
-                  maxSize={5242880} // 5MB
-                  placeholder="Drop learn more image here"
-                  preview={true}
-                  recommendedDimensions="600×400px"
-                  dimensionNote="Learn more section image"
+                <FormField
+                  control={form.control}
+                  name="learn_more_description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Learn More Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter learn more description..."
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="learn_more_media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Learn More Media Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter alt text for learn more media" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="learn_more_media_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Learn More Media</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          value={field.value}
+                          onChange={field.onChange}
+                          accept="image/*"
+                          maxSize={5242880} // 5MB
+                          placeholder="Drop learn more image here"
+                          preview={true}
+                          recommendedDimensions="588×471px"
+                          dimensionNote="Learn more section image"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="learn_more_media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Learn More Media Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter alt text for learn more media" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -704,33 +741,44 @@ export default function AboutCmsForm() {
                   />
                 </div>
                 
-                <div className="space-y-2">
-                  <FileUpload
-                    label="Team Media"
-                    value={meetTeamFile}
-                    onChange={setMeetTeamFile}
-                    accept="image/*"
-                    maxSize={5242880} // 5MB
-                    placeholder="Drop team image here"
-                    preview={true}
-                    recommendedDimensions="600×400px"
-                    dimensionNote="Team section image"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="meet_team_media_file"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Team Media</FormLabel>
+                        <FormControl>
+                          <FileUpload
+                            value={field.value}
+                            onChange={field.onChange}
+                            accept="image/*"
+                            maxSize={5242880} // 5MB
+                            placeholder="Drop team image here"
+                            preview={true}
+                            recommendedDimensions="1360×520px"
+                            dimensionNote="Team section image"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="meet_team_media_alt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Team Media Alt Text</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter alt text for team media" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-
-                <FormField
-                  control={form.control}
-                  name="meet_team_media_alt"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Team Media Alt Text</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter alt text for team media" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
               {/* Our Associates */}
