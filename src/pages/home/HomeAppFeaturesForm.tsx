@@ -68,7 +68,7 @@ export default function HomeAppFeaturesForm() {
 
       // Set file path if it exists
       if (data.icon) {
-        setIconFile(typeof data.icon === 'string' ? `${import.meta.env.VITE_URL}/${data.icon}` : data.icon);
+        setIconFile(data.icon);
       }
     } catch (error) {
       toast({
@@ -161,23 +161,6 @@ export default function HomeAppFeaturesForm() {
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="icon_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Icon Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter alt text for the icon" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Alt text for the feature icon (accessibility and SEO)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </CardContent>
           </Card>
 
@@ -186,17 +169,36 @@ export default function HomeAppFeaturesForm() {
               <CardTitle>Feature Icon</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <FileUpload
-                  label="Feature Icon"
-                  value={iconFile}
-                  onChange={setIconFile}
-                  accept="image/*"
-                  maxSize={2097152} // 2MB
-                  placeholder="Drop icon file here or click to browse"
-                  preview={true}
-                  recommendedDimensions="64×64px"
-                  dimensionNote="Optimal dimensions for feature icons"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <FileUpload
+                    label="Feature Icon"
+                    value={iconFile}
+                    onChange={setIconFile}
+                    accept="image/*"
+                    maxSize={2097152} // 2MB
+                    placeholder="Drop icon file here or click to browse"
+                    preview={true}
+                    recommendedDimensions="64×64px"
+                    dimensionNote="Optimal dimensions for feature icons"
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="icon_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Icon Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter alt text for the icon" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Alt text for the feature icon (accessibility and SEO)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
             </CardContent>

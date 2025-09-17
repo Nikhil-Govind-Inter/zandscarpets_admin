@@ -26,7 +26,7 @@ export interface HomeBannerSliderResponse {
   statusCode: number;
   timestamp: string;
   data: {
-    data: HomeBannerSlider[];
+    list: HomeBannerSlider[];
     pagination: {
       totalCount: number;
       totalPages: number;

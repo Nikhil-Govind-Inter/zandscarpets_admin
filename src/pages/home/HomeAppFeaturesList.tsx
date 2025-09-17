@@ -150,8 +150,8 @@ export default function HomeAppFeaturesList() {
           {row.original.icon ? (
             <div className="relative w-12 h-12 rounded border overflow-hidden">
               <img
-                src={typeof row.original.icon === 'string' ? `${import.meta.env.VITE_URL}/${row.original.icon}` : ''}
-                alt={row.original.icon_alt}
+                src={row.original.icon ? `${import.meta.env.VITE_IMAGE_URL}/${row.original.icon}` : "/placeholder.svg"}
+                alt={row.original.icon_alt || "Feature icon"}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/placeholder.svg";
@@ -170,17 +170,6 @@ export default function HomeAppFeaturesList() {
       cell: ({ row }) => (
         <div className="max-w-[200px]">
           <div className="font-medium">{truncateText(row.getValue("title"), 30)}</div>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "icon_alt",
-      header: "Icon Alt Text",
-      cell: ({ row }) => (
-        <div className="max-w-[150px]">
-          <div className="text-sm text-muted-foreground">
-            {truncateText(row.getValue("icon_alt"), 25)}
-          </div>
         </div>
       ),
     },
