@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -34,33 +35,45 @@ export default function InvestInGoecCmsForm() {
   const [initialLoading, setInitialLoading] = useState(true);
   
   // File states
-  const [investMediaFile, setInvestMediaFile] = useState<File | null>(null);
-  const [futureTransportMediaFile, setFutureTransportMediaFile] = useState<File | null>(null);
-  const [whyInvestMediaFile, setWhyInvestMediaFile] = useState<File | null>(null);
-  const [investInGoecMediaFile, setInvestInGoecMediaFile] = useState<File | null>(null);
-  
-  // Existing file paths
-  const [existingInvestMedia, setExistingInvestMedia] = useState<string>("");
-  const [existingFutureTransportMedia, setExistingFutureTransportMedia] = useState<string>("");
-  const [existingWhyInvestMedia, setExistingWhyInvestMedia] = useState<string>("");
-  const [existingInvestInGoecMedia, setExistingInvestInGoecMedia] = useState<string>("");
+  const [bannerDesktopFile, setBannerDesktopFile] = useState<File | string | null>(null);
+  const [bannerMobileFile, setBannerMobileFile] = useState<File | string | null>(null);
+  const [aboutDesktopFile, setAboutDesktopFile] = useState<File | string | null>(null);
+  const [aboutMobileFile, setAboutMobileFile] = useState<File | string | null>(null);
+  const [growthDesktopFile, setGrowthDesktopFile] = useState<File | string | null>(null);
+  const [growthMobileFile, setGrowthMobileFile] = useState<File | string | null>(null);
+  const [whyInvestDesktopFile, setWhyInvestDesktopFile] = useState<File | string | null>(null);
+  const [whyInvestMobileFile, setWhyInvestMobileFile] = useState<File | string | null>(null);
+  const [investInGoecMediaFile, setInvestInGoecMediaFile] = useState<File | string | null>(null);
+  const [investMediaFile, setInvestMediaFile] = useState<File | string | null>(null);
 
   const form = useForm<InvestInGoecCmsFormData>({
     resolver: zodResolver(investInGoecCmsSchema),
     defaultValues: {
       banner_title: "",
-      invest_media_alt: "",
-      invest_description: "",
-      future_transportation_title: "",
-      future_transportation_description: "",
-      future_transportation_media_alt: "",
-      business_model_title: "",
+      banner_media_desktop_file: null,
+      banner_media_mobile_file: null,
+      banner_media_alt: "",
+      about_description: "",
+      about_media_type: "image",
+      about_media_desktop_file: null,
+      about_media_mobile_file: null,
+      about_media_alt: "",
+      growth_title: "",
+      growth_description: "",
+      growth_media_desktop_file: null,
+      growth_media_mobile_file: null,
+      growth_media_alt: "",
+      explore_title: "",
       why_invest_title: "",
       why_invest_description: "",
+      why_invest_media_desktop_file: null,
+      why_invest_media_mobile_file: null,
       why_invest_media_alt: "",
       partners_title: "",
       invest_in_goec_title: "",
+      invest_in_goec_media_file: null,
       invest_in_goec_media_alt: "",
+      invest_media_file: null,
     },
   });
 
@@ -75,25 +88,44 @@ export default function InvestInGoecCmsForm() {
       const data = response.data;
 
       form.reset({
-        banner_title: data.banner_title,
-        invest_media_alt: data.invest_media_alt,
-        invest_description: data.invest_description,
-        future_transportation_title: data.future_transportation_title,
-        future_transportation_description: data.future_transportation_description,
-        future_transportation_media_alt: data.future_transportation_media_alt,
-        business_model_title: data.business_model_title,
-        why_invest_title: data.why_invest_title,
-        why_invest_description: data.why_invest_description,
-        why_invest_media_alt: data.why_invest_media_alt,
-        partners_title: data.partners_title,
-        invest_in_goec_title: data.invest_in_goec_title,
-        invest_in_goec_media_alt: data.invest_in_goec_media_alt,
+        banner_title: data.banner_title || "",
+        banner_media_desktop_file: null,
+        banner_media_mobile_file: null,
+        banner_media_alt: data.banner_media_alt || "",
+        about_description: data.about_description || "",
+        about_media_type: data.about_media_type || "image",
+        about_media_desktop_file: null,
+        about_media_mobile_file: null,
+        about_media_alt: data.about_media_alt || "",
+        growth_title: data.growth_title || "",
+        growth_description: data.growth_description || "",
+        growth_media_desktop_file: null,
+        growth_media_mobile_file: null,
+        growth_media_alt: data.growth_media_alt || "",
+        explore_title: data.explore_title || "",
+        why_invest_title: data.why_invest_title || "",
+        why_invest_description: data.why_invest_description || "",
+        why_invest_media_desktop_file: null,
+        why_invest_media_mobile_file: null,
+        why_invest_media_alt: data.why_invest_media_alt || "",
+        partners_title: data.partners_title || "",
+        invest_in_goec_title: data.invest_in_goec_title || "",
+        invest_in_goec_media_file: null,
+        invest_in_goec_media_alt: data.invest_in_goec_media_alt || "",
+        invest_media_file: null,
       });
 
-      setExistingInvestMedia(data.invest_media_path as string);
-      setExistingFutureTransportMedia(data.future_transportation_media_path as string);
-      setExistingWhyInvestMedia(data.why_invest_media_path as string);
-      setExistingInvestInGoecMedia(data.invest_in_goec_media_path as string);
+      // Set file paths
+      if (data.banner_media_desktop_path) setBannerDesktopFile(data.banner_media_desktop_path);
+      if (data.banner_media_mobile_path) setBannerMobileFile(data.banner_media_mobile_path);
+      if (data.about_media_desktop_path) setAboutDesktopFile(data.about_media_desktop_path);
+      if (data.about_media_mobile_path) setAboutMobileFile(data.about_media_mobile_path);
+      if (data.growth_media_desktop_path) setGrowthDesktopFile(data.growth_media_desktop_path);
+      if (data.growth_media_mobile_path) setGrowthMobileFile(data.growth_media_mobile_path);
+      if (data.why_invest_media_desktop_path) setWhyInvestDesktopFile(data.why_invest_media_desktop_path);
+      if (data.why_invest_media_mobile_path) setWhyInvestMobileFile(data.why_invest_media_mobile_path);
+      if (data.invest_in_goec_media_path) setInvestInGoecMediaFile(data.invest_in_goec_media_path);
+      if (data.invest_media_path) setInvestMediaFile(data.invest_media_path);
     } catch (error) {
       toast({
         title: "Error",
@@ -105,25 +137,6 @@ export default function InvestInGoecCmsForm() {
     }
   };
 
-  const handleInvestMediaSelect = (file: File | null) => {
-    setInvestMediaFile(file);
-    form.setValue("invest_media_file", file);
-  };
-
-  const handleFutureTransportMediaSelect = (file: File | null) => {
-    setFutureTransportMediaFile(file);
-    form.setValue("future_transportation_media_file", file);
-  };
-
-  const handleWhyInvestMediaSelect = (file: File | null) => {
-    setWhyInvestMediaFile(file);
-    form.setValue("why_invest_media_file", file);
-  };
-
-  const handleInvestInGoecMediaSelect = (file: File | null) => {
-    setInvestInGoecMediaFile(file);
-    form.setValue("invest_in_goec_media_file", file);
-  };
 
   const onSubmit = async (data: InvestInGoecCmsFormData) => {
     try {
@@ -131,22 +144,30 @@ export default function InvestInGoecCmsForm() {
 
       const submitData = {
         banner_title: data.banner_title,
-        invest_media_file: investMediaFile,
-        invest_media_alt: data.invest_media_alt || "",
-        invest_description: data.invest_description,
-        future_transportation_title: data.future_transportation_title,
-        future_transportation_description: data.future_transportation_description,
-        future_transportation_media_file: futureTransportMediaFile,
-        future_transportation_media_alt: data.future_transportation_media_alt || "",
-        business_model_title: data.business_model_title,
+        banner_media_desktop_file: bannerDesktopFile instanceof File ? bannerDesktopFile : undefined,
+        banner_media_mobile_file: bannerMobileFile instanceof File ? bannerMobileFile : undefined,
+        banner_media_alt: data.banner_media_alt || "",
+        about_description: data.about_description,
+        about_media_type: data.about_media_type,
+        about_media_desktop_file: aboutDesktopFile instanceof File ? aboutDesktopFile : undefined,
+        about_media_mobile_file: aboutMobileFile instanceof File ? aboutMobileFile : undefined,
+        about_media_alt: data.about_media_alt || "",
+        growth_title: data.growth_title,
+        growth_description: data.growth_description,
+        growth_media_desktop_file: growthDesktopFile instanceof File ? growthDesktopFile : undefined,
+        growth_media_mobile_file: growthMobileFile instanceof File ? growthMobileFile : undefined,
+        growth_media_alt: data.growth_media_alt || "",
+        explore_title: data.explore_title,
         why_invest_title: data.why_invest_title,
         why_invest_description: data.why_invest_description,
-        why_invest_media_file: whyInvestMediaFile,
+        why_invest_media_desktop_file: whyInvestDesktopFile instanceof File ? whyInvestDesktopFile : undefined,
+        why_invest_media_mobile_file: whyInvestMobileFile instanceof File ? whyInvestMobileFile : undefined,
         why_invest_media_alt: data.why_invest_media_alt || "",
         partners_title: data.partners_title,
         invest_in_goec_title: data.invest_in_goec_title,
-        invest_in_goec_media_file: investInGoecMediaFile,
+        invest_in_goec_media_file: investInGoecMediaFile instanceof File ? investInGoecMediaFile : undefined,
         invest_in_goec_media_alt: data.invest_in_goec_media_alt || "",
+        invest_media_file: investMediaFile instanceof File ? investMediaFile : undefined,
       };
 
       await updateInvestInGoecCms(submitData);
@@ -219,75 +240,65 @@ export default function InvestInGoecCmsForm() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="invest_description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Investment Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Describe the investment opportunity..."
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Detailed description of the investment opportunity
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="invest_media_file"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Banner Image</FormLabel>
-                    <FormControl>
-                      <div className="space-y-4">
-                        {existingInvestMedia && !investMediaFile && (
-                          <div className="relative inline-block">
-                            <img
-                              src={`http://localhost:3000/${existingInvestMedia}`}
-                              alt="Current banner"
-                              className="max-w-xs h-32 object-cover rounded-lg border"
-                            />
-                            <div className="mt-2 text-sm text-muted-foreground">
-                              Current banner image
-                            </div>
-                          </div>
-                        )}
-                        
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="banner_media_desktop_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Banner Desktop Image</FormLabel>
+                      <FormControl>
                         <FileUpload
+                          value={bannerDesktopFile}
+                          onChange={setBannerDesktopFile}
                           accept="image/*"
-                          onFileSelect={handleInvestMediaSelect}
-                          selectedFile={investMediaFile}
-                          placeholder="Upload banner image"
+                          maxSize={5242880} // 5MB
+                          placeholder="Drop desktop banner image here"
+                          preview={true}
+                          recommendedDimensions="1440×614px"
+                          dimensionNote="Desktop banner image"
                         />
-                      </div>
-                    </FormControl>
-                    <FormDescription>
-                      Upload an image for the investment banner
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="banner_media_mobile_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Banner Mobile Image</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          value={bannerMobileFile}
+                          onChange={setBannerMobileFile}
+                          accept="image/*"
+                          maxSize={5242880} // 5MB
+                          placeholder="Drop mobile banner image here"
+                          preview={true}
+                          recommendedDimensions="768×1024px"
+                          dimensionNote="Mobile banner image"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
-                name="invest_media_alt"
+                name="banner_media_alt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Banner Image Alt Text</FormLabel>
+                    <FormLabel>Banner Media Alt Text</FormLabel>
                     <FormControl>
-                      <Input placeholder="Describe the banner image" {...field} />
+                      <Input placeholder="Enter alt text for banner media" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Alternative text for the banner image
+                      Alternative text for banner images
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -296,102 +307,218 @@ export default function InvestInGoecCmsForm() {
             </CardContent>
           </Card>
 
-          {/* Future Transportation Section */}
+          {/* About Section */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Car className="h-5 w-5" />
-                Future Transportation Section
-              </CardTitle>
+              <CardTitle>About Section</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
                 control={form.control}
-                name="future_transportation_title"
+                name="about_description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Section Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter future transportation title" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Title for the future transportation section
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="future_transportation_description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section Description</FormLabel>
+                    <FormLabel>About Description</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Describe the future of transportation..."
-                        className="min-h-[80px]"
+                        placeholder="Enter about description..."
+                        className="min-h-[120px]"
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription>
-                      Description for the future transportation section
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="future_transportation_media_file"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section Image</FormLabel>
-                    <FormControl>
-                      <div className="space-y-4">
-                        {existingFutureTransportMedia && !futureTransportMediaFile && (
-                          <div className="relative inline-block">
-                            <img
-                              src={`http://localhost:3000/${existingFutureTransportMedia}`}
-                              alt="Current transportation"
-                              className="max-w-xs h-32 object-cover rounded-lg border"
-                            />
-                            <div className="mt-2 text-sm text-muted-foreground">
-                              Current transportation image
-                            </div>
-                          </div>
-                        )}
-                        
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="about_media_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>About Media Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select media type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="image">Image</SelectItem>
+                          <SelectItem value="video">Video</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="about_media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>About Media Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter alt text for about media" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="about_media_desktop_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>About Desktop Media</FormLabel>
+                      <FormControl>
                         <FileUpload
-                          accept="image/*"
-                          onFileSelect={handleFutureTransportMediaSelect}
-                          selectedFile={futureTransportMediaFile}
-                          placeholder="Upload transportation image"
+                          value={aboutDesktopFile}
+                          onChange={setAboutDesktopFile}
+                          accept="image/*,video/*"
+                          maxSize={10485760} // 10MB
+                          placeholder="Drop desktop about media here"
+                          preview={true}
+                          recommendedDimensions="800×600px"
+                          dimensionNote="Desktop about media"
                         />
-                      </div>
-                    </FormControl>
-                    <FormDescription>
-                      Upload an image for the future transportation section
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="about_media_mobile_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>About Mobile Media</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          value={aboutMobileFile}
+                          onChange={setAboutMobileFile}
+                          accept="image/*,video/*"
+                          maxSize={10485760} // 10MB
+                          placeholder="Drop mobile about media here"
+                          preview={true}
+                          recommendedDimensions="400×300px"
+                          dimensionNote="Mobile about media"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Growth Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Growth Section
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="growth_title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Growth Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter growth title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="growth_description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Growth Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter growth description..."
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="growth_media_desktop_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Growth Desktop Media</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          value={growthDesktopFile}
+                          onChange={setGrowthDesktopFile}
+                          accept="image/*"
+                          maxSize={5242880} // 5MB
+                          placeholder="Drop desktop growth media here"
+                          preview={true}
+                          recommendedDimensions="600×400px"
+                          dimensionNote="Desktop growth media"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="growth_media_mobile_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Growth Mobile Media</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          value={growthMobileFile}
+                          onChange={setGrowthMobileFile}
+                          accept="image/*"
+                          maxSize={5242880} // 5MB
+                          placeholder="Drop mobile growth media here"
+                          preview={true}
+                          recommendedDimensions="400×300px"
+                          dimensionNote="Mobile growth media"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
-                name="future_transportation_media_alt"
+                name="growth_media_alt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Transportation Image Alt Text</FormLabel>
+                    <FormLabel>Growth Media Alt Text</FormLabel>
                     <FormControl>
-                      <Input placeholder="Describe the transportation image" {...field} />
+                      <Input placeholder="Enter alt text for growth media" {...field} />
                     </FormControl>
-                    <FormDescription>
-                      Alternative text for the transportation image
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -399,33 +526,28 @@ export default function InvestInGoecCmsForm() {
             </CardContent>
           </Card>
 
-          {/* Business Model Section */}
+          {/* Explore Section */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building className="h-5 w-5" />
-                Business Model Section
-              </CardTitle>
+              <CardTitle>Explore Section</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
                 control={form.control}
-                name="business_model_title"
+                name="explore_title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Business Model Title</FormLabel>
+                    <FormLabel>Explore Title</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter business model title" {...field} />
+                      <Input placeholder="Enter explore title" {...field} />
                     </FormControl>
-                    <FormDescription>
-                      Title for the business model section
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </CardContent>
           </Card>
+
 
           {/* Why Invest Section */}
           <Card>
@@ -436,93 +558,100 @@ export default function InvestInGoecCmsForm() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="why_invest_title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter why invest title" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Title for the why invest section
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="why_invest_title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Section Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter why invest title" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Title for the why invest section
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="why_invest_description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Explain why to invest..."
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Description for the why invest section
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="why_invest_media_file"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section Image</FormLabel>
-                    <FormControl>
-                      <div className="space-y-4">
-                        {existingWhyInvestMedia && !whyInvestMediaFile && (
-                          <div className="relative inline-block">
-                            <img
-                              src={`http://localhost:3000/${existingWhyInvestMedia}`}
-                              alt="Current why invest"
-                              className="max-w-xs h-32 object-cover rounded-lg border"
-                            />
-                            <div className="mt-2 text-sm text-muted-foreground">
-                              Current why invest image
-                            </div>
-                          </div>
-                        )}
-                        
-                        <FileUpload
-                          accept="image/*"
-                          onFileSelect={handleWhyInvestMediaSelect}
-                          selectedFile={whyInvestMediaFile}
-                          placeholder="Upload why invest image"
+                <FormField
+                  control={form.control}
+                  name="why_invest_description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Why Invest Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Explain why to invest..."
+                          className="min-h-[100px]"
+                          {...field}
                         />
-                      </div>
-                    </FormControl>
-                    <FormDescription>
-                      Upload an image for the why invest section
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="why_invest_media_desktop_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Why Invest Desktop Media</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          value={whyInvestDesktopFile}
+                          onChange={setWhyInvestDesktopFile}
+                          accept="image/*"
+                          maxSize={5242880} // 5MB
+                          placeholder="Drop desktop why invest media here"
+                          preview={true}
+                          recommendedDimensions="600×400px"
+                          dimensionNote="Desktop why invest media"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="why_invest_media_mobile_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Why Invest Mobile Media</FormLabel>
+                      <FormControl>
+                        <FileUpload
+                          value={whyInvestMobileFile}
+                          onChange={setWhyInvestMobileFile}
+                          accept="image/*"
+                          maxSize={5242880} // 5MB
+                          placeholder="Drop mobile why invest media here"
+                          preview={true}
+                          recommendedDimensions="400×300px"
+                          dimensionNote="Mobile why invest media"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
                 name="why_invest_media_alt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Why Invest Image Alt Text</FormLabel>
+                    <FormLabel>Why Invest Media Alt Text</FormLabel>
                     <FormControl>
-                      <Input placeholder="Describe the why invest image" {...field} />
+                      <Input placeholder="Enter alt text for why invest media" {...field} />
                     </FormControl>
-                    <FormDescription>
-                      Alternative text for the why invest image
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -563,7 +692,7 @@ export default function InvestInGoecCmsForm() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                Final Call-to-Action Section
+                Invest to GoEc
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -584,59 +713,44 @@ export default function InvestInGoecCmsForm() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="invest_in_goec_media_file"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>CTA Image</FormLabel>
-                    <FormControl>
-                      <div className="space-y-4">
-                        {existingInvestInGoecMedia && !investInGoecMediaFile && (
-                          <div className="relative inline-block">
-                            <img
-                              src={`http://localhost:3000/${existingInvestInGoecMedia}`}
-                              alt="Current CTA"
-                              className="max-w-xs h-32 object-cover rounded-lg border"
-                            />
-                            <div className="mt-2 text-sm text-muted-foreground">
-                              Current CTA image
-                            </div>
-                          </div>
-                        )}
-                        
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="invest_in_goec_media_file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Invest in GO EC Media</FormLabel>
+                      <FormControl>
                         <FileUpload
+                          value={investInGoecMediaFile}
+                          onChange={setInvestInGoecMediaFile}
                           accept="image/*"
-                          onFileSelect={handleInvestInGoecMediaSelect}
-                          selectedFile={investInGoecMediaFile}
-                          placeholder="Upload CTA image"
+                          maxSize={5242880} // 5MB
+                          placeholder="Drop invest in GO EC media here"
+                          preview={true}
+                          recommendedDimensions="600×400px"
+                          dimensionNote="Invest in GO EC media"
                         />
-                      </div>
-                    </FormControl>
-                    <FormDescription>
-                      Upload an image for the final call-to-action
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="invest_in_goec_media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>CTA Image Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Describe the CTA image" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Alternative text for the CTA image
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="invest_in_goec_media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Invest in GO EC Media Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter alt text for invest in GO EC media" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 
