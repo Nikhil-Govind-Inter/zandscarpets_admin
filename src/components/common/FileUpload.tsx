@@ -153,15 +153,15 @@ export function FileUpload({
         return value; // Already complete URL, use as-is
       }
 
-      // It's a relative path, prepend VITE_URL
-      const baseUrl = import.meta.env.VITE_URL;
+      // It's a relative path, prepend VITE_IMAGE_URL
+      const baseUrl = import.meta.env.VITE_IMAGE_URL;
       if (baseUrl) {
         // Remove leading slash from value to avoid double slashes
         const cleanPath = value.replace(/^\//, "");
         return `${baseUrl}/${cleanPath}`;
       }
 
-      // Fallback: return original value if VITE_URL is not set
+      // Fallback: return original value if VITE_IMAGE_URL is not set
       return value;
     }
 
