@@ -78,7 +78,7 @@ export default function HomeMapForm() {
 
       // Set file path if it exists
       if (data.media_path) {
-        setMediaFile(typeof data.media_path === 'string' ? `${import.meta.env.VITE_URL}/${data.media_path}` : data.media_path);
+        setMediaFile(data.media_path);
       }
     } catch (error) {
       toast({
@@ -156,51 +156,27 @@ export default function HomeMapForm() {
               <CardTitle>Timeline Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="year"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Year</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="2024"
-                          {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        The year this event occurred
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="sort_order"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sort Order</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="1"
-                          {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Lower numbers appear first
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="year"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Year</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="2024"
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      The year this event occurred
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -230,36 +206,38 @@ export default function HomeMapForm() {
               <CardTitle>Media</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <FileUpload
-                  label="Timeline Media"
-                  value={mediaFile}
-                  onChange={setMediaFile}
-                  accept="image/*"
-                  maxSize={5242880} // 5MB
-                  placeholder="Drop image file here or click to browse"
-                  preview={true}
-                  recommendedDimensions="800×600px"
-                  dimensionNote="Optimal dimensions for timeline display"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <FileUpload
+                    label="Timeline Media"
+                    value={mediaFile}
+                    onChange={setMediaFile}
+                    accept="image/*"
+                    maxSize={5242880} // 5MB
+                    placeholder="Drop image file here or click to browse"
+                    preview={true}
+                    recommendedDimensions="800×600px"
+                    dimensionNote="Optimal dimensions for timeline display"
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter alt text for media" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Alt text for accessibility and SEO
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-
-              <FormField
-                control={form.control}
-                name="media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter alt text for media" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Alt text for accessibility and SEO
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </CardContent>
           </Card>
 
@@ -267,27 +245,51 @@ export default function HomeMapForm() {
             <CardHeader>
               <CardTitle>Settings</CardTitle>
             </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Status</FormLabel>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="sort_order"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sort Order</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="1"
+                          {...field}
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                        />
+                      </FormControl>
                       <FormDescription>
-                        Enable or disable this timeline entry
+                        Lower numbers appear first
                       </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Status</FormLabel>
+                        <FormDescription>
+                          Enable or disable this timeline entry
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 

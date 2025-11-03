@@ -150,8 +150,8 @@ export default function HomeMapList() {
           {row.original.media_path ? (
             <div className="relative w-16 h-12 rounded border overflow-hidden">
               <img
-                src={typeof row.original.media_path === 'string' ? `${import.meta.env.VITE_URL}/${row.original.media_path}` : ''}
-                alt={row.original.media_alt}
+                src={row.original.media_path ? `${import.meta.env.VITE_IMAGE_URL}/${row.original.media_path}` : "/placeholder.svg"}
+                alt={row.original.media_alt || "Map image"}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/placeholder.svg";

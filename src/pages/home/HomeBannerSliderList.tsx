@@ -85,8 +85,8 @@ export default function HomeBannerSliderList() {
         pageSize,
         debouncedSearchQuery.trim() || undefined
       );
-      setSliders(response.data.data);
-      setTotalCount(response.data.pagination.totalCount);
+      setSliders(response.data?.list || []);
+      setTotalCount(response.data?.pagination?.totalCount || 0);
     } catch (error) {
       toast({
         title: "Error",
@@ -156,7 +156,7 @@ export default function HomeBannerSliderList() {
                 </div>
               ) : (
                 <img
-                  src={typeof row.original.media_desktop_path === 'string' ? `${import.meta.env.VITE_URL}/${row.original.media_desktop_path}` : ''}
+                  src={typeof row.original.media_desktop_path === 'string' ? `${import.meta.env.VITE_IMAGE_URL}/${row.original.media_desktop_path}` : ''}
                   alt={row.original.media_alt}
                   className="w-full h-full object-cover"
                   onError={(e) => {

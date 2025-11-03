@@ -146,40 +146,8 @@ export default function HomeInvestmentList() {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
-        <div className="max-w-[200px]">
-          <div className="font-medium">{truncateText(row.getValue("title"), 30)}</div>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "subtitle",
-      header: "Subtitle",
-      cell: ({ row }) => (
-        <div className="max-w-[250px]">
-          <div className="text-sm text-muted-foreground">
-            {truncateText(row.getValue("subtitle"), 50)}
-          </div>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "description",
-      header: "Description",
-      cell: ({ row }) => (
         <div className="max-w-[300px]">
-          <div className="text-sm text-muted-foreground">
-            {truncateText(row.getValue("description"), 60)}
-          </div>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "button_text",
-      header: "Button",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2 max-w-[150px]">
-          <span className="text-sm">{truncateText(row.getValue("button_text"), 15)}</span>
-          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+          <div className="font-medium">{truncateText(row.getValue("title"), 50)}</div>
         </div>
       ),
     },

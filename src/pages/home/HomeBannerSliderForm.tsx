@@ -5,6 +5,7 @@ import * as z from "zod";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -32,17 +33,31 @@ import {
 } from "@/services/home/homeBannerSliderApi";
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
+  title: z.string()
+    .min(1, "Title is required")
+    .max(5000, "Title must not exceed 5000 characters"),
+  description: z.string()
+    .min(1, "Description is required")
+    .max(10000, "Description must not exceed 10000 characters"),
   media_type: z.enum(["image", "video"], {
     required_error: "Please select a media type",
   }),
-  media_alt: z.string().min(1, "Media alt text is required"),
-  button_text_one: z.string().min(1, "Button one text is required"),
-  button_text_one_link: z.string().url("Please enter a valid URL"),
-  button_text_two: z.string().min(1, "Button two text is required"),
-  button_text_two_link: z.string().url("Please enter a valid URL"),
-  sort_order: z.number().min(1, "Sort order must be at least 1"),
+  media_alt: z.string()
+    .min(1, "Media alt text is required")
+    .max(255, "Alt text must not exceed 255 characters"),
+  button_text_one: z.string()
+    .min(1, "Button one text is required")
+    .max(255, "Button one text must not exceed 255 characters"),
+  button_text_one_link: z.string()
+    .url("Please enter a valid URL")
+    .max(5000, "Button one link must not exceed 5000 characters"),
+  button_text_two: z.string()
+    .min(1, "Button two text is required")
+    .max(255, "Button two text must not exceed 255 characters"),
+  button_text_two_link: z.string()
+    .url("Please enter a valid URL")
+    .max(5000, "Button two link must not exceed 5000 characters"),
+  sort_order: z.number().min(0, "Sort order must be 0 or greater"),
   status: z.boolean(),
 });
 
@@ -104,10 +119,10 @@ export default function HomeBannerSliderForm() {
 
       // Set file paths if they exist
       if (data.media_desktop_path) {
-        setMediaDesktopFile(typeof data.media_desktop_path === 'string' ? `${import.meta.env.VITE_URL}/${data.media_desktop_path}` : data.media_desktop_path);
+        setMediaDesktopFile(data.media_desktop_path);
       }
       if (data.media_mobile_path) {
-        setMediaMobileFile(typeof data.media_mobile_path === 'string' ? `${import.meta.env.VITE_URL}/${data.media_mobile_path}` : data.media_mobile_path);
+        setMediaMobileFile(data.media_mobile_path);
       }
     } catch (error) {
       toast({
@@ -191,33 +206,35 @@ export default function HomeBannerSliderForm() {
               <CardTitle>Banner Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Banner Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter banner title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Banner Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter banner title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Banner Description</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter banner description" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Banner Description</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Enter banner description" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -288,7 +305,90 @@ export default function HomeBannerSliderForm() {
             </CardContent>
           </Card>
 
+        
+
           <Card>
+            <CardHeader>
+              <CardTitle>Media Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="media_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Media Type</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select media type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="image">Image</SelectItem>
+                          <SelectItem value="video">Video</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter alt text for media" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Alt text for accessibility and SEO
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <FileUpload
+                    label="Desktop Media"
+                    value={mediaDesktopFile}
+                    onChange={setMediaDesktopFile}
+                    accept={watchMediaType === "image" ? "image/*" : "video/*"}
+                    maxSize={5242880} // 5MB
+                    placeholder={`Drop desktop ${watchMediaType} file here or click to browse`}
+                    preview={true}
+                    recommendedDimensions="1440×900px"
+                    dimensionNote="Optimal banner dimensions for desktop display"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <FileUpload
+                    label="Mobile Media"
+                    value={mediaMobileFile}
+                    onChange={setMediaMobileFile}
+                    accept={watchMediaType === "image" ? "image/*" : "video/*"}
+                    maxSize={5242880} // 5MB
+                    placeholder={`Drop mobile ${watchMediaType} file here or click to browse`}
+                    preview={true}
+                    recommendedDimensions="900×1440px"
+                    dimensionNote="Optimal banner dimensions for mobile display"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+            <Card>
             <CardHeader>
               <CardTitle>Settings</CardTitle>
             </CardHeader>
@@ -337,87 +437,6 @@ export default function HomeBannerSliderForm() {
                   )}
                 />
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Media Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="media_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Media Type</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select media type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="image">Image</SelectItem>
-                        <SelectItem value="video">Video</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <FileUpload
-                    label="Desktop Media"
-                    value={mediaDesktopFile}
-                    onChange={setMediaDesktopFile}
-                    accept={watchMediaType === "image" ? "image/*" : "video/*"}
-                    maxSize={5242880} // 5MB
-                    placeholder={`Drop desktop ${watchMediaType} file here or click to browse`}
-                    preview={true}
-                    recommendedDimensions="1440×900px"
-                    dimensionNote="Optimal banner dimensions for desktop display"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <FileUpload
-                    label="Mobile Media"
-                    value={mediaMobileFile}
-                    onChange={setMediaMobileFile}
-                    accept={watchMediaType === "image" ? "image/*" : "video/*"}
-                    maxSize={5242880} // 5MB
-                    placeholder={`Drop mobile ${watchMediaType} file here or click to browse`}
-                    preview={true}
-                    recommendedDimensions="1440×900px"
-                    dimensionNote="Optimal banner dimensions for mobile display"
-                  />
-                </div>
-              </div>
-              <FormField
-                control={form.control}
-                name="media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter alt text for media" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Alt text for accessibility and SEO
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <p className="text-sm text-muted-foreground">
-                Upload {watchMediaType} for banner slider (Max: 5MB). Recommended dimensions: 1440×810 pixels.
-              </p>
             </CardContent>
           </Card>
 

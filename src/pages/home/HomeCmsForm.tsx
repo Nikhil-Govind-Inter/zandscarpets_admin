@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileUpload } from "@/components/common/FileUpload";
 import { Save } from "lucide-react";
@@ -266,7 +267,7 @@ export default function HomeCmsForm() {
                           onChange={field.onChange}
                           accept="image/*"
                           placeholder="Upload mobile image"
-                          recommendedDimensions="1360×700px"
+                          recommendedDimensions="700×1360px"
                           dimensionNote="Make every ride section mobile image"
                         />
                       </FormControl>
@@ -276,19 +277,43 @@ export default function HomeCmsForm() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="make_ride_media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter image alt text" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="make_ride_media_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Media Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select media type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="image">Image</SelectItem>
+                          <SelectItem value="video">Video</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="make_ride_media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter image alt text" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -326,31 +351,6 @@ export default function HomeCmsForm() {
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Explore Section Image</label>
-                  <FileUpload
-                    value={null}
-                    onChange={() => {}}
-                    accept="image/*"
-                    placeholder="Upload explore section image"
-                    recommendedDimensions="673×520px"
-                    dimensionNote="Explore section display image"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Map Image</label>
-                  <FileUpload
-                    value={null}
-                    onChange={() => {}}
-                    accept="image/*"
-                    placeholder="Upload map image"
-                    recommendedDimensions="570×640px"
-                    dimensionNote="Interactive map or location image"
-                  />
-                </div>
-              </div>
             </CardContent>
           </Card>
 
@@ -448,19 +448,43 @@ export default function HomeCmsForm() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="app_feature_media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter image alt text" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="app_feature_media_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Media Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select media type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="image">Image</SelectItem>
+                          <SelectItem value="video">Video</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="app_feature_media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter image alt text" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -518,7 +542,7 @@ export default function HomeCmsForm() {
                           onChange={field.onChange}
                           accept="image/*"
                           placeholder="Upload mobile image"
-                          recommendedDimensions="1360×260px"
+                          recommendedDimensions="700×400px"
                           dimensionNote="Invest in India's fast-growing electric vehicle infrastructure section mobile image"
                         />
                       </FormControl>
@@ -528,19 +552,43 @@ export default function HomeCmsForm() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="investment_media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter image alt text" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="investment_media_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Media Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select media type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="image">Image</SelectItem>
+                          <SelectItem value="video">Video</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="investment_media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter image alt text" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 

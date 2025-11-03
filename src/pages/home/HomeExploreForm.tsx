@@ -26,12 +26,22 @@ import {
 } from "@/services/home/homeExploreApi";
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  button_text: z.string().min(1, "Button text is required"),
-  button_text_link: z.string().url("Please enter a valid URL"),
-  media_alt: z.string().min(1, "Media alt text is required"),
-  sort_order: z.number().min(1, "Sort order must be at least 1"),
+  title: z.string()
+    .min(1, "Title is required")
+    .max(5000, "Title must not exceed 5000 characters"),
+  description: z.string()
+    .min(1, "Description is required")
+    .max(10000, "Description must not exceed 10000 characters"),
+  button_text: z.string()
+    .min(1, "Button text is required")
+    .max(255, "Button text must not exceed 255 characters"),
+  button_text_link: z.string()
+    .url("Please enter a valid URL")
+    .max(5000, "Button link must not exceed 5000 characters"),
+  media_alt: z.string()
+    .min(1, "Media alt text is required")
+    .max(255, "Alt text must not exceed 255 characters"),
+  sort_order: z.number().min(0, "Sort order must be 0 or greater"),
   status: z.boolean(),
 });
 
@@ -84,7 +94,7 @@ export default function HomeExploreForm() {
 
       // Set file path if it exists
       if (data.media_path) {
-        setMediaFile(typeof data.media_path === 'string' ? `${import.meta.env.VITE_URL}/${data.media_path}` : data.media_path);
+        setMediaFile(data.media_path);
       }
     } catch (error) {
       toast({
@@ -164,43 +174,45 @@ export default function HomeExploreForm() {
               <CardTitle>Expertise Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter expertise title" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      The main title for this expertise area
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter expertise title" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        The main title for this expertise area
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter detailed description of this expertise..."
-                        className="min-h-[120px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      A detailed description of this expertise area
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter detailed description of this expertise..."
+                          className="min-h-[120px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        A detailed description of this expertise area
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -252,36 +264,38 @@ export default function HomeExploreForm() {
               <CardTitle>Media</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <FileUpload
-                  label="Expertise Media"
-                  value={mediaFile}
-                  onChange={setMediaFile}
-                  accept="image/*"
-                  maxSize={5242880} // 5MB
-                  placeholder="Drop image file here or click to browse"
-                  preview={true}
-                  recommendedDimensions="600×400px"
-                  dimensionNote="Optimal dimensions for expertise showcase"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <FileUpload
+                    label="Expertise Media"
+                    value={mediaFile}
+                    onChange={setMediaFile}
+                    accept="image/*"
+                    maxSize={5242880} // 5MB
+                    placeholder="Drop image file here or click to browse"
+                    preview={true}
+                    recommendedDimensions="600×400px"
+                    dimensionNote="Optimal dimensions for expertise showcase"
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter alt text for media" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Alt text for accessibility and SEO
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-
-              <FormField
-                control={form.control}
-                name="media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter alt text for media" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Alt text for accessibility and SEO
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </CardContent>
           </Card>
 

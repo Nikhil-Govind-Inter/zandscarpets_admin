@@ -150,8 +150,8 @@ export default function HomeExploreList() {
           {row.original.media_path ? (
             <div className="relative w-16 h-12 rounded border overflow-hidden">
               <img
-                src={typeof row.original.media_path === 'string' ? `${import.meta.env.VITE_URL}/${row.original.media_path}` : ''}
-                alt={row.original.media_alt}
+                src={row.original.media_path ? `${import.meta.env.VITE_IMAGE_URL}/${row.original.media_path}` : "/placeholder.svg"}
+                alt={row.original.media_alt || "Explore image"}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/placeholder.svg";
@@ -168,29 +168,8 @@ export default function HomeExploreList() {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
-        <div className="max-w-[200px]">
-          <div className="font-medium">{truncateText(row.getValue("title"), 30)}</div>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "description",
-      header: "Description",
-      cell: ({ row }) => (
-        <div className="max-w-[250px]">
-          <div className="text-sm text-muted-foreground">
-            {truncateText(row.getValue("description"), 50)}
-          </div>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "button_text",
-      header: "Button",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <span className="text-sm">{row.getValue("button_text")}</span>
-          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+        <div className="max-w-[300px]">
+          <div className="font-medium">{truncateText(row.getValue("title"), 50)}</div>
         </div>
       ),
     },
@@ -210,20 +189,6 @@ export default function HomeExploreList() {
           <Badge variant={status ? "default" : "secondary"}>
             {status ? "Active" : "Inactive"}
           </Badge>
-        );
-      },
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Created",
-      cell: ({ row }) => {
-        const date = row.getValue("createdAt") as string;
-        return date ? (
-          <div className="text-sm text-muted-foreground">
-            {formatDate(date)}
-          </div>
-        ) : (
-          "-"
         );
       },
     },
