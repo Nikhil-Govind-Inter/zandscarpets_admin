@@ -260,7 +260,7 @@ export default function InvestInGoecExploreList() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() => navigate(`/invest-in-goec-explore/edit/${item.id}`)}
+                onClick={() => navigate(`/invest-in-zandcarpets-explore/edit/${item.id}`)}
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
@@ -308,7 +308,7 @@ export default function InvestInGoecExploreList() {
         data={exploreItems}
         title=""
         searchPlaceholder="Search explore items..."
-        onAdd={() => navigate("/invest-in-goec-explore/create")}
+        onAdd={() => navigate("/invest-in-zandcarpets-explore/create")}
         addButtonText="Add Explore Item"
         loading={loading}
         searching={searching}

@@ -43,7 +43,7 @@ export interface InvestInGoecCmsResponse {
 // Fetch Invest in GO EC CMS data
 export const fetchInvestInGoecCms = async (): Promise<InvestInGoecCmsResponse> => {
   const response = await fetch(
-    `${API_BASE_URL}/backend/investingoec/invest-in-goec-cms`,
+    `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-cms`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -140,7 +140,7 @@ export const updateInvestInGoecCms = async (
   }
 
   const response = await fetch(
-    `${API_BASE_URL}/backend/investingoec/invest-in-goec-cms`,
+    `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-cms`,
     {
       method: "POST",
       headers: {

@@ -241,7 +241,7 @@ export default function InvestInGoecMilestoneList() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() => navigate(`/invest-in-goec-milestone/edit/${item.id}`)}
+                onClick={() => navigate(`/invest-in-zandcarpets-milestone/edit/${item.id}`)}
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
@@ -289,7 +289,7 @@ export default function InvestInGoecMilestoneList() {
         data={milestoneItems}
         title=""
         searchPlaceholder="Search milestones..."
-        onAdd={() => navigate("/invest-in-goec-milestone/create")}
+        onAdd={() => navigate("/invest-in-zandcarpets-milestone/create")}
         addButtonText="Add Milestone"
         loading={loading}
         searching={searching}

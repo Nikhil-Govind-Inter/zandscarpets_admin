@@ -75,7 +75,7 @@ export default function InvestInGoecFeaturesForm() {
         description: "Failed to load features data",
         variant: "destructive",
       });
-      navigate("/invest-in-goec-features");
+      navigate("/invest-in-zandcarpets-features");
     } finally {
       setInitialLoading(false);
     }
@@ -105,7 +105,7 @@ export default function InvestInGoecFeaturesForm() {
         description: `Feature ${isEditMode ? "updated" : "created"} successfully`,
       });
 
-      navigate("/invest-in-goec-features");
+      navigate("/invest-in-zandcarpets-features");
     } catch (error) {
       toast({
         title: "Error",
@@ -128,7 +128,7 @@ export default function InvestInGoecFeaturesForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/invest-in-goec-features")}>
+        <Button variant="outline" size="icon" onClick={() => navigate("/invest-in-zandcarpets-features")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
@@ -296,7 +296,7 @@ export default function InvestInGoecFeaturesForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/invest-in-goec-features")}
+              onClick={() => navigate("/invest-in-zandcarpets-features")}
             >
               Cancel
             </Button>

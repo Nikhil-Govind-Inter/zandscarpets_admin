@@ -414,7 +414,7 @@ const App = () => (
 
           {/* Invest in GO EC Routes */}
           <Route
-            path="/invest-in-goec-cms"
+            path="/invest-in-zandcarpets-cms"
             element={
               <ProtectedRoute>
                 <InvestInGoecCmsForm />
@@ -424,7 +424,7 @@ const App = () => (
 
           {/* Invest in GO EC Explore Routes */}
           <Route
-            path="/invest-in-goec-explore"
+            path="/invest-in-zandcarpets-explore"
             element={
               <ProtectedRoute>
                 <InvestInGoecExploreList />
@@ -433,7 +433,7 @@ const App = () => (
           />
 
           <Route
-            path="/invest-in-goec-explore/create"
+            path="/invest-in-zandcarpets-explore/create"
             element={
               <ProtectedRoute>
                 <InvestInGoecExploreForm />
@@ -442,7 +442,7 @@ const App = () => (
           />
 
           <Route
-            path="/invest-in-goec-explore/edit/:id"
+            path="/invest-in-zandcarpets-explore/edit/:id"
             element={
               <ProtectedRoute>
                 <InvestInGoecExploreForm />
@@ -452,7 +452,7 @@ const App = () => (
 
           {/* Invest in GO EC Milestone Routes */}
           <Route
-            path="/invest-in-goec-milestone"
+            path="/invest-in-zandcarpets-milestone"
             element={
               <ProtectedRoute>
                 <InvestInGoecMilestoneList />
@@ -461,7 +461,7 @@ const App = () => (
           />
 
           <Route
-            path="/invest-in-goec-milestone/create"
+            path="/invest-in-zandcarpets-milestone/create"
             element={
               <ProtectedRoute>
                 <InvestInGoecMilestoneForm />
@@ -470,7 +470,7 @@ const App = () => (
           />
 
           <Route
-            path="/invest-in-goec-milestone/edit/:id"
+            path="/invest-in-zandcarpets-milestone/edit/:id"
             element={
               <ProtectedRoute>
                 <InvestInGoecMilestoneForm />
@@ -480,7 +480,7 @@ const App = () => (
 
           {/* Invest in GO EC Features Routes */}
           <Route
-            path="/invest-in-goec-features"
+            path="/invest-in-zandcarpets-features"
             element={
               <ProtectedRoute>
                 <InvestInGoecFeaturesList />
@@ -489,7 +489,7 @@ const App = () => (
           />
 
           <Route
-            path="/invest-in-goec-features/create"
+            path="/invest-in-zandcarpets-features/create"
             element={
               <ProtectedRoute>
                 <InvestInGoecFeaturesForm />
@@ -498,7 +498,7 @@ const App = () => (
           />
 
           <Route
-            path="/invest-in-goec-features/edit/:id"
+            path="/invest-in-zandcarpets-features/edit/:id"
             element={
               <ProtectedRoute>
                 <InvestInGoecFeaturesForm />

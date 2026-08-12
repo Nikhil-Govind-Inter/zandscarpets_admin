@@ -75,7 +75,7 @@ export default function InvestInGoecMilestoneForm() {
         description: "Failed to load milestone data",
         variant: "destructive",
       });
-      navigate("/invest-in-goec-milestone");
+      navigate("/invest-in-zandcarpets-milestone");
     } finally {
       setInitialLoading(false);
     }
@@ -100,7 +100,7 @@ export default function InvestInGoecMilestoneForm() {
         description: `Milestone ${isEditMode ? "updated" : "created"} successfully`,
       });
 
-      navigate("/invest-in-goec-milestone");
+      navigate("/invest-in-zandcarpets-milestone");
     } catch (error) {
       toast({
         title: "Error",
@@ -130,7 +130,7 @@ export default function InvestInGoecMilestoneForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/invest-in-goec-milestone")}>
+        <Button variant="outline" size="icon" onClick={() => navigate("/invest-in-zandcarpets-milestone")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
@@ -294,7 +294,7 @@ export default function InvestInGoecMilestoneForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/invest-in-goec-milestone")}
+              onClick={() => navigate("/invest-in-zandcarpets-milestone")}
             >
               Cancel
             </Button>

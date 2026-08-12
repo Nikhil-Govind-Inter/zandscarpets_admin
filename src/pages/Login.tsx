@@ -25,14 +25,14 @@ export default function Login() {
 
     // Simulate authentication
     setTimeout(() => {
-      if (email === "admin@goec.com" && password === "admin123") {
+      if (email === "admin@zandcarpets.com" && password === "admin123") {
         setIsAuthenticated(true);
         localStorage.setItem("goec_auth", "true");
         if (rememberMe) {
           localStorage.setItem("goec_remember", "true");
         }
       } else {
-        setError("Invalid email or password. Use admin@goec.com / admin123");
+        setError("Invalid email or password. Use admin@zandcarpets.com / admin123");
       }
       setIsLoading(false);
     }, 1000);
@@ -49,14 +49,14 @@ export default function Login() {
         <div className="text-center">
           <img 
             src={goecLogo} 
-            alt="GOEC" 
+            alt="Z&S" 
             className="mx-auto h-12 w-auto mb-6"
           />
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Admin Dashboard
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Sign in to manage your GOEC content
+            Sign in to manage your Z&S content
           </p>
         </div>
 
@@ -83,7 +83,7 @@ export default function Login() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin@goec.com"
+                    placeholder="admin@zandcarpets.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
@@ -150,7 +150,7 @@ export default function Login() {
 
             <div className="mt-6 text-center">
               <p className="text-xs text-muted-foreground">
-                Demo credentials: admin@goec.com / admin123
+                Demo credentials: admin@zandcarpets.com / admin123
               </p>
             </div>
           </CardContent>
@@ -158,7 +158,7 @@ export default function Login() {
 
         {/* Footer */}
         <div className="text-center text-xs text-muted-foreground">
-          <p>© 2024 GOEC. All rights reserved.</p>
+          <p>© 2024 Z&S. All rights reserved.</p>
           <p className="mt-1">Content Management System</p>
         </div>
       </div>

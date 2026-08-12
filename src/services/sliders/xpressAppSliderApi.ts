@@ -1,4 +1,4 @@
-// GOEC App Slider API service
+// Z&S App Slider API service
 export interface GoecAppSliderData {
   id?: number;
   description: string;

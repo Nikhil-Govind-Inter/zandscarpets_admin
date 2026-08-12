@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* GOEC Brand Colors - Updated to match logo */
+    /* Z&S Brand Colors - Updated to match logo */
     --background: 210 40% 98%;
     --foreground: 220 28% 17%; /* Logo text color #1f2937 */
 
@@ -18,57 +18,57 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 220 28% 17%;
 
-    /* GOEC Primary Emerald: #10b981 (from logo) */
-    --primary: 162 84% 39%;
+    /* Z&S Primary Navy: #023260 */
+    --primary: 209 96% 19%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 162 84% 45%;
+    --primary-hover: 209 96% 25%;
 
-    /* GOEC Secondary - Darker emerald variant */
-    --secondary: 162 84% 30%;
+    /* Z&S Secondary - Darker navy variant */
+    --secondary: 209 96% 14%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 162 20% 96%;
-    --muted-foreground: 162 10% 47%;
+    --muted: 209 20% 96%;
+    --muted-foreground: 209 10% 47%;
 
-    --accent: 162 40% 95%;
-    --accent-foreground: 162 84% 30%;
+    --accent: 209 40% 95%;
+    --accent-foreground: 209 96% 14%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 162 20% 91%;
-    --input: 162 20% 91%;
-    --ring: 162 84% 39%;
+    --border: 209 20% 91%;
+    --input: 209 20% 91%;
+    --ring: 209 96% 19%;
 
     --radius: 0.75rem;
 
-    /* GOEC Dashboard Specific */
-    --success: 162 84% 39%; /* GOEC primary emerald */
+    /* Z&S Dashboard Specific */
+    --success: 142 76% 36%; /* Distinct green for success state */
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --info: 162 84% 55%; /* Lighter emerald variant */
+    --info: 209 96% 40%; /* Lighter navy variant */
     --info-foreground: 0 0% 100%;
 
-    /* Sidebar using GOEC emerald colors */
+    /* Sidebar using Z&S navy colors */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 28% 17%; /* Logo text color */
-    --sidebar-primary: 162 84% 39%; /* GOEC emerald */
+    --sidebar-primary: 209 96% 19%; /* Z&S navy */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 162 20% 96%;
+    --sidebar-accent: 209 20% 96%;
     --sidebar-accent-foreground: 220 28% 17%;
-    --sidebar-border: 162 20% 91%;
-    --sidebar-ring: 162 84% 39%;
+    --sidebar-border: 209 20% 91%;
+    --sidebar-ring: 209 96% 19%;
 
-    /* GOEC Emerald Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(162 84% 39%), hsl(162 84% 45%));
-    --gradient-secondary: linear-gradient(135deg, hsl(162 84% 30%), hsl(162 84% 39%));
-    --gradient-hero: linear-gradient(135deg, hsl(162 84% 39%), hsl(162 84% 55%));
+    /* Z&S Navy Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(209 96% 19%), hsl(209 96% 25%));
+    --gradient-secondary: linear-gradient(135deg, hsl(209 96% 14%), hsl(209 96% 19%));
+    --gradient-hero: linear-gradient(135deg, hsl(209 96% 19%), hsl(209 96% 40%));
 
-    /* GOEC Emerald Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(162 84% 39% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(162 84% 39% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(162 84% 39% / 0.1);
+    /* Z&S Navy Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(209 96% 19% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(209 96% 19% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(209 96% 19% / 0.1);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

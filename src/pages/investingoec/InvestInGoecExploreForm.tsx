@@ -81,7 +81,7 @@ export default function InvestInGoecExploreForm() {
         description: "Failed to load explore item data",
         variant: "destructive",
       });
-      navigate("/invest-in-goec-explore");
+      navigate("/invest-in-zandcarpets-explore");
     } finally {
       setInitialLoading(false);
     }
@@ -114,7 +114,7 @@ export default function InvestInGoecExploreForm() {
         description: `Explore item ${isEditMode ? "updated" : "created"} successfully`,
       });
 
-      navigate("/invest-in-goec-explore");
+      navigate("/invest-in-zandcarpets-explore");
     } catch (error) {
       toast({
         title: "Error",
@@ -137,7 +137,7 @@ export default function InvestInGoecExploreForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/invest-in-goec-explore")}>
+        <Button variant="outline" size="icon" onClick={() => navigate("/invest-in-zandcarpets-explore")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
@@ -395,7 +395,7 @@ export default function InvestInGoecExploreForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/invest-in-goec-explore")}
+              onClick={() => navigate("/invest-in-zandcarpets-explore")}
             >
               Cancel
             </Button>

@@ -39,8 +39,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-const goecLogo = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMTIwIDMyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8Y2lyY2xlIGN4PSIxMCIgY3k9IjE2IiByPSIxMCIgZmlsbD0iIzEwYjk4MSIvPgo8Y2lyY2xlIGN4PSIyNiIgY3k9IjE2IiByPSIxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMTBiOTgxIiBzdHJva2Utd2lkdGg9IjIiLz4KPHRleHQgeD0iNDQiIHk9IjIyIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMWYyOTM3Ij5HT0VDPC90ZXh0Pgo8L3N2Zz4K";
-
+const goecLogo = 'https://cdn-lanhl.nitrocdn.com/BEDNLEoRmIKjWuHGWySaweMWUMbmbmac/assets/images/source/rev-b24f0bb/www.zandscarpets.com/assets/images/logo.svg' 
 const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard }
 ];
@@ -63,10 +62,10 @@ const aboutSection = [
 ];
 
 const investSection = [
-  { title: "CMS", url: "/invest-in-goec-cms", icon: DollarSign },
-  { title: "Explore", url: "/invest-in-goec-explore", icon: Compass },
-  { title: "Milestones", url: "/invest-in-goec-milestone", icon: Target },
-  { title: "Features", url: "/invest-in-goec-features", icon: Star },
+  { title: "CMS", url: "/invest-in-zandcarpets-cms", icon: DollarSign },
+  { title: "Explore", url: "/invest-in-zandcarpets-explore", icon: Compass },
+  { title: "Milestones", url: "/invest-in-zandcarpets-milestone", icon: Target },
+  { title: "Features", url: "/invest-in-zandcarpets-features", icon: Star },
 ];
 
 const commonSection = [
@@ -122,19 +121,19 @@ export function AppSidebar() {
     <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon">
       <SidebarContent className="bg-sidebar border-r border-sidebar-border">
         {/* Logo Section */}
-        <div className="p-4 border-b border-sidebar-border">
+        <div className={`border-b border-sidebar-border ${isCollapsed ? "p-2" : "p-4"}`}>
           {!isCollapsed ? (
             <div className="flex items-center justify-center">
               <img
                 src={goecLogo}
-                alt="GOEC"
+                alt="Z&S"
                 className="h-8 w-auto max-w-full object-contain"
               />
             </div>
           ) : (
             <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center mx-auto">
               <span className="text-primary-foreground font-bold text-sm">
-                G
+                Z&S
               </span>
             </div>
           )}

@@ -44,7 +44,7 @@ export const fetchInvestInGoecMilestone = async (
   limit: number = 10,
   search?: string
 ): Promise<InvestInGoecMilestoneResponse> => {
-  let url = `${API_BASE_URL}/backend/investingoec/invest-in-goec-milestone?page=${page}&limit=${limit}`;
+  let url = `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-milestone?page=${page}&limit=${limit}`;
   if (search) {
     url += `&search=${encodeURIComponent(search)}`;
   }
@@ -67,7 +67,7 @@ export const fetchInvestInGoecMilestoneById = async (
   id: number
 ): Promise<InvestInGoecMilestoneSingleResponse> => {
   const response = await fetch(
-    `${API_BASE_URL}/backend/investingoec/invest-in-goec-milestone/${id}`,
+    `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-milestone/${id}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -103,8 +103,8 @@ export const saveInvestInGoecMilestoneItem = async (
   formData.append("sort_order", data.sort_order.toString());
 
   const url = id 
-    ? `${API_BASE_URL}/backend/investingoec/invest-in-goec-milestone/${id}`
-    : `${API_BASE_URL}/backend/investingoec/invest-in-goec-milestone`;
+    ? `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-milestone/${id}`
+    : `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-milestone`;
 
   const response = await fetch(url, {
     method: id ? "PUT" : "POST",
@@ -126,7 +126,7 @@ export const deleteInvestInGoecMilestoneItem = async (
   id: number
 ): Promise<{ success: boolean; message: string }> => {
   const response = await fetch(
-    `${API_BASE_URL}/backend/investingoec/invest-in-goec-milestone/${id}`,
+    `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-milestone/${id}`,
     {
       method: "DELETE",
       headers: {

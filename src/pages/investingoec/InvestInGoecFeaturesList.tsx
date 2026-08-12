@@ -236,7 +236,7 @@ export default function InvestInGoecFeaturesList() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() => navigate(`/invest-in-goec-features/edit/${item.id}`)}
+                onClick={() => navigate(`/invest-in-zandcarpets-features/edit/${item.id}`)}
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
@@ -284,7 +284,7 @@ export default function InvestInGoecFeaturesList() {
         data={featuresItems}
         title=""
         searchPlaceholder="Search features..."
-        onAdd={() => navigate("/invest-in-goec-features/create")}
+        onAdd={() => navigate("/invest-in-zandcarpets-features/create")}
         addButtonText="Add Feature"
         loading={loading}
         searching={searching}
