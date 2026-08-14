@@ -32,11 +32,22 @@ export const commonValidations = {
   
   publishStatus: z.enum(["published", "draft"]),
   
+  // email validation 
+  requiredEmail:
+    z.string().min(1, "Email is required").email('Invalid Email'),
+
+  optionalEmail: z.string().email().optional(),
   // Media validations
   mediaType: z.enum(["image", "video"]),
   
   fileUpload: z.any().optional(),
-  
+
+  requiredFile: (fieldName: string) =>
+    z.custom<File | string>(
+      (val) => val instanceof File || (typeof val === "string" && val.trim().length > 0),
+      { message: `${fieldName} is required` }
+    ),
+
   // URL validations
   optionalUrl: z.string().regex(/^\/.*/, "Must start with /").optional().or(z.literal("")),
   

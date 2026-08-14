@@ -39,7 +39,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-const goecLogo = 'https://cdn-lanhl.nitrocdn.com/BEDNLEoRmIKjWuHGWySaweMWUMbmbmac/assets/images/source/rev-b24f0bb/www.zandscarpets.com/assets/images/logo.svg' 
+const Logo = 'https://cdn-lanhl.nitrocdn.com/BEDNLEoRmIKjWuHGWySaweMWUMbmbmac/assets/images/source/rev-b24f0bb/www.zandscarpets.com/assets/images/logo.svg' 
 const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard }
 ];
@@ -59,13 +59,6 @@ const aboutSection = [
   { title: "Our Values", url: "/about-our-values", icon: Heart },
   { title: "Our Journey", url: "/about-our-journey", icon: Clock },
   { title: "Media", url: "/about-media", icon: Image },
-];
-
-const investSection = [
-  { title: "CMS", url: "/invest-in-zandcarpets-cms", icon: DollarSign },
-  { title: "Explore", url: "/invest-in-zandcarpets-explore", icon: Compass },
-  { title: "Milestones", url: "/invest-in-zandcarpets-milestone", icon: Target },
-  { title: "Features", url: "/invest-in-zandcarpets-features", icon: Star },
 ];
 
 const commonSection = [
@@ -125,7 +118,7 @@ export function AppSidebar() {
           {!isCollapsed ? (
             <div className="flex items-center justify-center">
               <img
-                src={goecLogo}
+                src={Logo}
                 alt="Z&S"
                 className="h-8 w-auto max-w-full object-contain"
               />
@@ -214,43 +207,6 @@ export function AppSidebar() {
               <CollapsibleContent className="ml-6 mt-1 space-y-1">
                 <SidebarMenu>
                   {aboutSection.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild size="sm">
-                        <NavLink to={item.url} className={getNavCls}>
-                          <item.icon className="h-4 w-4" />
-                          <span className="ml-2">{item.title}</span>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </CollapsibleContent>
-            )}
-          </Collapsible>
-        </SidebarGroup>
-
-        {/* Invest in GO EC */}
-        <SidebarGroup>
-          <Collapsible
-            open={!isCollapsed && investOpen}
-            onOpenChange={setInvestOpen}
-          >
-            <CollapsibleTrigger className="flex items-center w-full p-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-md">
-              <TrendingUp className="h-4 w-4" />
-              {!isCollapsed && (
-                <>
-                  <span className="ml-2">Invest in GO EC</span>
-                  <ChevronRight
-                    className={`h-4 w-4 ml-auto transition-transform ${investOpen ? "rotate-90" : ""
-                      }`}
-                  />
-                </>
-              )}
-            </CollapsibleTrigger>
-            {!isCollapsed && (
-              <CollapsibleContent className="ml-6 mt-1 space-y-1">
-                <SidebarMenu>
-                  {investSection.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild size="sm">
                         <NavLink to={item.url} className={getNavCls}>

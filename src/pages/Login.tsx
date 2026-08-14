@@ -1,55 +1,76 @@
-import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
-const goecLogo = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMTIwIDMyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8Y2lyY2xlIGN4PSIxMCIgY3k9IjE2IiByPSIxMCIgZmlsbD0iIzEwYjk4MSIvPgo8Y2lyY2xlIGN4PSIyNiIgY3k9IjE2IiByPSIxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMTBiOTgxIiBzdHJva2Utd2lkdGg9IjIiLz4KPHRleHQgeD0iNDQiIHk9IjIyIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMWYyOTM3Ij5HT0VDPC90ZXh0Pgo8L3N2Zz4K";
+import { Eye, EyeOff, Lock, User } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { loginSchema, type LoginFormData } from "@/schemas/loginSchema";
+import {
+  getRememberedUsername,
+  setRememberedUsername,
+  clearRememberedUsername,
+} from "@/lib/rememberedUsername";
+const Logo = 'https://cdn-lanhl.nitrocdn.com/BEDNLEoRmIKjWuHGWySaweMWUMbmbmac/assets/images/source/rev-b24f0bb/www.zandscarpets.com/assets/images/logo.svg'
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { isAuthenticated, login } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { username: "", password: "" },
+  });
 
-    // Simulate authentication
-    setTimeout(() => {
-      if (email === "admin@zandcarpets.com" && password === "admin123") {
-        setIsAuthenticated(true);
-        localStorage.setItem("goec_auth", "true");
-        if (rememberMe) {
-          localStorage.setItem("goec_remember", "true");
-        }
-      } else {
-        setError("Invalid email or password. Use admin@zandcarpets.com / admin123");
-      }
-      setIsLoading(false);
-    }, 1000);
-  };
+  useEffect(() => {
+    const remembered = getRememberedUsername();
+    if (remembered) {
+      form.setValue("username", remembered);
+      setRememberMe(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    const from = (location.state as { from?: Location })?.from?.pathname || "/";
+    return <Navigate to={from} replace />;
   }
+
+  const onSubmit = async (values: LoginFormData) => {
+    setServerError("");
+    try {
+      await login(values.username, values.password);
+
+      if (rememberMe) {
+        setRememberedUsername(values.username);
+      } else {
+        clearRememberedUsername();
+      }
+
+      const from = (location.state as { from?: Location })?.from?.pathname || "/";
+      navigate(from, { replace: true });
+    } catch (error) {
+      setServerError(error instanceof Error ? error.message : "Invalid username or password");
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/20 to-muted p-4">
       <div className="w-full max-w-md space-y-8">
         {/* Logo and Header */}
         <div className="text-center">
-          <img 
-            src={goecLogo} 
-            alt="Z&S" 
+          <img
+            src={Logo}
+            alt="Z&S"
             className="mx-auto h-12 w-auto mb-6"
           />
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
@@ -69,27 +90,31 @@ export default function Login() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {serverError && (
                 <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>{serverError}</AlertDescription>
                 </Alert>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Username</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="admin@zandcarpets.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="username"
+                    type="text"
+                    placeholder="Enter your username"
+                    autoComplete="username"
                     className="pl-10"
-                    required
+                    {...form.register("username")}
                   />
                 </div>
+                {form.formState.errors.username && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.username.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -100,10 +125,9 @@ export default function Login() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
                     className="pl-10 pr-10"
-                    required
+                    {...form.register("password")}
                   />
                   <Button
                     type="button"
@@ -119,9 +143,14 @@ export default function Login() {
                     )}
                   </Button>
                 </div>
+                {form.formState.errors.password && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.password.message}
+                  </p>
+                )}
               </div>
 
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="remember"
@@ -132,27 +161,18 @@ export default function Login() {
                     Remember me
                   </Label>
                 </div>
-                <Button variant="link" className="px-0 text-sm">
-                  Forgot password?
-                </Button>
-              </div>
+              </div> */}
 
               <Button
                 type="submit"
                 variant="gradient"
                 size="lg"
                 className="w-full"
-                disabled={isLoading}
+                disabled={form.formState.isSubmitting}
               >
-                {isLoading ? "Signing in..." : "Sign in"}
+                {form.formState.isSubmitting ? "Signing in..." : "Sign in"}
               </Button>
             </form>
-
-            <div className="mt-6 text-center">
-              <p className="text-xs text-muted-foreground">
-                Demo credentials: admin@zandcarpets.com / admin123
-              </p>
-            </div>
           </CardContent>
         </Card>
 

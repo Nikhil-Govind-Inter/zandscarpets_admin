@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/apiClient";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
@@ -42,10 +43,7 @@ export interface HomeCmsResponse {
 
 // Fetch Home CMS data
 export const fetchHomeCms = async (): Promise<HomeCmsResponse> => {
-  const response = await fetch(`${API_BASE_URL}/backend/home/home-cms`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
+  const response = await apiFetch(`${API_BASE_URL}/backend/home/home-cms`, {
   });
 
   if (!response.ok) {
@@ -72,11 +70,8 @@ export const saveHomeCms = async (
     }
   });
 
-  const response = await fetch(`${API_BASE_URL}/backend/home/home-cms`, {
+  const response = await apiFetch(`${API_BASE_URL}/backend/home/home-cms`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
     body: formData,
   });
 

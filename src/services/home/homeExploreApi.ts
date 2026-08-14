@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/apiClient";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
@@ -52,10 +53,7 @@ export const fetchHomeExplores = async (
     url += `&search=${encodeURIComponent(search)}`;
   }
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
+  const response = await apiFetch(url, {
   });
 
   if (!response.ok) {
@@ -69,12 +67,9 @@ export const fetchHomeExplores = async (
 export const fetchHomeExploreById = async (
   id: number
 ): Promise<HomeExploreSingleResponse> => {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_BASE_URL}/backend/home/home-explore-our-expertise/${id}`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
     }
   );
 
@@ -119,11 +114,8 @@ export const saveHomeExplore = async (
     ? `${API_BASE_URL}/backend/home/home-explore-our-expertise/${id}`
     : `${API_BASE_URL}/backend/home/home-explore-our-expertise`;
 
-  const response = await fetch(url, {
+  const response = await apiFetch(url, {
     method: id ? "PUT" : "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
     body: formData,
   });
 
@@ -138,13 +130,10 @@ export const saveHomeExplore = async (
 export const deleteHomeExplore = async (
   id: number
 ): Promise<{ success: boolean; message: string }> => {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_BASE_URL}/backend/home/home-explore-our-expertise/${id}`,
     {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
     }
   );
 

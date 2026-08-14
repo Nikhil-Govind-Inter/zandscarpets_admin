@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/apiClient";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
@@ -56,10 +57,7 @@ export const fetchHomeBannerSliders = async (
     url += `&search=${encodeURIComponent(search)}`;
   }
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
+  const response = await apiFetch(url, {
   });
 
   if (!response.ok) {
@@ -73,12 +71,9 @@ export const fetchHomeBannerSliders = async (
 export const fetchHomeBannerSliderById = async (
   id: number
 ): Promise<HomeBannerSliderSingleResponse> => {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_BASE_URL}/backend/home/home-banner/${id}`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
     }
   );
 
@@ -133,11 +128,8 @@ export const saveHomeBannerSlider = async (
     ? `${API_BASE_URL}/backend/home/home-banner/${id}`
     : `${API_BASE_URL}/backend/home/home-banner`;
 
-  const response = await fetch(url, {
+  const response = await apiFetch(url, {
     method: id ? "PUT" : "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
     body: formData,
   });
 
@@ -152,13 +144,10 @@ export const saveHomeBannerSlider = async (
 export const deleteHomeBannerSlider = async (
   id: number
 ): Promise<{ success: boolean; message: string }> => {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_BASE_URL}/backend/home/home-banner/${id}`,
     {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
     }
   );
 

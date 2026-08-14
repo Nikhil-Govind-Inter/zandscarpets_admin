@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/apiClient";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
@@ -51,10 +52,7 @@ export const fetchAboutOurJourney = async (
     url += `&search=${encodeURIComponent(search)}`;
   }
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
+  const response = await apiFetch(url, {
   });
 
   if (!response.ok) {
@@ -68,12 +66,9 @@ export const fetchAboutOurJourney = async (
 export const fetchAboutOurJourneyById = async (
   id: number
 ): Promise<AboutOurJourneySingleResponse> => {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_BASE_URL}/backend/about/about-our-journey/${id}`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
     }
   );
 
@@ -116,11 +111,8 @@ export const saveAboutOurJourneyItem = async (
     ? `${API_BASE_URL}/backend/about/about-our-journey/${id}`
     : `${API_BASE_URL}/backend/about/about-our-journey`;
 
-  const response = await fetch(url, {
+  const response = await apiFetch(url, {
     method: id ? "PUT" : "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
     body: formData,
   });
 
@@ -135,13 +127,10 @@ export const saveAboutOurJourneyItem = async (
 export const deleteAboutOurJourneyItem = async (
   id: number
 ): Promise<{ success: boolean; message: string }> => {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_BASE_URL}/backend/about/about-our-journey/${id}`,
     {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
     }
   );
 

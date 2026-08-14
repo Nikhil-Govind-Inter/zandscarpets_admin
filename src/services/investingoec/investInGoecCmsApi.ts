@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/apiClient";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
@@ -42,12 +43,9 @@ export interface InvestInGoecCmsResponse {
 
 // Fetch Invest in GO EC CMS data
 export const fetchInvestInGoecCms = async (): Promise<InvestInGoecCmsResponse> => {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-cms`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
     }
   );
 
@@ -139,13 +137,10 @@ export const updateInvestInGoecCms = async (
     formData.append("invest_media_path", data.invest_media_file);
   }
 
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-cms`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
       body: formData,
     }
   );

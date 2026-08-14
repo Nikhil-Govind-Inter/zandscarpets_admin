@@ -1,4 +1,5 @@
 import { Bell, Search, User, LogOut, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,8 +12,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useAuth } from "@/context/AuthContext";
 
 export function AppHeader() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center gap-4 px-6">
@@ -50,17 +60,17 @@ export function AppHeader() {
                   <User className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <div className="hidden md:block text-left">
-                  <div className="text-sm font-medium">Admin</div>
-                  <div className="text-xs text-muted-foreground">Admin</div>
+                  <div className="text-sm font-medium">{user?.username ?? "Admin"}</div>
+                  <div className="text-xs text-muted-foreground">{user?.role ?? "Admin"}</div>
                 </div>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Admin</p>
+                  <p className="text-sm font-medium leading-none">{user?.username ?? "Admin"}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    admin@zandcarpets.com
+                    {user?.email ?? "—"}
                   </p>
                 </div>
               </DropdownMenuLabel>
@@ -74,7 +84,7 @@ export function AppHeader() {
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
+              <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>

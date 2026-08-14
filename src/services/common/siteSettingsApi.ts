@@ -1,26 +1,15 @@
+import { apiFetch } from "@/lib/apiClient";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/backend";
 
 export interface SiteSettings {
   id?: number;
+  header_logo_media_path: string;
+  footer_logo_media_path: string;
   address: string;
   email: string;
-  phone: string;
-  logo: string | null;
-  logo_alt: string;
-  favicon: string | null;
-  footer_download_image_one: string | null;
-  footer_download_image_one_alt: string;
-  footer_download_image_one_link: string;
-  footer_download_image_two: string | null;
-  footer_download_image_two_alt: string;
-  footer_download_image_two_link: string;
-  footer_logo: string | null;
-  footer_logo_alt: string;
-  footer_description: string;
-  social_media_title: string;
-  subscribe_title: string;
-  status?: boolean;
-  deletedAt?: string | null;
+  phone_number: string;
+  whatsapp_number: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -33,29 +22,20 @@ export interface SiteSettingsResponse {
   data: SiteSettings;
 }
 
-export interface CreateSiteSettingsData {
+export interface SaveSiteSettingsData {
+  header_logo_media_path?: File | string;
+  footer_logo_media_path?: File | string;
   address: string;
   email: string;
-  phone: string;
-  logo?: File | string;
-  logo_alt: string;
-  favicon?: File | string;
-  footer_download_image_one?: File | string;
-  footer_download_image_one_alt: string;
-  footer_download_image_one_link: string;
-  footer_download_image_two?: File | string;
-  footer_download_image_two_alt: string;
-  footer_download_image_two_link: string;
-  footer_logo?: File | string;
-  footer_logo_alt: string;
-  footer_description: string;
-  social_media_title: string;
-  subscribe_title: string;
+  phone_number: string;
+  whatsapp_number: string;
 }
+
+const fetchUrl = `${API_BASE_URL}/site-settings/site-settings`;
 
 // Fetch Site Settings data
 export const fetchSiteSettings = async (): Promise<SiteSettingsResponse> => {
-  const response = await fetch(`${API_BASE_URL}/site-settings`);
+  const response = await apiFetch(fetchUrl);
 
   if (!response.ok) {
     throw new Error("Failed to fetch Site Settings data");
@@ -64,12 +44,13 @@ export const fetchSiteSettings = async (): Promise<SiteSettingsResponse> => {
   return response.json();
 };
 
-// Create or Update Site Settings data
+// Update Site Settings data (only a PUT /:id endpoint exists on the backend)
 export const saveSiteSettings = async (
+  id: number,
   formData: FormData
 ): Promise<SiteSettings> => {
-  const response = await fetch(`${API_BASE_URL}/site-settings`, {
-    method: "POST",
+  const response = await apiFetch(`${fetchUrl}/${id}`, {
+    method: "PUT",
     body: formData,
   });
 

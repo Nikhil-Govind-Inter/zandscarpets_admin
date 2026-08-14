@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/apiClient";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
@@ -48,10 +49,7 @@ export const fetchHomeMilestones = async (
     url += `&search=${encodeURIComponent(search)}`;
   }
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
+  const response = await apiFetch(url, {
   });
 
   if (!response.ok) {
@@ -65,12 +63,9 @@ export const fetchHomeMilestones = async (
 export const fetchHomeMilestoneById = async (
   id: number
 ): Promise<HomeMilestoneSingleResponse> => {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_BASE_URL}/backend/home/home-milestone/${id}`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
     }
   );
 
@@ -103,11 +98,8 @@ export const saveHomeMilestone = async (
     ? `${API_BASE_URL}/backend/home/home-milestone/${id}`
     : `${API_BASE_URL}/backend/home/home-milestone`;
 
-  const response = await fetch(url, {
+  const response = await apiFetch(url, {
     method: id ? "PUT" : "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
     body: formData,
   });
 
@@ -122,13 +114,10 @@ export const saveHomeMilestone = async (
 export const deleteHomeMilestone = async (
   id: number
 ): Promise<{ success: boolean; message: string }> => {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_BASE_URL}/backend/home/home-milestone/${id}`,
     {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
     }
   );
 

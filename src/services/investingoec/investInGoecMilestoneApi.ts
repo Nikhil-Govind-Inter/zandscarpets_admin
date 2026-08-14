@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/apiClient";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
@@ -49,10 +50,7 @@ export const fetchInvestInGoecMilestone = async (
     url += `&search=${encodeURIComponent(search)}`;
   }
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
+  const response = await apiFetch(url, {
   });
 
   if (!response.ok) {
@@ -66,12 +64,9 @@ export const fetchInvestInGoecMilestone = async (
 export const fetchInvestInGoecMilestoneById = async (
   id: number
 ): Promise<InvestInGoecMilestoneSingleResponse> => {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-milestone/${id}`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
     }
   );
 
@@ -106,11 +101,8 @@ export const saveInvestInGoecMilestoneItem = async (
     ? `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-milestone/${id}`
     : `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-milestone`;
 
-  const response = await fetch(url, {
+  const response = await apiFetch(url, {
     method: id ? "PUT" : "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
     body: formData,
   });
 
@@ -125,13 +117,10 @@ export const saveInvestInGoecMilestoneItem = async (
 export const deleteInvestInGoecMilestoneItem = async (
   id: number
 ): Promise<{ success: boolean; message: string }> => {
-  const response = await fetch(
+  const response = await apiFetch(
     `${API_BASE_URL}/backend/investingoec/invest-in-zandcarpets-milestone/${id}`,
     {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
     }
   );
 

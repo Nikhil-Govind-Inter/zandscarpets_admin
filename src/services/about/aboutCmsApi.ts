@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/apiClient";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
@@ -51,10 +52,7 @@ export interface AboutCmsResponse {
 
 // Fetch About CMS data (single entry)
 export const fetchAboutCms = async (): Promise<AboutCmsResponse> => {
-  const response = await fetch(`${API_BASE_URL}/backend/about/about-cms`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
+  const response = await apiFetch(`${API_BASE_URL}/backend/about/about-cms`, {
   });
 
   if (!response.ok) {
@@ -153,11 +151,8 @@ export const saveAboutCms = async (data: {
     formData.append("meet_team_media_path", data.meet_team_media_file);
   }
 
-  const response = await fetch(`${API_BASE_URL}/backend/about/about-cms`, {
+  const response = await apiFetch(`${API_BASE_URL}/backend/about/about-cms`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
     body: formData,
   });
 
