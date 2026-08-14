@@ -16,6 +16,7 @@ import {
   setRememberedUsername,
   clearRememberedUsername,
 } from "@/lib/rememberedUsername";
+import { ForgotPasswordDialog } from "@/components/auth/ForgotPasswordDialog";
 const Logo = 'https://cdn-lanhl.nitrocdn.com/BEDNLEoRmIKjWuHGWySaweMWUMbmbmac/assets/images/source/rev-b24f0bb/www.zandscarpets.com/assets/images/logo.svg'
 
 export default function Login() {
@@ -25,6 +26,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [serverError, setServerError] = useState("");
+  const [isForgotOpen, setIsForgotOpen] = useState(false);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -148,6 +150,15 @@ export default function Login() {
                     {form.formState.errors.password.message}
                   </p>
                 )}
+                <div className="text-right">
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotOpen(true)}
+                    className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
               </div>
 
               {/* <div className="flex items-center justify-between">
@@ -182,6 +193,8 @@ export default function Login() {
           <p className="mt-1">Content Management System</p>
         </div>
       </div>
+
+      <ForgotPasswordDialog open={isForgotOpen} onClose={() => setIsForgotOpen(false)} />
     </div>
   );
 }

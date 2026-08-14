@@ -21,10 +21,38 @@ interface ApiEnvelope<T> {
   data: T;
 }
 
+interface ApiErrorEnvelope {
+  success: false;
+  error?: {
+    message?: string;
+    code?: string;
+    statusCode?: number;
+    details?: unknown;
+  };
+  message?: string;
+}
+
+// Thrown by parseEnvelope on any failed request. Carries the backend's error
+// `code` (e.g. "OTP_MAX_ATTEMPTS") and `details` (e.g. { remainingAttempts })
+// so callers can branch on them instead of string-matching the message.
+export class ApiError extends Error {
+  code?: string;
+  details?: unknown;
+
+  constructor(message: string, code?: string, details?: unknown) {
+    super(message);
+    this.name = "ApiError";
+    this.code = code;
+    this.details = details;
+  }
+}
+
 const parseEnvelope = async <T>(response: Response): Promise<ApiEnvelope<T>> => {
-  const body = await response.json().catch(() => ({} as ApiEnvelope<T>));
+  const body = await response.json().catch(() => ({} as ApiEnvelope<T> & ApiErrorEnvelope));
   if (!response.ok || !body.success) {
-    throw new Error(body.message || `Request failed with status ${response.status}`);
+    const errorBody = body as ApiErrorEnvelope;
+    const message = errorBody.error?.message || errorBody.message || `Request failed with status ${response.status}`;
+    throw new ApiError(message, errorBody.error?.code, errorBody.error?.details);
   }
   return body;
 };
@@ -68,4 +96,42 @@ export const getCurrentAdmin = async (): Promise<{ user: AdminUser }> => {
   });
   const envelope = await parseEnvelope<{ user: AdminUser }>(response);
   return envelope.data;
+};
+
+// --- Forgot password / OTP / reset password ---
+// forgotPassword returns 404 (code "EMAIL_NOT_FOUND") when the email isn't
+// registered, and on success returns the resend cooldown (seconds) so the
+// OTP step's countdown timer can be driven by the server, not a client guess.
+
+export const forgotPassword = async (email: string): Promise<{ cooldownSeconds: number }> => {
+  const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  const envelope = await parseEnvelope<{ cooldownSeconds: number }>(response);
+  return envelope.data;
+};
+
+export const verifyOtp = async (email: string, otp: string): Promise<{ resetToken: string }> => {
+  const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp }),
+  });
+  const envelope = await parseEnvelope<{ resetToken: string }>(response);
+  return envelope.data;
+};
+
+export const resetPassword = async (
+  email: string,
+  resetToken: string,
+  password: string
+): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, resetToken, password }),
+  });
+  await parseEnvelope<null>(response);
 };
