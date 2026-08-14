@@ -1,8 +1,15 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 
@@ -11,17 +18,33 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
+// lazy
+
+import { Suspense } from "react";
+
 // Common pages that exist
-import SiteSettingsForm from "./pages/common/SiteSettingsForm";
-import SocialMediaList from "./pages/common/SocialMediaList";
-import SocialMediaForm from "./pages/common/SocialMediaForm";
-import CommonFaqList from "./pages/common/CommonFaqList";
-import CommonFaqForm from "./pages/common/CommonFaqForm";
+const SiteSettingsForm = React.lazy(
+  () => import("./pages/common/SiteSettingsForm"),
+);
+const SocialMediaList = React.lazy(
+  () => import("./pages/common/SocialMediaList"),
+);
+const SocialMediaForm = React.lazy(
+  () => import("./pages/common/SocialMediaForm"),
+);
+const CommonFaqList = React.lazy(() => import("./pages/common/CommonFaqList"));
+const CommonFaqForm = React.lazy(() => import("./pages/common/CommonFaqForm"));
+const UsersList = React.lazy(() => import("./pages/users/UsersList"));
+const UsersForm = React.lazy(() => import("./pages/users/UsersForm"));
 import { MetaTagsList } from "./pages/common/MetaTagsList";
 
 // Home pages that exist
-import HomeCmsForm from "./pages/home/HomeCmsForm";
-import HomeBannerSliderList from "./pages/home/HomeBannerSliderList";
+// convert all imports to lazy loading using React.lazy and Suspense
+
+const HomeCmsForm = React.lazy(() => import("./pages/home/HomeCmsForm"));
+const HomeBannerSliderList = React.lazy(
+  () => import("./pages/home/HomeBannerSliderList"),
+);
 import HomeBannerSliderForm from "./pages/home/HomeBannerSliderForm";
 import HomeMilestoneList from "./pages/home/HomeMilestoneList";
 import HomeMilestoneForm from "./pages/home/HomeMilestoneForm";
@@ -47,12 +70,25 @@ import InvestInGoecMilestoneList from "./pages/investingoec/InvestInGoecMileston
 import InvestInGoecMilestoneForm from "./pages/investingoec/InvestInGoecMilestoneForm";
 import InvestInGoecFeaturesList from "./pages/investingoec/InvestInGoecFeaturesList";
 import InvestInGoecFeaturesForm from "./pages/investingoec/InvestInGoecFeaturesForm";
+import PageLoader from "./components/layout/PageLoader";
 
 const queryClient = new QueryClient();
 // Protected Route Component
+
+const adminOnlyAccessRoutes = ["/users", "/users/create", "/users/edit/:id"];
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, role } = useAuth();
   const location = useLocation();
+
+  const isAdminRoute = adminOnlyAccessRoutes.some(
+    (route) =>
+      location.pathname === route || location.pathname.startsWith(`${route}/`),
+  );
+  // only admin can access the route
+  if (isAdminRoute && role !== "admin") {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
 
   if (isLoading) {
     return (
@@ -75,462 +111,493 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            }
-          />
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Index />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Site Settings Route */}
-          <Route
-            path="/site-settings"
-            element={
-              <ProtectedRoute>
-                <SiteSettingsForm />
-              </ProtectedRoute>
-            }
-          />
+              {/* Site Settings Route */}
+              <Route
+                path="/site-settings"
+                element={
+                  <ProtectedRoute>
+                    <SiteSettingsForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Social Media Routes */}
-          <Route
-            path="/social-media"
-            element={
-              <ProtectedRoute>
-                <SocialMediaList />
-              </ProtectedRoute>
-            }
-          />
+              {/* Social Media Routes */}
+              <Route
+                path="/social-media"
+                element={
+                  <ProtectedRoute>
+                    <SocialMediaList />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/social-media/new"
-            element={
-              <ProtectedRoute>
-                <SocialMediaForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/social-media/new"
+                element={
+                  <ProtectedRoute>
+                    <SocialMediaForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/social-media/:id/edit"
-            element={
-              <ProtectedRoute>
-                <SocialMediaForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/social-media/:id/edit"
+                element={
+                  <ProtectedRoute>
+                    <SocialMediaForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Common FAQ Management Routes */}
-          <Route
-            path="/common-faq"
-            element={
-              <ProtectedRoute>
-                <CommonFaqList />
-              </ProtectedRoute>
-            }
-          />
+              {/* Common FAQ Management Routes */}
+              <Route
+                path="/common-faq"
+                element={
+                  <ProtectedRoute>
+                    <CommonFaqList />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/common-faq/new"
-            element={
-              <ProtectedRoute>
-                <CommonFaqForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/common-faq/new"
+                element={
+                  <ProtectedRoute>
+                    <CommonFaqForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/common-faq/:id/edit"
-            element={
-              <ProtectedRoute>
-                <CommonFaqForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/common-faq/:id/edit"
+                element={
+                  <ProtectedRoute>
+                    <CommonFaqForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Home CMS Route */}
-          <Route
-            path="/home-cms"
-            element={
-              <ProtectedRoute>
-                <HomeCmsForm />
-              </ProtectedRoute>
-            }
-          />
+              {/* Home CMS Route */}
+              <Route
+                path="/home-cms"
+                element={
+                  <ProtectedRoute>
+                    <HomeCmsForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Home Banner Slider Routes */}
-          <Route
-            path="/home-banner-slider"
-            element={
-              <ProtectedRoute>
-                <HomeBannerSliderList />
-              </ProtectedRoute>
-            }
-          />
+              {/* Home Banner Slider Routes */}
+              <Route
+                path="/home-banner-slider"
+                element={
+                  <ProtectedRoute>
+                    <HomeBannerSliderList />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/home-banner-slider/create"
-            element={
-              <ProtectedRoute>
-                <HomeBannerSliderForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/home-banner-slider/create"
+                element={
+                  <ProtectedRoute>
+                    <HomeBannerSliderForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/home-banner-slider/edit/:id"
-            element={
-              <ProtectedRoute>
-                <HomeBannerSliderForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/home-banner-slider/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <HomeBannerSliderForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Home Milestone Routes */}
-          <Route
-            path="/home-milestone"
-            element={
-              <ProtectedRoute>
-                <HomeMilestoneList />
-              </ProtectedRoute>
-            }
-          />
+              {/* Home Milestone Routes */}
+              <Route
+                path="/home-milestone"
+                element={
+                  <ProtectedRoute>
+                    <HomeMilestoneList />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/home-milestone/create"
-            element={
-              <ProtectedRoute>
-                <HomeMilestoneForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/home-milestone/create"
+                element={
+                  <ProtectedRoute>
+                    <HomeMilestoneForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/home-milestone/edit/:id"
-            element={
-              <ProtectedRoute>
-                <HomeMilestoneForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/home-milestone/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <HomeMilestoneForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Home Map Routes */}
-          <Route
-            path="/home-map"
-            element={
-              <ProtectedRoute>
-                <HomeMapList />
-              </ProtectedRoute>
-            }
-          />
+              {/* Home Map Routes */}
+              <Route
+                path="/home-map"
+                element={
+                  <ProtectedRoute>
+                    <HomeMapList />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/home-map/create"
-            element={
-              <ProtectedRoute>
-                <HomeMapForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/home-map/create"
+                element={
+                  <ProtectedRoute>
+                    <HomeMapForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/home-map/edit/:id"
-            element={
-              <ProtectedRoute>
-                <HomeMapForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/home-map/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <HomeMapForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Home Explore Routes */}
-          <Route
-            path="/home-explore"
-            element={
-              <ProtectedRoute>
-                <HomeExploreList />
-              </ProtectedRoute>
-            }
-          />
+              {/* Home Explore Routes */}
+              <Route
+                path="/home-explore"
+                element={
+                  <ProtectedRoute>
+                    <HomeExploreList />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/home-explore/create"
-            element={
-              <ProtectedRoute>
-                <HomeExploreForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/home-explore/create"
+                element={
+                  <ProtectedRoute>
+                    <HomeExploreForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/home-explore/edit/:id"
-            element={
-              <ProtectedRoute>
-                <HomeExploreForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/home-explore/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <HomeExploreForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Home App Features Routes */}
-          <Route
-            path="/home-app-features"
-            element={
-              <ProtectedRoute>
-                <HomeAppFeatures />
-              </ProtectedRoute>
-            }
-          />
+              {/* Home App Features Routes */}
+              <Route
+                path="/home-app-features"
+                element={
+                  <ProtectedRoute>
+                    <HomeAppFeatures />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/home-app-features/create"
-            element={
-              <ProtectedRoute>
-                <HomeAppFeaturesForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/home-app-features/create"
+                element={
+                  <ProtectedRoute>
+                    <HomeAppFeaturesForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/home-app-features/edit/:id"
-            element={
-              <ProtectedRoute>
-                <HomeAppFeaturesForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/home-app-features/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <HomeAppFeaturesForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Home Investment Routes */}
-          <Route
-            path="/home-investment"
-            element={
-              <ProtectedRoute>
-                <HomeInvestment />
-              </ProtectedRoute>
-            }
-          />
+              {/* Home Investment Routes */}
+              <Route
+                path="/home-investment"
+                element={
+                  <ProtectedRoute>
+                    <HomeInvestment />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/home-investment/create"
-            element={
-              <ProtectedRoute>
-                <HomeInvestmentForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/home-investment/create"
+                element={
+                  <ProtectedRoute>
+                    <HomeInvestmentForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/home-investment/edit/:id"
-            element={
-              <ProtectedRoute>
-                <HomeInvestmentForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/home-investment/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <HomeInvestmentForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* About CMS Route */}
-          <Route
-            path="/about-cms"
-            element={
-              <ProtectedRoute>
-                <AboutCmsForm />
-              </ProtectedRoute>
-            }
-          />
+              {/* About CMS Route */}
+              <Route
+                path="/about-cms"
+                element={
+                  <ProtectedRoute>
+                    <AboutCmsForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* About Our Values Routes */}
-          <Route
-            path="/about-our-values"
-            element={
-              <ProtectedRoute>
-                <AboutOurValues />
-              </ProtectedRoute>
-            }
-          />
+              {/* About Our Values Routes */}
+              <Route
+                path="/about-our-values"
+                element={
+                  <ProtectedRoute>
+                    <AboutOurValues />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/about-our-values/create"
-            element={
-              <ProtectedRoute>
-                <AboutOurValuesForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/about-our-values/create"
+                element={
+                  <ProtectedRoute>
+                    <AboutOurValuesForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/about-our-values/edit/:id"
-            element={
-              <ProtectedRoute>
-                <AboutOurValuesForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/about-our-values/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <AboutOurValuesForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* About Our Journey Routes */}
-          <Route
-            path="/about-our-journey"
-            element={
-              <ProtectedRoute>
-                <AboutOurJourneyList />
-              </ProtectedRoute>
-            }
-          />
+              {/* About Our Journey Routes */}
+              <Route
+                path="/about-our-journey"
+                element={
+                  <ProtectedRoute>
+                    <AboutOurJourneyList />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/about-our-journey/create"
-            element={
-              <ProtectedRoute>
-                <AboutOurJourneyForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/about-our-journey/create"
+                element={
+                  <ProtectedRoute>
+                    <AboutOurJourneyForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/about-our-journey/edit/:id"
-            element={
-              <ProtectedRoute>
-                <AboutOurJourneyForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/about-our-journey/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <AboutOurJourneyForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* About Media Routes */}
-          <Route
-            path="/about-media"
-            element={
-              <ProtectedRoute>
-                <AboutMediaList />
-              </ProtectedRoute>
-            }
-          />
+              {/* About Media Routes */}
+              <Route
+                path="/about-media"
+                element={
+                  <ProtectedRoute>
+                    <AboutMediaList />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/about-media/create"
-            element={
-              <ProtectedRoute>
-                <AboutMediaForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/about-media/create"
+                element={
+                  <ProtectedRoute>
+                    <AboutMediaForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/about-media/edit/:id"
-            element={
-              <ProtectedRoute>
-                <AboutMediaForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/about-media/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <AboutMediaForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Invest in GO EC Routes */}
-          <Route
-            path="/invest-in-zandcarpets-cms"
-            element={
-              <ProtectedRoute>
-                <InvestInGoecCmsForm />
-              </ProtectedRoute>
-            }
-          />
+              {/* Invest in GO EC Routes */}
+              <Route
+                path="/invest-in-zandcarpets-cms"
+                element={
+                  <ProtectedRoute>
+                    <InvestInGoecCmsForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Invest in GO EC Explore Routes */}
-          <Route
-            path="/invest-in-zandcarpets-explore"
-            element={
-              <ProtectedRoute>
-                <InvestInGoecExploreList />
-              </ProtectedRoute>
-            }
-          />
+              {/* Invest in GO EC Explore Routes */}
+              <Route
+                path="/invest-in-zandcarpets-explore"
+                element={
+                  <ProtectedRoute>
+                    <InvestInGoecExploreList />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/invest-in-zandcarpets-explore/create"
-            element={
-              <ProtectedRoute>
-                <InvestInGoecExploreForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/invest-in-zandcarpets-explore/create"
+                element={
+                  <ProtectedRoute>
+                    <InvestInGoecExploreForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/invest-in-zandcarpets-explore/edit/:id"
-            element={
-              <ProtectedRoute>
-                <InvestInGoecExploreForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/invest-in-zandcarpets-explore/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <InvestInGoecExploreForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Invest in GO EC Milestone Routes */}
-          <Route
-            path="/invest-in-zandcarpets-milestone"
-            element={
-              <ProtectedRoute>
-                <InvestInGoecMilestoneList />
-              </ProtectedRoute>
-            }
-          />
+              {/* Invest in GO EC Milestone Routes */}
+              <Route
+                path="/invest-in-zandcarpets-milestone"
+                element={
+                  <ProtectedRoute>
+                    <InvestInGoecMilestoneList />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/invest-in-zandcarpets-milestone/create"
-            element={
-              <ProtectedRoute>
-                <InvestInGoecMilestoneForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/invest-in-zandcarpets-milestone/create"
+                element={
+                  <ProtectedRoute>
+                    <InvestInGoecMilestoneForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/invest-in-zandcarpets-milestone/edit/:id"
-            element={
-              <ProtectedRoute>
-                <InvestInGoecMilestoneForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/invest-in-zandcarpets-milestone/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <InvestInGoecMilestoneForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Invest in GO EC Features Routes */}
-          <Route
-            path="/invest-in-zandcarpets-features"
-            element={
-              <ProtectedRoute>
-                <InvestInGoecFeaturesList />
-              </ProtectedRoute>
-            }
-          />
+              {/* Invest in GO EC Features Routes */}
+              <Route
+                path="/invest-in-zandcarpets-features"
+                element={
+                  <ProtectedRoute>
+                    <InvestInGoecFeaturesList />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/invest-in-zandcarpets-features/create"
-            element={
-              <ProtectedRoute>
-                <InvestInGoecFeaturesForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/invest-in-zandcarpets-features/create"
+                element={
+                  <ProtectedRoute>
+                    <InvestInGoecFeaturesForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/invest-in-zandcarpets-features/edit/:id"
-            element={
-              <ProtectedRoute>
-                <InvestInGoecFeaturesForm />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/invest-in-zandcarpets-features/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <InvestInGoecFeaturesForm />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Meta Tags Routes */}
-          <Route
-            path="/meta-tags"
-            element={
-              <ProtectedRoute>
-                <MetaTagsList />
-              </ProtectedRoute>
-            }
-          />
+              {/* Meta Tags Routes */}
+              <Route
+                path="/meta-tags"
+                element={
+                  <ProtectedRoute>
+                    <MetaTagsList />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Catch all route - must be last */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+              {/* Users */}
+              <Route
+                path="/users"
+                element={
+                  <ProtectedRoute>
+                    <UsersList />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* create user */}
+              <Route
+                path="/users/create"
+                element={
+                  <ProtectedRoute>
+                    <UsersForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* edit user */}
+              <Route
+                path="/users/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <UsersForm />
+                  </ProtectedRoute>
+                }
+              />
+              {/* Catch all route - must be last */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

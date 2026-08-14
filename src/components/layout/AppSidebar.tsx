@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -21,6 +21,7 @@ import {
   Image,
   DollarSign,
   Star,
+  Users,
 } from "lucide-react";
 
 import {
@@ -38,11 +39,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { useAuth } from "@/context/AuthContext";
+import { ROLES } from "@/lib/utils";
 
-const Logo = 'https://cdn-lanhl.nitrocdn.com/BEDNLEoRmIKjWuHGWySaweMWUMbmbmac/assets/images/source/rev-b24f0bb/www.zandscarpets.com/assets/images/logo.svg' 
-const mainNavItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard }
-];
+const Logo =
+  "https://cdn-lanhl.nitrocdn.com/BEDNLEoRmIKjWuHGWySaweMWUMbmbmac/assets/images/source/rev-b24f0bb/www.zandscarpets.com/assets/images/logo.svg";
+const mainNavItems = [{ title: "Dashboard", url: "/", icon: LayoutDashboard }];
 
 const homeSection = [
   { title: "CMS", url: "/home-cms", icon: Home },
@@ -67,16 +69,18 @@ const commonSection = [
   { title: "Meta Tags", url: "/meta-tags", icon: Tags },
   { title: "Common FAQ", url: "/common-faq", icon: HelpCircle },
 ];
+const adminSection = [{ title: "Users", url: "/users", icon: Users }];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
   const location = useLocation();
-  
+  const { role } = useAuth();
   const [homeOpen, setHomeOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [investOpen, setInvestOpen] = useState(false);
   const [commonOpen, setCommonOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
 
+  const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
 
   // Auto-open sections based on current path
@@ -84,37 +88,48 @@ export function AppSidebar() {
     const path = location.pathname;
 
     // Home section
-    if (path.includes('/home-')) {
+    if (path.includes("/home-")) {
       setHomeOpen(true);
     }
 
     // About section
-    if (path.includes('/about-')) {
+    if (path.includes("/about-")) {
       setAboutOpen(true);
     }
 
     // Invest section
-    if (path.includes('/invest-')) {
+    if (path.includes("/invest-")) {
       setInvestOpen(true);
     }
 
     // Common sections
-    if (['/site-settings', '/social-media', '/meta-tags', '/common-faq'].some(route => path.includes(route))) {
+    if (
+      ["/site-settings", "/social-media", "/meta-tags", "/common-faq"].some(
+        (route) => path.includes(route),
+      )
+    ) {
       setCommonOpen(true);
+    }
+
+    if (["/users"].some((route) => path.includes(route))) {
+      setAdminOpen(true);
     }
   }, [location.pathname]);
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center w-full text-left ${isActive
-      ? "bg-sidebar-accent text-sidebar-primary font-medium"
-      : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+    `flex items-center w-full text-left ${
+      isActive
+        ? "bg-sidebar-accent text-sidebar-primary font-medium"
+        : "text-sidebar-foreground hover:bg-sidebar-accent/50"
     }`;
 
   return (
     <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon">
       <SidebarContent className="bg-sidebar border-r border-sidebar-border">
         {/* Logo Section */}
-        <div className={`border-b border-sidebar-border ${isCollapsed ? "p-2" : "p-4"}`}>
+        <div
+          className={`border-b border-sidebar-border ${isCollapsed ? "p-2" : "p-4"}`}
+        >
           {!isCollapsed ? (
             <div className="flex items-center justify-center">
               <img
@@ -149,116 +164,87 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Home Management */}
-        <SidebarGroup>
-          <Collapsible
-            open={!isCollapsed && homeOpen}
-            onOpenChange={setHomeOpen}
-          >
-            <CollapsibleTrigger className="flex items-center w-full p-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-md">
-              <Home className="h-4 w-4" />
-              {!isCollapsed && (
-                <>
-                  <span className="ml-2">Home</span>
-                  <ChevronRight
-                    className={`h-4 w-4 ml-auto transition-transform ${homeOpen ? "rotate-90" : ""
-                      }`}
-                  />
-                </>
-              )}
-            </CollapsibleTrigger>
-            {!isCollapsed && (
-              <CollapsibleContent className="ml-6 mt-1 space-y-1">
-                <SidebarMenu>
-                  {homeSection.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild size="sm">
-                        <NavLink to={item.url} className={getNavCls}>
-                          <item.icon className="h-4 w-4" />
-                          <span className="ml-2">{item.title}</span>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </CollapsibleContent>
-            )}
-          </Collapsible>
-        </SidebarGroup>
+        <GetLayout
+          Icon={Home}
+          title="Home"
+          isCollapsed={isCollapsed}
+          open={homeOpen}
+          setOpen={setHomeOpen}
+          getNavCls={getNavCls}
+          Section={homeSection}
+        />
 
         {/* About Page */}
-        <SidebarGroup>
-          <Collapsible
-            open={!isCollapsed && aboutOpen}
-            onOpenChange={setAboutOpen}
-          >
-            <CollapsibleTrigger className="flex items-center w-full p-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-md">
-              <FileText className="h-4 w-4" />
-              {!isCollapsed && (
-                <>
-                  <span className="ml-2">About Page</span>
-                  <ChevronRight
-                    className={`h-4 w-4 ml-auto transition-transform ${aboutOpen ? "rotate-90" : ""
-                      }`}
-                  />
-                </>
-              )}
-            </CollapsibleTrigger>
-            {!isCollapsed && (
-              <CollapsibleContent className="ml-6 mt-1 space-y-1">
-                <SidebarMenu>
-                  {aboutSection.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild size="sm">
-                        <NavLink to={item.url} className={getNavCls}>
-                          <item.icon className="h-4 w-4" />
-                          <span className="ml-2">{item.title}</span>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </CollapsibleContent>
-            )}
-          </Collapsible>
-        </SidebarGroup>
-
+        <GetLayout
+          Icon={Info}
+          title="About"
+          isCollapsed={isCollapsed}
+          open={aboutOpen}
+          setOpen={setAboutOpen}
+          getNavCls={getNavCls}
+          Section={aboutSection}
+        />
         {/* Common Sections */}
-        <SidebarGroup>
-          <Collapsible
-            open={!isCollapsed && commonOpen}
-            onOpenChange={setCommonOpen}
-          >
-            <CollapsibleTrigger className="flex items-center w-full p-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-md">
-              <Settings className="h-4 w-4" />
-              {!isCollapsed && (
-                <>
-                  <span className="ml-2">Settings & Content</span>
-                  <ChevronRight
-                    className={`h-4 w-4 ml-auto transition-transform ${commonOpen ? "rotate-90" : ""
-                      }`}
-                  />
-                </>
-              )}
-            </CollapsibleTrigger>
-            {!isCollapsed && (
-              <CollapsibleContent className="ml-6 mt-1 space-y-1">
-                <SidebarMenu>
-                  {commonSection.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild size="sm">
-                        <NavLink to={item.url} className={getNavCls}>
-                          <item.icon className="h-4 w-4" />
-                          <span className="ml-2">{item.title}</span>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </CollapsibleContent>
-            )}
-          </Collapsible>
-        </SidebarGroup>
+        <GetLayout
+          Icon={Settings}
+          title="Settings & Common"
+          isCollapsed={isCollapsed}
+          open={commonOpen}
+          setOpen={setCommonOpen}
+          getNavCls={getNavCls}
+          Section={commonSection}
+        />
+
+        {role === ROLES.ADMIN && (
+          <GetLayout
+            Icon={Users}
+            title="Admin"
+            isCollapsed={isCollapsed}
+            open={adminOpen}
+            setOpen={setAdminOpen}
+            getNavCls={getNavCls}
+            Section={adminSection}
+          />
+        )}
       </SidebarContent>
     </Sidebar>
+  );
+}
+
+function GetLayout({ open, setOpen, getNavCls, Section, isCollapsed, title, Icon }) {
+  return (
+    <SidebarGroup>
+      <Collapsible open={!isCollapsed && open} onOpenChange={setOpen}>
+        <CollapsibleTrigger className="flex items-center w-full p-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-md">
+          <Icon className="h-4 w-4" />
+          {!isCollapsed && (
+            <>
+              <span className="ml-2">{title}</span>
+              <ChevronRight
+                className={`h-4 w-4 ml-auto transition-transform ${
+                  open ? "rotate-90" : ""
+                }`}
+              />
+            </>
+          )}
+        </CollapsibleTrigger>
+        {!isCollapsed && (
+          <CollapsibleContent className="ml-6 mt-1 space-y-1">
+            <SidebarMenu>
+              {Section.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild size="sm">
+                    <NavLink to={item.url} className={getNavCls}>
+                      <item.icon className="h-4 w-4" />
+                      <span className="ml-2">{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </CollapsibleContent>
+        )}
+      </Collapsible>
+    </SidebarGroup>
   );
 }

@@ -32,11 +32,42 @@ export const commonValidations = {
   
   publishStatus: z.enum(["published", "draft"]),
   
-  // email validation 
+  // email validation
   requiredEmail:
     z.string().min(1, "Email is required").email('Invalid Email'),
 
   optionalEmail: z.string().email().optional(),
+
+  // Username validation — mirrors server's username rule (3-50 chars, alnum+underscore)
+  username: z
+    .string()
+    .min(3, "Username must be between 3 and 50 characters")
+    .max(50, "Username must be between 3 and 50 characters")
+    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
+
+  // Password validation — mirrors server's passwordRule regex (lower/upper/digit/special char)
+  requiredPassword: z
+    .string()
+    .min(8, "Password must be between 8 and 128 characters")
+    .max(128, "Password must be between 8 and 128 characters")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+      "Password must contain lowercase, uppercase, number, and special char"
+    ),
+
+  optionalPassword: z
+    .string()
+    .min(8, "Password must be between 8 and 128 characters")
+    .max(128, "Password must be between 8 and 128 characters")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+      "Password must contain lowercase, uppercase, number, and special char"
+    )
+    .optional()
+    .or(z.literal("")),
+
+  // Admin user role
+  userRole: z.enum(["admin", "user"]),
   // Media validations
   mediaType: z.enum(["image", "video"]),
   

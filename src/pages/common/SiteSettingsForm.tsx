@@ -26,7 +26,6 @@ export default function SiteSettingsForm() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [siteSettingsId, setSiteSettingsId] = useState<number | null>(null);
 
   const form = useForm<SiteSettingsFormData>({
     resolver: zodResolver(siteSettingsSchema),
@@ -51,7 +50,6 @@ export default function SiteSettingsForm() {
       const data = response.data;
 
       if (data) {
-        setSiteSettingsId(data.id ?? null);
 
         // Set existing file paths for preview if they exist — FileUpload itself
         // resolves relative paths against VITE_IMAGE_URL, so pass the raw path.
@@ -72,15 +70,6 @@ export default function SiteSettingsForm() {
   };
 
   const onSubmit = async (data: SiteSettingsFormData) => {
-    if (!siteSettingsId) {
-      toast({
-        title: "Error",
-        description: "Site settings record not found",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       setLoading(true);
 
@@ -94,7 +83,7 @@ export default function SiteSettingsForm() {
       formData.append("header_logo_media_path", data.header_logo_media_path);
       formData.append("footer_logo_media_path", data.footer_logo_media_path);
 
-      await saveSiteSettings(siteSettingsId, formData);
+      await saveSiteSettings(formData);
       toast({
         title: "Success",
         description: "Site settings saved successfully",

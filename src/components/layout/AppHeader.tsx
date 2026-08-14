@@ -61,7 +61,7 @@ export function AppHeader() {
                 </div>
                 <div className="hidden md:block text-left">
                   <div className="text-sm font-medium">{user?.username ?? "Admin"}</div>
-                  <div className="text-xs text-muted-foreground">{user?.role ?? "Admin"}</div>
+                  <div className="text-xs text-muted-foreground capitalize">{user?.role ?? "Admin"}</div>
                 </div>
               </Button>
             </DropdownMenuTrigger>

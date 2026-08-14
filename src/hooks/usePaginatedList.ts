@@ -18,7 +18,7 @@ type Fetcher<T> = (
   search?: string
 ) => Promise<PaginatedResponse<T>>;
 
-const SEARCH_DEBOUNCE_MS = 300;
+const SEARCH_DEBOUNCE_MS = 600;
 
 // Drives a server-paginated, server-searched list: keeps page/limit/search
 // state, debounces the search input, refetches whenever page/limit/debounced
