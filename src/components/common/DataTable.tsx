@@ -39,7 +39,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   ChevronDown,
   Search,
@@ -110,25 +114,28 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  
+
   // Initialize column visibility with default hidden columns
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => {
-    const initialVisibility: VisibilityState = {};
-    columns.forEach((column: any) => {
-      if (column.meta?.defaultVisible === false) {
-        initialVisibility[column.accessorKey || column.id] = false;
-      }
-    });
-    return initialVisibility;
-  });
-  
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    () => {
+      const initialVisibility: VisibilityState = {};
+      columns.forEach((column: any) => {
+        if (column.meta?.defaultVisible === false) {
+          initialVisibility[column.accessorKey || column.id] = false;
+        }
+      });
+      return initialVisibility;
+    },
+  );
+
   const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [localSearching, setLocalSearching] = useState(false);
 
   // Use external search query if provided, otherwise use internal globalFilter
-  const effectiveSearchQuery = searchQuery !== undefined ? searchQuery : globalFilter;
+  const effectiveSearchQuery =
+    searchQuery !== undefined ? searchQuery : globalFilter;
   const setEffectiveSearchQuery = onSearchChange || setGlobalFilter;
 
   // Show brief animation for local search (when no external search management)
@@ -176,13 +183,19 @@ export function DataTable<TData, TValue>({
 
   const handleBulkAction = (action: string) => {
     if (onBulkAction && hasSelectedRows) {
-      onBulkAction(action, selectedRows.map(row => row.original));
+      onBulkAction(
+        action,
+        selectedRows.map((row) => row.original),
+      );
     }
   };
 
   const handleExport = (type: "csv" | "excel" | "pdf") => {
     if (onExport) {
-      onExport(type, hasSelectedRows ? selectedRows.map(row => row.original) : undefined);
+      onExport(
+        type,
+        hasSelectedRows ? selectedRows.map((row) => row.original) : undefined,
+      );
     }
   };
 
@@ -218,7 +231,9 @@ export function DataTable<TData, TValue>({
                 <Input
                   placeholder={searchPlaceholder}
                   value={effectiveSearchQuery ?? ""}
-                  onChange={(event) => setEffectiveSearchQuery(event.target.value)}
+                  onChange={(event) =>
+                    setEffectiveSearchQuery(event.target.value)
+                  }
                   className="pl-8"
                 />
               </div>
@@ -233,7 +248,9 @@ export function DataTable<TData, TValue>({
                 >
                   <Filter className="mr-2 h-4 w-4" />
                   Filters
-                  <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                  <ChevronDown
+                    className={`ml-2 h-4 w-4 transition-transform ${showFilters ? "rotate-180" : ""}`}
+                  />
                 </Button>
               )}
 
@@ -303,7 +320,9 @@ export function DataTable<TData, TValue>({
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg">
                   {filters.map((filter) => (
                     <div key={filter.id} className="space-y-2">
-                      <label className="text-sm font-medium">{filter.label}</label>
+                      <label className="text-sm font-medium">
+                        {filter.label}
+                      </label>
                       {filter.type === "select" && filter.options && (
                         <Select>
                           <SelectTrigger>
@@ -311,7 +330,10 @@ export function DataTable<TData, TValue>({
                           </SelectTrigger>
                           <SelectContent>
                             {filter.options.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
                                 {option.label}
                               </SelectItem>
                             ))}
@@ -342,7 +364,8 @@ export function DataTable<TData, TValue>({
           {hasSelectedRows && (
             <div className="flex items-center justify-between bg-muted/50 p-3 rounded-lg">
               <Badge variant="secondary">
-                {selectedRows.length} of {table.getFilteredRowModel().rows.length} row(s) selected
+                {selectedRows.length} of{" "}
+                {table.getFilteredRowModel().rows.length} row(s) selected
               </Badge>
               <div className="flex items-center space-x-2">
                 {bulkActions.length > 0 && onBulkAction && (
@@ -359,15 +382,17 @@ export function DataTable<TData, TValue>({
                           key={action.value}
                           onClick={() => handleBulkAction(action.value)}
                         >
-                          {action.icon && <span className="mr-2">{action.icon}</span>}
+                          {action.icon && (
+                            <span className="mr-2">{action.icon}</span>
+                          )}
                           {action.label}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
-                <Button 
-                  variant="destructive" 
+                <Button
+                  variant="destructive"
                   size="sm"
                   onClick={() => handleBulkAction("delete")}
                 >
@@ -392,7 +417,7 @@ export function DataTable<TData, TValue>({
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHead>
                     ))}
@@ -402,7 +427,10 @@ export function DataTable<TData, TValue>({
               <TableBody>
                 {loading && !data.length ? (
                   <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
                       <div className="flex items-center justify-center space-x-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                         <span>Loading...</span>
@@ -419,7 +447,7 @@ export function DataTable<TData, TValue>({
                         <TableCell key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </TableCell>
                       ))}
@@ -443,12 +471,10 @@ export function DataTable<TData, TValue>({
           {pagination ? (
             <div className="flex items-center justify-between space-x-2 py-4">
               <div className="flex items-center space-x-2">
-                <p className="text-sm text-muted-foreground">
+                {/* <p className="text-sm text-muted-foreground">
                   {table.getFilteredSelectedRowModel().rows.length} of{" "}
                   {pagination ? pagination.totalCount : data.length} row(s) selected
-                </p>
-              </div>
-              <div className="flex items-center space-x-6 lg:space-x-8">
+                </p> */}
                 {pagination.onPageSizeChange && (
                   <div className="flex items-center space-x-2">
                     <p className="text-sm font-medium">Rows per page</p>
@@ -471,8 +497,14 @@ export function DataTable<TData, TValue>({
                     </Select>
                   </div>
                 )}
+              </div>
+              <div className="flex items-center space-x-6 lg:space-x-8">
                 <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-                  Page {pagination.currentPage} of {pagination.totalPages || Math.ceil(pagination.totalCount / (pagination.pageSize || 10))}
+                  Page {pagination.currentPage} of{" "}
+                  {pagination.totalPages ||
+                    Math.ceil(
+                      pagination.totalCount / (pagination.pageSize || 10),
+                    )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -487,7 +519,9 @@ export function DataTable<TData, TValue>({
                   <Button
                     variant="outline"
                     className="h-8 w-8 p-0"
-                    onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
+                    onClick={() =>
+                      pagination.onPageChange(pagination.currentPage - 1)
+                    }
                     disabled={pagination.currentPage <= 1}
                   >
                     <span className="sr-only">Go to previous page</span>
@@ -496,8 +530,16 @@ export function DataTable<TData, TValue>({
                   <Button
                     variant="outline"
                     className="h-8 w-8 p-0"
-                    onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
-                    disabled={pagination.currentPage >= (pagination.totalPages || Math.ceil(pagination.totalCount / (pagination.pageSize || 10)))}
+                    onClick={() =>
+                      pagination.onPageChange(pagination.currentPage + 1)
+                    }
+                    disabled={
+                      pagination.currentPage >=
+                      (pagination.totalPages ||
+                        Math.ceil(
+                          pagination.totalCount / (pagination.pageSize || 10),
+                        ))
+                    }
                   >
                     <span className="sr-only">Go to next page</span>
                     <ChevronRight className="h-4 w-4" />
@@ -505,8 +547,21 @@ export function DataTable<TData, TValue>({
                   <Button
                     variant="outline"
                     className="hidden h-8 w-8 p-0 lg:flex"
-                    onClick={() => pagination.onPageChange(pagination.totalPages || Math.ceil(pagination.totalCount / (pagination.pageSize || 10)))}
-                    disabled={pagination.currentPage >= (pagination.totalPages || Math.ceil(pagination.totalCount / (pagination.pageSize || 10)))}
+                    onClick={() =>
+                      pagination.onPageChange(
+                        pagination.totalPages ||
+                          Math.ceil(
+                            pagination.totalCount / (pagination.pageSize || 10),
+                          ),
+                      )
+                    }
+                    disabled={
+                      pagination.currentPage >=
+                      (pagination.totalPages ||
+                        Math.ceil(
+                          pagination.totalCount / (pagination.pageSize || 10),
+                        ))
+                    }
                   >
                     <span className="sr-only">Go to last page</span>
                     <ChevronsRight className="h-4 w-4" />
@@ -532,7 +587,9 @@ export function DataTable<TData, TValue>({
                     }}
                   >
                     <SelectTrigger className="h-8 w-[70px]">
-                      <SelectValue placeholder={table.getState().pagination.pageSize} />
+                      <SelectValue
+                        placeholder={table.getState().pagination.pageSize}
+                      />
                     </SelectTrigger>
                     <SelectContent side="top">
                       {[10, 20, 30, 40, 50].map((pageSize) => (

@@ -45,6 +45,10 @@ const PagesForm = React.lazy(() => import("./pages/masters/PagesForm"));
 const BannersList = React.lazy(() => import("./pages/siteSettings/BannersList"));
 const BannersForm = React.lazy(() => import("./pages/siteSettings/BannersForm"));
 
+// Site Settings — Footer Media
+const FooterMediaList = React.lazy(() => import("./pages/siteSettings/FooterMediaList"));
+const FooterMediaForm = React.lazy(() => import("./pages/siteSettings/FooterMediaForm"));
+
 // Home pages that exist
 // convert all imports to lazy loading using React.lazy and Suspense
 
@@ -202,6 +206,34 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <BannersForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Footer Media Routes */}
+              <Route
+                path="/footer-media"
+                element={
+                  <ProtectedRoute>
+                    <FooterMediaList />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/footer-media/new"
+                element={
+                  <ProtectedRoute>
+                    <FooterMediaForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/footer-media/:id/edit"
+                element={
+                  <ProtectedRoute>
+                    <FooterMediaForm />
                   </ProtectedRoute>
                 }
               />

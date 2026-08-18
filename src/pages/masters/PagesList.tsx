@@ -112,7 +112,7 @@ export default function PagesList() {
       accessorKey: "page",
       header: "Page",
       cell: ({ row }) => (
-        <div className="font-medium">{row.getValue("page")}</div>
+        <div className="font-medium capitalize">{row.getValue("page")}</div>
       ),
     },
     {

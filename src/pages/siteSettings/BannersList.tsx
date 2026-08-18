@@ -92,7 +92,7 @@ export default function BannersList() {
       id: "page",
       header: "Page",
       cell: ({ row }) => (
-        <div className="font-medium">{row.original.page?.page ?? "-"}</div>
+        <div className="font-medium capitalize">{row.original.page?.page ?? "-"}</div>
       ),
     },
     {
@@ -147,7 +147,7 @@ export default function BannersList() {
         columns={columns}
         data={banners}
         title="Banners"
-        searchPlaceholder="Search banners..."
+        searchPlaceholder="Search banners by pages..."
         onAdd={() => navigate("/banners/new")}
         addButtonText="Add Banner"
         loading={loading}

@@ -124,10 +124,7 @@ export default function BannersForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError
-            ? error.message
-            : `Failed to ${isEditing ? "update" : "create"} banner`,
+        description: `Failed to ${isEditing ? "update" : "create"} banner`,
         variant: "destructive",
       });
     } finally {
@@ -254,7 +251,7 @@ export default function BannersForm() {
             </Button>
             <Button type="submit" disabled={loading}>
               <Save className="h-4 w-4 mr-2" />
-              {loading ? "Saving..." : isEditing ? "Update" : "Create"}
+              {isEditing ? "Update" : "Create"}
             </Button>
           </div>
         </form>

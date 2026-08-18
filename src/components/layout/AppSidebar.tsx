@@ -52,6 +52,7 @@ const commonSection = [
   { title: "Social Media", url: "/social-media", icon: Share2 },
   { title: "Meta Tags", url: "/meta-tags", icon: Tags },
   { title: "Banners", url: "/banners", icon: Image },
+  { title: "Footer Media", url: "/footer-media", icon: Image },
 ];
 const mastersSection = [{ title: "Pages", url: "/pages", icon: Compass }];
 const adminSection = [{ title: "Users", url: "/users", icon: Users }];
@@ -84,7 +85,7 @@ export function AppSidebar() {
     }
     // Common sections
     else if (
-      ["/site-settings", "/social-media", "/meta-tags", "/common-faq", "/banners"].some(
+      ["/site-settings", "/social-media", "/meta-tags", "/common-faq", "/banners", "/footer-media"].some(
         (route) => path.includes(route),
       )
     ) {

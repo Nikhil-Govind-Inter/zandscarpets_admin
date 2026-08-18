@@ -79,6 +79,7 @@ export function Combobox({
                     onChange(option.value)
                     setOpen(false)
                   }}
+                  className="capitalize"
                 >
                   <Check
                     className={cn(

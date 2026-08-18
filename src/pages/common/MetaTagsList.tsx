@@ -44,7 +44,7 @@ export const MetaTagsList: React.FC = () => {
       accessorFn: (row) => row.page?.page,
       header: "Page",
       cell: ({ row }) => (
-        <div className="font-medium">{row.original.page?.page}</div>
+        <div className="font-medium capitalize">{row.original.page?.page}</div>
       ),
     },
     // {
