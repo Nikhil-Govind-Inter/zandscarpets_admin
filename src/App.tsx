@@ -32,44 +32,23 @@ const SocialMediaList = React.lazy(
 const SocialMediaForm = React.lazy(
   () => import("./pages/common/SocialMediaForm"),
 );
-const CommonFaqList = React.lazy(() => import("./pages/common/CommonFaqList"));
-const CommonFaqForm = React.lazy(() => import("./pages/common/CommonFaqForm"));
+
 const UsersList = React.lazy(() => import("./pages/users/UsersList"));
 const UsersForm = React.lazy(() => import("./pages/users/UsersForm"));
 import { MetaTagsList } from "./pages/common/MetaTagsList";
+
+// Masters — Pages
+const PagesList = React.lazy(() => import("./pages/masters/PagesList"));
+const PagesForm = React.lazy(() => import("./pages/masters/PagesForm"));
+
+// Site Settings — Banners
+const BannersList = React.lazy(() => import("./pages/siteSettings/BannersList"));
+const BannersForm = React.lazy(() => import("./pages/siteSettings/BannersForm"));
 
 // Home pages that exist
 // convert all imports to lazy loading using React.lazy and Suspense
 
 const HomeCmsForm = React.lazy(() => import("./pages/home/HomeCmsForm"));
-const HomeBannerSliderList = React.lazy(
-  () => import("./pages/home/HomeBannerSliderList"),
-);
-import HomeBannerSliderForm from "./pages/home/HomeBannerSliderForm";
-import HomeMilestoneList from "./pages/home/HomeMilestoneList";
-import HomeMilestoneForm from "./pages/home/HomeMilestoneForm";
-import HomeMapList from "./pages/home/HomeMapList";
-import HomeMapForm from "./pages/home/HomeMapForm";
-import HomeExploreList from "./pages/home/HomeExploreList";
-import HomeExploreForm from "./pages/home/HomeExploreForm";
-import HomeAppFeatures from "./pages/home/HomeAppFeatures";
-import HomeAppFeaturesForm from "./pages/home/HomeAppFeaturesForm";
-import HomeInvestment from "./pages/home/HomeInvestment";
-import HomeInvestmentForm from "./pages/home/HomeInvestmentForm";
-import AboutCmsForm from "./pages/about/AboutCmsForm";
-import AboutOurValues from "./pages/about/AboutOurValues";
-import AboutOurValuesForm from "./pages/about/AboutOurValuesForm";
-import AboutOurJourneyList from "./pages/about/AboutOurJourneyList";
-import AboutOurJourneyForm from "./pages/about/AboutOurJourneyForm";
-import AboutMediaList from "./pages/about/AboutMediaList";
-import AboutMediaForm from "./pages/about/AboutMediaForm";
-import InvestInGoecCmsForm from "./pages/investingoec/InvestInGoecCmsForm";
-import InvestInGoecExploreList from "./pages/investingoec/InvestInGoecExploreList";
-import InvestInGoecExploreForm from "./pages/investingoec/InvestInGoecExploreForm";
-import InvestInGoecMilestoneList from "./pages/investingoec/InvestInGoecMilestoneList";
-import InvestInGoecMilestoneForm from "./pages/investingoec/InvestInGoecMilestoneForm";
-import InvestInGoecFeaturesList from "./pages/investingoec/InvestInGoecFeaturesList";
-import InvestInGoecFeaturesForm from "./pages/investingoec/InvestInGoecFeaturesForm";
 import PageLoader from "./components/layout/PageLoader";
 
 const queryClient = new QueryClient();
@@ -108,7 +87,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner />
+      <Sonner position="top-right" />
       <BrowserRouter>
         <AuthProvider>
           <Suspense fallback={<PageLoader />}>
@@ -119,6 +98,16 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Index />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* HOME */}
+              <Route
+                path="/home-cms"
+                element={
+                  <ProtectedRoute>
+                    <HomeCmsForm />
                   </ProtectedRoute>
                 }
               />
@@ -161,396 +150,58 @@ const App = () => (
                 }
               />
 
-              {/* Common FAQ Management Routes */}
+              {/* Pages Routes */}
               <Route
-                path="/common-faq"
+                path="/pages"
                 element={
                   <ProtectedRoute>
-                    <CommonFaqList />
+                    <PagesList />
                   </ProtectedRoute>
                 }
               />
 
               <Route
-                path="/common-faq/new"
+                path="/pages/new"
                 element={
                   <ProtectedRoute>
-                    <CommonFaqForm />
+                    <PagesForm />
                   </ProtectedRoute>
                 }
               />
 
               <Route
-                path="/common-faq/:id/edit"
+                path="/pages/:id/edit"
                 element={
                   <ProtectedRoute>
-                    <CommonFaqForm />
+                    <PagesForm />
                   </ProtectedRoute>
                 }
               />
 
-              {/* Home CMS Route */}
+              {/* Banners Routes */}
               <Route
-                path="/home-cms"
+                path="/banners"
                 element={
                   <ProtectedRoute>
-                    <HomeCmsForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Home Banner Slider Routes */}
-              <Route
-                path="/home-banner-slider"
-                element={
-                  <ProtectedRoute>
-                    <HomeBannerSliderList />
+                    <BannersList />
                   </ProtectedRoute>
                 }
               />
 
               <Route
-                path="/home-banner-slider/create"
+                path="/banners/new"
                 element={
                   <ProtectedRoute>
-                    <HomeBannerSliderForm />
+                    <BannersForm />
                   </ProtectedRoute>
                 }
               />
 
               <Route
-                path="/home-banner-slider/edit/:id"
+                path="/banners/:id/edit"
                 element={
                   <ProtectedRoute>
-                    <HomeBannerSliderForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Home Milestone Routes */}
-              <Route
-                path="/home-milestone"
-                element={
-                  <ProtectedRoute>
-                    <HomeMilestoneList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/home-milestone/create"
-                element={
-                  <ProtectedRoute>
-                    <HomeMilestoneForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/home-milestone/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <HomeMilestoneForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Home Map Routes */}
-              <Route
-                path="/home-map"
-                element={
-                  <ProtectedRoute>
-                    <HomeMapList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/home-map/create"
-                element={
-                  <ProtectedRoute>
-                    <HomeMapForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/home-map/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <HomeMapForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Home Explore Routes */}
-              <Route
-                path="/home-explore"
-                element={
-                  <ProtectedRoute>
-                    <HomeExploreList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/home-explore/create"
-                element={
-                  <ProtectedRoute>
-                    <HomeExploreForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/home-explore/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <HomeExploreForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Home App Features Routes */}
-              <Route
-                path="/home-app-features"
-                element={
-                  <ProtectedRoute>
-                    <HomeAppFeatures />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/home-app-features/create"
-                element={
-                  <ProtectedRoute>
-                    <HomeAppFeaturesForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/home-app-features/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <HomeAppFeaturesForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Home Investment Routes */}
-              <Route
-                path="/home-investment"
-                element={
-                  <ProtectedRoute>
-                    <HomeInvestment />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/home-investment/create"
-                element={
-                  <ProtectedRoute>
-                    <HomeInvestmentForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/home-investment/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <HomeInvestmentForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* About CMS Route */}
-              <Route
-                path="/about-cms"
-                element={
-                  <ProtectedRoute>
-                    <AboutCmsForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* About Our Values Routes */}
-              <Route
-                path="/about-our-values"
-                element={
-                  <ProtectedRoute>
-                    <AboutOurValues />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/about-our-values/create"
-                element={
-                  <ProtectedRoute>
-                    <AboutOurValuesForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/about-our-values/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <AboutOurValuesForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* About Our Journey Routes */}
-              <Route
-                path="/about-our-journey"
-                element={
-                  <ProtectedRoute>
-                    <AboutOurJourneyList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/about-our-journey/create"
-                element={
-                  <ProtectedRoute>
-                    <AboutOurJourneyForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/about-our-journey/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <AboutOurJourneyForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* About Media Routes */}
-              <Route
-                path="/about-media"
-                element={
-                  <ProtectedRoute>
-                    <AboutMediaList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/about-media/create"
-                element={
-                  <ProtectedRoute>
-                    <AboutMediaForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/about-media/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <AboutMediaForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Invest in GO EC Routes */}
-              <Route
-                path="/invest-in-zandcarpets-cms"
-                element={
-                  <ProtectedRoute>
-                    <InvestInGoecCmsForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Invest in GO EC Explore Routes */}
-              <Route
-                path="/invest-in-zandcarpets-explore"
-                element={
-                  <ProtectedRoute>
-                    <InvestInGoecExploreList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/invest-in-zandcarpets-explore/create"
-                element={
-                  <ProtectedRoute>
-                    <InvestInGoecExploreForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/invest-in-zandcarpets-explore/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <InvestInGoecExploreForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Invest in GO EC Milestone Routes */}
-              <Route
-                path="/invest-in-zandcarpets-milestone"
-                element={
-                  <ProtectedRoute>
-                    <InvestInGoecMilestoneList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/invest-in-zandcarpets-milestone/create"
-                element={
-                  <ProtectedRoute>
-                    <InvestInGoecMilestoneForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/invest-in-zandcarpets-milestone/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <InvestInGoecMilestoneForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Invest in GO EC Features Routes */}
-              <Route
-                path="/invest-in-zandcarpets-features"
-                element={
-                  <ProtectedRoute>
-                    <InvestInGoecFeaturesList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/invest-in-zandcarpets-features/create"
-                element={
-                  <ProtectedRoute>
-                    <InvestInGoecFeaturesForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/invest-in-zandcarpets-features/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <InvestInGoecFeaturesForm />
+                    <BannersForm />
                   </ProtectedRoute>
                 }
               />

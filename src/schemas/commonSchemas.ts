@@ -13,6 +13,7 @@ export const socialMediaSchema = z.object({
 export const siteSettingsSchema = z.object({
   address: commonValidations.requiredText("Address"),
   email: commonValidations.requiredEmail,
+  admin_email: commonValidations.requiredEmail,
   phone_number: commonValidations.requiredString("Phone Number"),
   whatsapp_number: commonValidations.requiredString("Whatsapp Number"),
   header_logo_media_path: commonValidations.requiredFile("Header logo"),

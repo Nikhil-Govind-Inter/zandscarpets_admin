@@ -4,13 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 import { Switch } from "@/components/ui/switch";
 import {
   Form,
@@ -34,6 +28,11 @@ import {
   CreateUserFormData,
   UpdateUserFormData,
 } from "@/schemas/userSchema";
+
+const roleOptions = [
+  { value: "user", label: "User" },
+  { value: "admin", label: "Admin" },
+];
 
 export default function UsersForm() {
   const { toast } = useToast();
@@ -212,18 +211,13 @@ export default function UsersForm() {
                     <FormItem>
                       <FormLabel>Role</FormLabel>
                       <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="user">User</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Combobox
+                          options={roleOptions}
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Select role"
+                          searchPlaceholder="Search roles..."
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

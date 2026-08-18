@@ -34,6 +34,7 @@ export default function SiteSettingsForm() {
       email: "",
       phone_number: "",
       whatsapp_number: "",
+      admin_email: "",
       header_logo_media_path: "",
       footer_logo_media_path: "",
     },
@@ -54,8 +55,9 @@ export default function SiteSettingsForm() {
         // Set existing file paths for preview if they exist — FileUpload itself
         // resolves relative paths against VITE_IMAGE_URL, so pass the raw path.
         form.reset({
-          address: data.address || "",
           email: data.email || "",
+          address: data.address || "",
+          admin_email: data.admin_email || "",
           phone_number: data.phone_number || "",
           whatsapp_number: data.whatsapp_number || "",
           header_logo_media_path: data.header_logo_media_path || "",
@@ -78,7 +80,7 @@ export default function SiteSettingsForm() {
       formData.append("email", data.email);
       formData.append("phone_number", data.phone_number);
       formData.append("whatsapp_number", data.whatsapp_number);
-
+      formData.append("admin_email", data.admin_email);
       // Add files if new ones were chosen, otherwise fall back to the existing path string
       formData.append("header_logo_media_path", data.header_logo_media_path);
       formData.append("footer_logo_media_path", data.footer_logo_media_path);
@@ -176,6 +178,20 @@ export default function SiteSettingsForm() {
                     <FormLabel>Whatsapp Number</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter whatsapp number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="admin_email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Admin Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter admin email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -44,7 +44,6 @@ import {
   ChevronDown,
   Search,
   Download,
-  Eye,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -52,8 +51,6 @@ import {
   ChevronsRight,
   Filter,
   Trash2,
-  CheckCircle,
-  XCircle,
   FileText,
   FileSpreadsheet,
 } from "lucide-react";
@@ -156,7 +153,10 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: pagination ? undefined : getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    // When the caller owns search (passes onSearchChange), filtering already
+    // happened server-side — skip the client-side global filter so it can't
+    // double-filter (or diverge from) what the server already returned.
+    getFilteredRowModel: onSearchChange ? undefined : getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     onGlobalFilterChange: setGlobalFilter,

@@ -29,6 +29,8 @@ export default function SocialMediaList() {
     setPage,
     limit,
     setLimit,
+    itemsPage,
+    itemsLimit,
     searchInput,
     setSearchInput,
     totalCount,
@@ -187,10 +189,17 @@ export default function SocialMediaList() {
 
   const columns: ColumnDef<SocialMedia>[] = [
     {
-      accessorKey: "id",
+      id: "id",
       header: "ID",
+      // Serial ID that increments from 1 and stays continuous across
+      // pagination. Uses itemsPage/itemsLimit (the page/limit the currently
+      // loaded data actually corresponds to) rather than page/limit
+      // directly, so it doesn't flash the next page's numbers over the
+      // still-loading current page's rows.
       cell: ({ row }) => (
-        <div className="font-mono text-sm">{row.index + 1}</div>
+        <div className="font-mono text-sm">
+          {(itemsPage - 1) * itemsLimit + row.index + 1}
+        </div>
       ),
     },
     {

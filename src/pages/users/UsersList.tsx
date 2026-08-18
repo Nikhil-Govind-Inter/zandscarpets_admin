@@ -206,7 +206,7 @@ export default function UsersList() {
         statusToggleItem={statusToggleItem}
         setStatusToggleItem={setStatusToggleItem}
         confirmStatusToggle={confirmStatusToggle}
-        itemLabel="social media item"
+        itemLabel="User"
       />
     </>
   );

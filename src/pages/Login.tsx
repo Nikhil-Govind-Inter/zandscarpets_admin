@@ -100,13 +100,13 @@ export default function Login() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Email / Username</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="username"
                     type="text"
-                    placeholder="Enter your username"
+                    placeholder="Enter your email / username"
                     autoComplete="username"
                     className="pl-10"
                     {...form.register("username")}

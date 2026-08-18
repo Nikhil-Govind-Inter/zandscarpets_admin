@@ -148,6 +148,11 @@ export function FileUpload({
     if (previewUrl) return previewUrl; // File blob URL for new uploads
 
     if (typeof value === "string") {
+      // Empty string means no file has been set — don't treat it as a path
+      if (!value.trim()) {
+        return null;
+      }
+
       // Check if it's already a complete URL (starts with http:// or https://)
       if (value.startsWith("http://") || value.startsWith("https://")) {
         return value; // Already complete URL, use as-is
@@ -208,8 +213,8 @@ export function FileUpload({
               )}
             >
               <input {...getInputProps()} />
-              <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground mb-2">
+              <Upload className="mx-auto h-6 w-6 text-muted-foreground mb-3" />
+              <p className="text-sm text-muted-foreground mb-3">
                 {isDragActive ? "Drop the file here..." : enhancedPlaceholder}
               </p>
               <Button type="button" variant="outline" size="sm">

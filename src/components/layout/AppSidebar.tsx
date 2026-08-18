@@ -15,12 +15,9 @@ import {
   Smartphone,
   TrendingUp,
   Info,
-  FileText,
   Heart,
   Clock,
   Image,
-  DollarSign,
-  Star,
   Users,
 } from "lucide-react";
 
@@ -28,7 +25,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -48,37 +44,28 @@ const mainNavItems = [{ title: "Dashboard", url: "/", icon: LayoutDashboard }];
 
 const homeSection = [
   { title: "CMS", url: "/home-cms", icon: Home },
-  { title: "Banner Slider", url: "/home-banner-slider", icon: Monitor },
-  { title: "Milestone", url: "/home-milestone", icon: Target },
-  { title: "Map", url: "/home-map", icon: MapPin },
-  { title: "Explore", url: "/home-explore", icon: Compass },
-  { title: "App Features", url: "/home-app-features", icon: Smartphone },
-  { title: "Investment", url: "/home-investment", icon: TrendingUp },
 ];
 
-const aboutSection = [
-  { title: "About CMS", url: "/about-cms", icon: Info },
-  { title: "Our Values", url: "/about-our-values", icon: Heart },
-  { title: "Our Journey", url: "/about-our-journey", icon: Clock },
-  { title: "Media", url: "/about-media", icon: Image },
-];
 
 const commonSection = [
   { title: "Site Settings", url: "/site-settings", icon: Settings },
   { title: "Social Media", url: "/social-media", icon: Share2 },
   { title: "Meta Tags", url: "/meta-tags", icon: Tags },
-  { title: "Common FAQ", url: "/common-faq", icon: HelpCircle },
+  { title: "Banners", url: "/banners", icon: Image },
 ];
+const mastersSection = [{ title: "Pages", url: "/pages", icon: Compass }];
 const adminSection = [{ title: "Users", url: "/users", icon: Users }];
+
+const isNavActive = (pathname: string, url: string, end = false) =>
+  end ? pathname === url : pathname === url || pathname.startsWith(`${url}/`);
+
+const navItemCls =
+  "flex items-center w-full text-left text-sidebar-foreground hover:bg-sidebar-accent/50";
 
 export function AppSidebar() {
   const location = useLocation();
   const { role } = useAuth();
-  const [homeOpen, setHomeOpen] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
-  const [investOpen, setInvestOpen] = useState(false);
-  const [commonOpen, setCommonOpen] = useState(false);
-  const [adminOpen, setAdminOpen] = useState(false);
+  const [openSection, setOpenSection] = useState<string | null>(null);
 
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -89,39 +76,29 @@ export function AppSidebar() {
 
     // Home section
     if (path.includes("/home-")) {
-      setHomeOpen(true);
+      setOpenSection("home");
     }
-
     // About section
-    if (path.includes("/about-")) {
-      setAboutOpen(true);
+    else if (path.includes("/about-")) {
+      setOpenSection("about");
     }
-
-    // Invest section
-    if (path.includes("/invest-")) {
-      setInvestOpen(true);
-    }
-
     // Common sections
-    if (
-      ["/site-settings", "/social-media", "/meta-tags", "/common-faq"].some(
+    else if (
+      ["/site-settings", "/social-media", "/meta-tags", "/common-faq", "/banners"].some(
         (route) => path.includes(route),
       )
     ) {
-      setCommonOpen(true);
+      setOpenSection("common");
     }
-
-    if (["/users"].some((route) => path.includes(route))) {
-      setAdminOpen(true);
+    // Masters section
+    else if (["/pages"].some((route) => path.includes(route))) {
+      setOpenSection("masters");
+    }
+    // Admin section
+    else if (["/users"].some((route) => path.includes(route))) {
+      setOpenSection("admin");
     }
   }, [location.pathname]);
-
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center w-full text-left ${
-      isActive
-        ? "bg-sidebar-accent text-sidebar-primary font-medium"
-        : "text-sidebar-foreground hover:bg-sidebar-accent/50"
-    }`;
 
   return (
     <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon">
@@ -152,8 +129,11 @@ export function AppSidebar() {
           <SidebarMenu>
             {mainNavItems.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
-                  <NavLink to={item.url} end className={getNavCls}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isNavActive(location.pathname, item.url, true)}
+                >
+                  <NavLink to={item.url} end className={navItemCls}>
                     <item.icon className="h-5 w-5 flex-shrink-0" />
                     {!isCollapsed && <span className="ml-3">{item.title}</span>}
                   </NavLink>
@@ -168,31 +148,32 @@ export function AppSidebar() {
           Icon={Home}
           title="Home"
           isCollapsed={isCollapsed}
-          open={homeOpen}
-          setOpen={setHomeOpen}
-          getNavCls={getNavCls}
+          open={openSection === "home"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "home" : null)}
+          pathname={location.pathname}
           Section={homeSection}
         />
 
-        {/* About Page */}
-        <GetLayout
-          Icon={Info}
-          title="About"
-          isCollapsed={isCollapsed}
-          open={aboutOpen}
-          setOpen={setAboutOpen}
-          getNavCls={getNavCls}
-          Section={aboutSection}
-        />
         {/* Common Sections */}
         <GetLayout
           Icon={Settings}
           title="Settings & Common"
           isCollapsed={isCollapsed}
-          open={commonOpen}
-          setOpen={setCommonOpen}
-          getNavCls={getNavCls}
+          open={openSection === "common"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "common" : null)}
+          pathname={location.pathname}
           Section={commonSection}
+        />
+
+        {/* Masters */}
+        <GetLayout
+          Icon={Compass}
+          title="Masters"
+          isCollapsed={isCollapsed}
+          open={openSection === "masters"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "masters" : null)}
+          pathname={location.pathname}
+          Section={mastersSection}
         />
 
         {role === ROLES.ADMIN && (
@@ -200,9 +181,9 @@ export function AppSidebar() {
             Icon={Users}
             title="Admin"
             isCollapsed={isCollapsed}
-            open={adminOpen}
-            setOpen={setAdminOpen}
-            getNavCls={getNavCls}
+            open={openSection === "admin"}
+            onOpenChange={(isOpen) => setOpenSection(isOpen ? "admin" : null)}
+            pathname={location.pathname}
             Section={adminSection}
           />
         )}
@@ -211,11 +192,17 @@ export function AppSidebar() {
   );
 }
 
-function GetLayout({ open, setOpen, getNavCls, Section, isCollapsed, title, Icon }) {
+function GetLayout({ open, onOpenChange, pathname, Section, isCollapsed, title, Icon }) {
   return (
     <SidebarGroup>
-      <Collapsible open={!isCollapsed && open} onOpenChange={setOpen}>
-        <CollapsibleTrigger className="flex items-center w-full p-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-md">
+      <Collapsible open={!isCollapsed && open} onOpenChange={onOpenChange}>
+        <CollapsibleTrigger
+          className={`flex items-center w-full p-2 text-sm font-medium rounded-md transition-colors ${
+            open
+              ? "bg-sidebar-accent text-sidebar-primary"
+              : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+          }`}
+        >
           <Icon className="h-4 w-4" />
           {!isCollapsed && (
             <>
@@ -229,12 +216,20 @@ function GetLayout({ open, setOpen, getNavCls, Section, isCollapsed, title, Icon
           )}
         </CollapsibleTrigger>
         {!isCollapsed && (
-          <CollapsibleContent className="ml-6 mt-1 space-y-1">
+          <CollapsibleContent
+            className={`ml-6 mt-1 space-y-1 border-l pl-2 transition-colors ${
+              open ? "border-sidebar-primary/40" : "border-sidebar-border"
+            }`}
+          >
             <SidebarMenu>
               {Section.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild size="sm">
-                    <NavLink to={item.url} className={getNavCls}>
+                  <SidebarMenuButton
+                    asChild
+                    size="sm"
+                    isActive={isNavActive(pathname, item.url)}
+                  >
+                    <NavLink to={item.url} className={navItemCls}>
                       <item.icon className="h-4 w-4" />
                       <span className="ml-2">{item.title}</span>
                     </NavLink>

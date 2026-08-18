@@ -1,86 +1,105 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
-import { ColumnDef } from '@tanstack/react-table';
-import { Edit, Tags } from 'lucide-react';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { DataTable } from '@/components/common/DataTable';
-import { fetchMetaTagsList, MetaTag } from '@/services/common/metaTagsApi';
-import { MetaTagsForm } from './MetaTagsForm';
+import { useState } from "react";
+import { ColumnDef } from "@tanstack/react-table";
+import { Tags, Edit } from "lucide-react";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/common/DataTable";
+import { fetchMetaTagsList, MetaTag } from "@/services/common/metaTagsApi";
+import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { MetaTagsForm } from "./MetaTagsForm";
 
 export const MetaTagsList: React.FC = () => {
   const [editingMetaTag, setEditingMetaTag] = useState<MetaTag | null>(null);
 
   const {
-    data: metaTagsData,
-    isLoading,
-    error,
+    items: metaTags,
+    page,
+    setPage,
+    limit,
+    setLimit,
+    itemsPage,
+    itemsLimit,
+    searchInput,
+    setSearchInput,
+    totalCount,
+    totalPages,
+    loading,
+    searching,
     refetch,
-  } = useQuery({
-    queryKey: ['metaTags'],
-    queryFn: fetchMetaTagsList,
-  });
+  } = usePaginatedList<MetaTag>(fetchMetaTagsList);
 
   const columns: ColumnDef<MetaTag>[] = [
+    // Serial ID that increments from 1 and stays continuous across pagination
     {
-      accessorKey: 'page',
-      header: 'Page',
+      id: "id",
+      header: "ID",
+      enableHiding: true,
+      meta: { defaultVisible: true },
       cell: ({ row }) => (
-        <div className="font-medium">{row.getValue('page')}</div>
+        <div className="font-medium">{(itemsPage - 1) * itemsLimit + row.index + 1}</div>
       ),
     },
     {
-      accessorKey: 'meta_title',
-      header: 'Meta Title',
+      id: "page",
+      accessorFn: (row) => row.page?.page,
+      header: "Page",
       cell: ({ row }) => (
-        <div className="max-w-[250px] truncate" title={row.getValue('meta_title')}>
-          {row.getValue('meta_title')}
+        <div className="font-medium">{row.original.page?.page}</div>
+      ),
+    },
+    // {
+    //   id: "page_slug",
+    //   accessorFn: (row) => row.page?.page_slug,
+    //   header: "Page Slug",
+    //   enableHiding: true,
+    //   meta: { defaultVisible: true },
+    //   cell: ({ row }) => (
+    //     <div className="text-muted-foreground">{row.original.page?.page_slug}</div>
+    //   ),
+    // },
+    {
+      accessorKey: "meta_title",
+      header: "Meta Title",
+      cell: ({ row }) => (
+        <div
+          className="max-w-[250px] truncate"
+          title={row.getValue("meta_title")}
+        >
+          {row.getValue("meta_title")}
         </div>
       ),
     },
     {
-      accessorKey: 'meta_description',
-      header: 'Meta Description',
+      accessorKey: "meta_description",
+      header: "Meta Description",
       enableHiding: true,
-      meta: { defaultVisible: false },
+      meta: { defaultVisible: true },
       cell: ({ row }) => (
-        <div className="max-w-[300px] truncate" title={row.getValue('meta_description')}>
-          {row.getValue('meta_description')}
+        <div
+          className="max-w-[300px] truncate"
+          title={row.getValue("meta_description")}
+        >
+          {row.getValue("meta_description")}
         </div>
       ),
     },
     {
-      accessorKey: 'meta_keywords',
-      header: 'Keywords',
+      accessorKey: "meta_keywords",
+      header: "Keywords",
       enableHiding: true,
-      meta: { defaultVisible: false },
+      meta: { defaultVisible: true },
       cell: ({ row }) => (
-        <div className="max-w-[200px] truncate" title={row.getValue('meta_keywords')}>
-          {row.getValue('meta_keywords')}
+        <div
+          className="max-w-[200px] truncate"
+          title={row.getValue("meta_keywords")}
+        >
+          {row.getValue("meta_keywords")}
         </div>
       ),
     },
     {
-      accessorKey: 'canonical_url',
-      header: 'Canonical URL',
-      enableHiding: true,
-      meta: { defaultVisible: false },
-      cell: ({ row }) => {
-        const url = row.getValue('canonical_url') as string;
-        return url ? (
-          <Badge variant="secondary" className="max-w-[150px] truncate">
-            {url}
-          </Badge>
-        ) : (
-          <span className="text-muted-foreground">-</span>
-        );
-      },
-    },
-    {
-      id: 'actions',
-      header: 'Actions',
+      id: "actions",
+      header: "Actions",
       cell: ({ row }) => (
         <Button
           variant="outline"
@@ -99,60 +118,35 @@ export const MetaTagsList: React.FC = () => {
     refetch();
   };
 
-  if (error) {
-    return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-2">
-            <Tags className="h-6 w-6" />
-            <h1 className="text-2xl font-bold">Meta Tags</h1>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <p className="text-red-500">Error loading meta tags: {(error as Error).message}</p>
-            <Button onClick={() => refetch()} className="mt-4">
-              Try Again
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Tags className="h-6 w-6" />
-              <h1 className="text-2xl font-bold">Meta Tags</h1>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={metaTagsData?.data?.data || []}
-            loading={isLoading}
-            pagination={{
-              totalCount: metaTagsData?.data?.pagination?.totalCount || 0,
-              totalPages: metaTagsData?.data?.pagination?.totalPages || 0,
-              currentPage: metaTagsData?.data?.pagination?.currentPage || 1,
-              limit: metaTagsData?.data?.pagination?.limit || 15,
-            }}
-          />
-        </CardContent>
-      </Card>
+    <div className="">
+      <DataTable
+        columns={columns}
+        data={metaTags}
+        title="Meta Tags"
+        loading={loading}
+        searching={searching}
+        searchPlaceholder="Search by page..."
+        searchQuery={searchInput}
+        onSearchChange={setSearchInput}
+        pagination={{
+          currentPage: page,
+          totalPages,
+          totalCount,
+          onPageChange: setPage,
+          pageSize: limit,
+          onPageSizeChange: (size) => {
+            setLimit(size);
+            setPage(1);
+          },
+        }}
+      />
 
-      {editingMetaTag && (
-        <MetaTagsForm
-          metaTag={editingMetaTag}
-          onClose={() => setEditingMetaTag(null)}
-          onSuccess={handleEditComplete}
-        />
-      )}
+      <MetaTagsForm
+        metaTag={editingMetaTag}
+        onClose={() => setEditingMetaTag(null)}
+        onSuccess={handleEditComplete}
+      />
     </div>
   );
 };
