@@ -195,7 +195,7 @@ export default function AdsBannerList() {
     },
     {
       accessorKey: "sort_order",
-      header: () => <div className="text-center">Sort Order</div>,
+      header: "Sort Order",
       cell: ({ row }) => {
         const item = row.original;
         const sortOrder = row.getValue("sort_order") as number;

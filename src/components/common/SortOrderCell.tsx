@@ -18,7 +18,7 @@ export default function SortOrderCell({
   minValue = 1,
 }: SortOrderCellProps) {
   return (
-    <div className="flex items-center justify-center gap-1">
+    <div className="flex items-center justify-start gap-1">
       <Button
         variant="outline"
         size="icon"

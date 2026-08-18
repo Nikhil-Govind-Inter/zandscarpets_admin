@@ -142,15 +142,6 @@ export default function UsersList() {
       },
     },
     {
-      accessorKey: "createdAt",
-      header: "Created At",
-      cell: ({ row }) => (
-        <div className="text-sm text-muted-foreground">
-          {new Date(row.getValue("createdAt")).toLocaleDateString()}
-        </div>
-      ),
-    },
-    {
       id: "actions",
       cell: ({ row }) => {
         const item = row.original;
