@@ -1,17 +1,17 @@
 import { apiFetch } from "@/lib/apiClient";
 
-// Masters > Pages — backed by `/api/backend/masters/pages` (authMiddleware-gated,
-// same as users). Uses the apiFetch + ApiError + envelope-parsing convention from
-// usersApi.ts rather than the older raw-fetch style in socialMediaApi.ts.
+// Masters > Faqs — backed by `/api/backend/masters/faqs`. Uses the apiFetch
+// + ApiError + envelope-parsing convention from pagesApi.ts.
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL;
 
-const PAGES_URL = `${API_BASE_URL}/masters/pages`;
+const FAQS_URL = `${API_BASE_URL}/masters/faqs`;
 
-export interface PageRecord {
+export interface FaqRecord {
   id: number;
-  page: string;
-  page_slug: string;
+  question: string;
+  answer: string;
+  sort_order: number;
   is_active: boolean;
   deleted_at?: string | null;
   createdAt?: string;
@@ -70,9 +70,9 @@ const parseEnvelope = async <T>(
   return body;
 };
 
-export interface PagesListResponse {
+export interface FaqsListResponse {
   data: {
-    data: PageRecord[];
+    data: FaqRecord[];
     pagination: {
       totalCount: number;
       totalPages: number;
@@ -83,18 +83,19 @@ export interface PagesListResponse {
   };
 }
 
-export interface PagePayload {
-  page: string;
-  page_slug: string;
+export interface FaqPayload {
+  question: string;
+  answer: string;
+  sort_order: number;
   is_active: boolean;
 }
 
 // Fetcher shape matches usePaginatedList's `Fetcher<T>` contract.
-export const fetchPagesList = async (
+export const fetchFaqsList = async (
   page: number,
   limit: number,
   search?: string,
-): Promise<PagesListResponse> => {
+): Promise<FaqsListResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
@@ -104,68 +105,63 @@ export const fetchPagesList = async (
     params.append("search", search);
   }
 
-  const response = await apiFetch(`${PAGES_URL}?${params}`);
-  return parseEnvelope<PagesListResponse["data"]>(response);
+  const response = await apiFetch(`${FAQS_URL}?${params}`);
+  return parseEnvelope<FaqsListResponse["data"]>(response);
 };
 
-// Pulls every page in one shot (high limit, no search) for use in dropdowns
-// (e.g. the Banner form's Page select) where pagination doesn't apply.
-export const fetchAllPages = async (): Promise<PageRecord[]> => {
-  const response = await fetchPagesList(1, 100);
-  return response.data.data;
-};
-
-export const fetchActivePages = async (): Promise<PageRecord[]> => {
-  const response = await apiFetch(`${PAGES_URL}/active`);
-  const parsed = await parseEnvelope<PageRecord[]>(response);
-  return parsed.data;
-};
-
-export const fetchPageById = async (
+export const fetchFaqById = async (
   id: number,
-): Promise<{ data: PageRecord }> => {
-  const response = await apiFetch(`${PAGES_URL}/${id}`);
-  return parseEnvelope<PageRecord>(response);
+): Promise<{ data: FaqRecord }> => {
+  const response = await apiFetch(`${FAQS_URL}/${id}`);
+  return parseEnvelope<FaqRecord>(response);
 };
 
-export const createPage = async (
-  payload: PagePayload,
-): Promise<{ data: PageRecord }> => {
-  const response = await apiFetch(PAGES_URL, {
+export const createFaq = async (
+  payload: FaqPayload,
+): Promise<{ data: FaqRecord }> => {
+  const response = await apiFetch(FAQS_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return parseEnvelope<PageRecord>(response);
+  return parseEnvelope<FaqRecord>(response);
 };
 
-// The backend validates page/page_slug/is_active as required on every PUT
-// /:id (no partial-patch support — see pagesRequest.js), so quick actions
-// like the status toggle must resend the full record.
-export const updatePage = async (
+export const updateFaq = async (
   id: number,
-  payload: PagePayload,
-): Promise<{ data: PageRecord }> => {
-  const response = await apiFetch(`${PAGES_URL}/${id}`, {
+  payload: FaqPayload,
+): Promise<{ data: FaqRecord }> => {
+  const response = await apiFetch(`${FAQS_URL}/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return parseEnvelope<PageRecord>(response);
+  return parseEnvelope<FaqRecord>(response);
 };
 
-export const deletePage = async (
+export const deleteFaq = async (
   id: number,
 ): Promise<{ data: { id: number } }> => {
-  const response = await apiFetch(`${PAGES_URL}/${id}`, {
+  const response = await apiFetch(`${FAQS_URL}/${id}`, {
     method: "DELETE",
   });
   return parseEnvelope<{ id: number }>(response);
 };
 
-export const togglePageStatus = (item: PageRecord, isActive: boolean) =>
-  updatePage(item.id, {
-    page: item.page,
-    page_slug: item.page_slug,
+// Server has no partial-patch route, so quick actions must resend the full
+// record (see pagesApi.ts's togglePageStatus for the same convention).
+export const toggleFaqStatus = (item: FaqRecord, isActive: boolean) =>
+  updateFaq(item.id, {
+    question: item.question,
+    answer: item.answer,
+    sort_order: item.sort_order,
     is_active: isActive,
+  });
+
+export const updateFaqSortOrder = (item: FaqRecord, sortOrder: number) =>
+  updateFaq(item.id, {
+    question: item.question,
+    answer: item.answer,
+    sort_order: Math.max(1, sortOrder),
+    is_active: item.is_active,
   });

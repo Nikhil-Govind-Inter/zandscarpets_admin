@@ -31,7 +31,7 @@ export interface SliderData {
 }
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/backend";
+  import.meta.env.VITE_API_BASE_URL;
 
 // Get all sliders
 export const getSliders = async (): Promise<SliderData[]> => {

@@ -6,7 +6,7 @@ import { apiFetch } from "@/lib/apiClient";
 // media-path round-trip rules as socialMediaApi.ts; envelope parsing follows
 // the apiFetch + ApiError convention from usersApi.ts / pagesApi.ts.
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/backend";
+  import.meta.env.VITE_API_BASE_URL;
 
 const BANNERS_URL = `${API_BASE_URL}/site-settings/banners`;
 

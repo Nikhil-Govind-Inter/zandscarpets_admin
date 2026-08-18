@@ -5,7 +5,7 @@ import { apiFetch } from "@/lib/apiClient";
 // cookie credentials + 401-refresh-retry, unlike the plain-`fetch` services
 // elsewhere in the app.
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/backend";
+  import.meta.env.VITE_API_BASE_URL;
 
 // Base path is singular "user" — matches the actual mounted backend route
 // `/api/backend/user`, distinct from the frontend page route `/users`.

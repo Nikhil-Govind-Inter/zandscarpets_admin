@@ -54,7 +54,13 @@ const commonSection = [
   { title: "Banners", url: "/banners", icon: Image },
   { title: "Footer Media", url: "/footer-media", icon: Image },
 ];
-const mastersSection = [{ title: "Pages", url: "/pages", icon: Compass }];
+const mastersSection = [
+  { title: "Pages", url: "/pages", icon: Compass },
+  { title: "Faqs", url: "/faqs", icon: HelpCircle },
+  { title: "Industry", url: "/industry", icon: MapPin },
+  { title: "Our Features", url: "/our-features", icon: TrendingUp },
+  { title: "Ads Banner", url: "/ads-banner", icon: Image },
+];
 const adminSection = [{ title: "Users", url: "/users", icon: Users }];
 
 const isNavActive = (pathname: string, url: string, end = false) =>
@@ -92,7 +98,11 @@ export function AppSidebar() {
       setOpenSection("common");
     }
     // Masters section
-    else if (["/pages"].some((route) => path.includes(route))) {
+    else if (
+      ["/pages", "/faqs", "/industry", "/our-features", "/ads-banner"].some(
+        (route) => path.includes(route),
+      )
+    ) {
       setOpenSection("masters");
     }
     // Admin section

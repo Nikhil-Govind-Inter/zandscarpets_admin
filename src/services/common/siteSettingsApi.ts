@@ -1,6 +1,6 @@
 import { apiFetch } from "@/lib/apiClient";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/backend";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export interface SiteSettings {
   header_logo_media_path: string;

@@ -2,7 +2,7 @@
 // refresh_token) — no token is ever read or stored by JS. These calls use a plain
 // `fetch` (not `apiClient`'s `apiFetch`) since `apiFetch` itself calls `refresh()`
 // on a 401, and routing refresh/login/logout through it would be circular.
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/backend";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export interface AdminUser {
   id: number;

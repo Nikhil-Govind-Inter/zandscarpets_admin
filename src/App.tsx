@@ -41,6 +41,22 @@ import { MetaTagsList } from "./pages/common/MetaTagsList";
 const PagesList = React.lazy(() => import("./pages/masters/PagesList"));
 const PagesForm = React.lazy(() => import("./pages/masters/PagesForm"));
 
+// Masters — Faqs
+const FaqsList = React.lazy(() => import("./pages/masters/FaqsList"));
+const FaqsForm = React.lazy(() => import("./pages/masters/FaqsForm"));
+
+// Masters — Industry
+const IndustryList = React.lazy(() => import("./pages/masters/IndustryList"));
+const IndustryForm = React.lazy(() => import("./pages/masters/IndustryForm"));
+
+// Masters — Our Features
+const OurFeaturesList = React.lazy(() => import("./pages/masters/OurFeaturesList"));
+const OurFeaturesForm = React.lazy(() => import("./pages/masters/OurFeaturesForm"));
+
+// Masters — Ads Banner
+const AdsBannerList = React.lazy(() => import("./pages/masters/AdsBannerList"));
+const AdsBannerForm = React.lazy(() => import("./pages/masters/AdsBannerForm"));
+
 // Site Settings — Banners
 const BannersList = React.lazy(() => import("./pages/siteSettings/BannersList"));
 const BannersForm = React.lazy(() => import("./pages/siteSettings/BannersForm"));
@@ -112,6 +128,118 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <HomeCmsForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Faqs Routes */}
+              <Route
+                path="/faqs"
+                element={
+                  <ProtectedRoute>
+                    <FaqsList />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/faqs/new"
+                element={
+                  <ProtectedRoute>
+                    <FaqsForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/faqs/:id/edit"
+                element={
+                  <ProtectedRoute>
+                    <FaqsForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Industry Routes */}
+              <Route
+                path="/industry"
+                element={
+                  <ProtectedRoute>
+                    <IndustryList />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/industry/new"
+                element={
+                  <ProtectedRoute>
+                    <IndustryForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/industry/:id/edit"
+                element={
+                  <ProtectedRoute>
+                    <IndustryForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Our Features Routes */}
+              <Route
+                path="/our-features"
+                element={
+                  <ProtectedRoute>
+                    <OurFeaturesList />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/our-features/new"
+                element={
+                  <ProtectedRoute>
+                    <OurFeaturesForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/our-features/:id/edit"
+                element={
+                  <ProtectedRoute>
+                    <OurFeaturesForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Ads Banner Routes */}
+              <Route
+                path="/ads-banner"
+                element={
+                  <ProtectedRoute>
+                    <AdsBannerList />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/ads-banner/new"
+                element={
+                  <ProtectedRoute>
+                    <AdsBannerForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/ads-banner/:id/edit"
+                element={
+                  <ProtectedRoute>
+                    <AdsBannerForm />
                   </ProtectedRoute>
                 }
               />
