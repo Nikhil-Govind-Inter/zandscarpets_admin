@@ -1,83 +1,101 @@
 import { apiFetch } from "@/lib/apiClient";
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+
+// Home > CMS — backed by `/api/backend/home/home-cms` (authMiddleware-gated). Singleton resource,
+// mirrors siteSettingsApi.ts's findOne/update-in-place shape but uses the ApiError + envelope-parsing
+// convention from usersApi.ts/pagesApi.ts since there are no file fields to send as FormData.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const HOME_CMS_URL = `${API_BASE_URL}/home/home-cms`;
 
 export interface HomeCms {
   id?: number;
-  milestone_description?: string;
-  make_ride_title?: string;
-  make_ride_highlight_title?: string;
-  make_ride_description?: string;
-  make_ride_media_type?: string;
-  make_ride_media_desktop_path?: File | string;
-  make_ride_media_mobile_path?: File | string;
-  make_ride_media_alt?: string;
-  explore_title?: string;
-  explore_description?: string;
-  app_feature_title?: string;
-  app_feature_description?: string;
-  app_feature_sub_title?: string;
-  app_feature_media_type?: string;
-  app_feature_media_desktop_path?: File | string;
-  app_feature_media_mobile_path?: File | string;
-  app_feature_media_alt?: string;
-  investment_title?: string;
-  investment_media_type?: string;
-  investment_media_desktop_path?: File | string;
-  investment_media_mobile_path?: File | string;
-  investment_media_alt?: string;
-  partners_title?: string;
-  news_title?: string;
-  blog_title?: string;
+  discover_title: string;
+  residential_title: string;
+  home_space_title: string;
+  project_title: string;
+  features_title: string;
+  features_subtitle: string;
+  features_description: string;
+  work_title: string;
+  testimonial_title: string;
+  brand_title: string;
+  cta_title: string;
+  cta_description: string;
+  faq_title: string;
+  premium_title: string;
+  premium_description: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
-export interface HomeCmsResponse {
+interface ApiEnvelope<T> {
   success: boolean;
   message: string;
-  timestamp?: string;
   statusCode?: number;
-  data: HomeCms;
+  timestamp?: string;
+  data: T;
 }
 
-// Fetch Home CMS data
-export const fetchHomeCms = async (): Promise<HomeCmsResponse> => {
-  const response = await apiFetch(`${API_BASE_URL}/backend/home/home-cms`, {
-  });
+interface ApiErrorEnvelope {
+  success: false;
+  error?: {
+    message?: string;
+    code?: string;
+    statusCode?: number;
+    details?: unknown;
+  };
+  message?: string;
+}
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch Home CMS data");
+export class ApiError extends Error {
+  code?: string;
+  details?: unknown;
+
+  constructor(message: string, code?: string, details?: unknown) {
+    super(message);
+    this.name = "ApiError";
+    this.code = code;
+    this.details = details;
   }
+}
 
-  return response.json();
+const parseEnvelope = async <T>(
+  response: Response,
+): Promise<ApiEnvelope<T>> => {
+  const body = await response
+    .json()
+    .catch(() => ({}) as ApiEnvelope<T> & ApiErrorEnvelope);
+  if (!response.ok || !body.success) {
+    const errorBody = body as ApiErrorEnvelope;
+    const message =
+      errorBody.error?.message ||
+      errorBody.message ||
+      `Request failed with status ${response.status}`;
+    throw new ApiError(
+      message,
+      errorBody.error?.code,
+      errorBody.error?.details,
+    );
+  }
+  return body;
 };
 
-// Create or Update Home CMS data
+// Fetch Home CMS data
+export const fetchHomeCms = async (): Promise<ApiEnvelope<HomeCms | null>> => {
+  const response = await apiFetch(HOME_CMS_URL);
+  return parseEnvelope<HomeCms | null>(response);
+};
+
+// Create or update the Home CMS singleton row. `id` defaults to 1, mirroring
+// siteSettingsApi.ts's `PUT .../1` — the backend ignores the id and does a findOne().
 export const saveHomeCms = async (
-  data: Omit<HomeCms, "id" | "createdAt" | "updatedAt">
-): Promise<HomeCmsResponse> => {
-  const formData = new FormData();
-
-  // Append all fields to FormData as required by the API
-  Object.entries(data).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      if (value instanceof File) {
-        formData.append(key, value);
-      } else {
-        formData.append(key, String(value));
-      }
-    }
+  data: Omit<HomeCms, "id" | "createdAt" | "updatedAt">,
+  id: number = 1,
+): Promise<ApiEnvelope<HomeCms>> => {
+  const response = await apiFetch(`${HOME_CMS_URL}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
   });
-
-  const response = await apiFetch(`${API_BASE_URL}/backend/home/home-cms`, {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to save Home CMS data");
-  }
-
-  return response.json();
+  return parseEnvelope<HomeCms>(response);
 };

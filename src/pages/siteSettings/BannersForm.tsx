@@ -19,6 +19,7 @@ import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   fetchBannerById,
+  fetchBannersList,
   createBanner,
   updateBanner,
   ApiError,
@@ -49,17 +50,37 @@ export default function BannersForm() {
     },
   });
 
+  // Pages already assigned to another banner are excluded from the picker
+  // (one banner per page, enforced here as well as by the server's unique
+  // `page_id` FK) — the currently-edited banner's own page stays selectable
+  // since its own row is excluded from the "used" set.
   useEffect(() => {
-    fetchActivePages()
-      .then(setPages)
-      .catch(() => {
-        toast({
-          title: "Error",
-          description: "Failed to load pages list",
-          variant: "destructive",
-        });
+    loadPageOptions();
+  }, [id]);
+
+  const loadPageOptions = async () => {
+    try {
+      const [activePages, bannersRes] = await Promise.all([
+        fetchActivePages(),
+        fetchBannersList(1, 100),
+      ]);
+
+      const currentId = isEditing && id ? parseInt(id) : null;
+      const usedPageIds = new Set(
+        bannersRes.data.data
+          .filter((banner) => banner.id !== currentId)
+          .map((banner) => banner.page_id),
+      );
+
+      setPages(activePages.filter((page) => !usedPageIds.has(page.id)));
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof ApiError ? error?.message : "Failed to load pages",
+        variant: "destructive",
       });
-  }, []);
+    }
+  };
 
   useEffect(() => {
     if (isEditing && id) {
@@ -124,7 +145,7 @@ export default function BannersForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description: `Failed to ${isEditing ? "update" : "create"} banner`,
+        description: error ? error.message : `Failed to ${isEditing ? "update" : "create"} banner`,
         variant: "destructive",
       });
     } finally {

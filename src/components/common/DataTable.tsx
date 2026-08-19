@@ -499,7 +499,7 @@ export function DataTable<TData, TValue>({
                 )}
               </div>
               <div className="flex items-center space-x-6 lg:space-x-8">
-                <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+                <div className="flex w-[150px] items-center justify-center text-sm font-medium">
                   Page {pagination.currentPage} of{" "}
                   {pagination.totalPages ||
                     Math.ceil(

@@ -2,8 +2,7 @@ import { apiFetch } from "@/lib/apiClient";
 
 // Masters > Industry — backed by `/api/backend/masters/industry`. Uses the
 // apiFetch + ApiError + envelope-parsing convention from pagesApi.ts.
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const INDUSTRY_URL = `${API_BASE_URL}/masters/industry`;
 
@@ -19,6 +18,7 @@ export interface IndustryRecord {
   createdAt?: string;
   updatedAt?: string;
 }
+
 
 interface ApiEnvelope<T> {
   success: boolean;
@@ -120,6 +120,13 @@ export const fetchIndustryById = async (
   return parseEnvelope<IndustryRecord>(response);
 };
 
+export const fetchActiveIndustries = async (): Promise<{
+  data: IndustryRecord[];
+}> => {
+  const response = await apiFetch(`${INDUSTRY_URL}/active`);
+  return parseEnvelope<IndustryRecord[]>(response);
+};
+
 export const createIndustry = async (
   payload: IndustryPayload,
 ): Promise<{ data: IndustryRecord }> => {
@@ -154,10 +161,7 @@ export const deleteIndustry = async (
 
 // Server has no partial-patch route, so quick actions must resend the full
 // record (see pagesApi.ts's togglePageStatus for the same convention).
-export const toggleIndustryStatus = (
-  item: IndustryRecord,
-  isActive: boolean,
-) =>
+export const toggleIndustryStatus = (item: IndustryRecord, isActive: boolean) =>
   updateIndustry(item.id, {
     title: item.title,
     slug: item.slug,

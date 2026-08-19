@@ -44,6 +44,7 @@ const mainNavItems = [{ title: "Dashboard", url: "/", icon: LayoutDashboard }];
 
 const homeSection = [
   { title: "CMS", url: "/home-cms", icon: Home },
+  { title: "Banner", url: "/home-banner", icon: Image },
 ];
 
 

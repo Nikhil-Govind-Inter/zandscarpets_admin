@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useNavigate } from "react-router-dom";
@@ -33,9 +33,9 @@ export default function PagesForm() {
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
-  // Tracks whether the user has manually edited the slug — once they have,
-  // typing in the page name should stop overwriting it.
-  const [slugTouched, setSlugTouched] = useState(false);
+  // When true, the next page-driven slug sync is skipped. Used once after
+  // loading existing data so the fetched slug isn't clobbered on mount.
+  const skipNextSlugSync = useRef(false);
 
   const form = useForm<PageFormData>({
     resolver: zodResolver(pageSchema),
@@ -55,14 +55,15 @@ export default function PagesForm() {
   }, [id, isEditing]);
 
   useEffect(() => {
-    // Auto-generate the slug from the page name while the user hasn't
-    // manually overridden it yet.
-    if (slugTouched) return;
+    if (skipNextSlugSync.current) {
+      skipNextSlugSync.current = false;
+      return;
+    }
     form.setValue("page_slug", pageName ? generateSlug(pageName) : "", {
       shouldValidate: form.formState.isSubmitted,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageName, slugTouched]);
+  }, [pageName]);
 
   const loadPageData = async (itemId: number) => {
     try {
@@ -75,9 +76,7 @@ export default function PagesForm() {
         page_slug: data.page_slug || "",
         is_active: data.is_active ?? true,
       });
-      // Existing pages already have a slug — don't let editing the page
-      // name silently rewrite it.
-      setSlugTouched(true);
+      skipNextSlugSync.current = true;
     } catch (error) {
       toast({
         title: "Error",
@@ -89,24 +88,21 @@ export default function PagesForm() {
     }
   };
 
-  // const handleGenerateSlug = () => {
-  //   const currentPageName = form.getValues("page");
-  //   if (currentPageName) {
-  //     form.setValue("page_slug", generateSlug(currentPageName), { shouldValidate: true });
-  //   }
-  //   // Re-enable auto-sync so further edits to the page name keep the slug in step.
-  //   setSlugTouched(false);
-  // };
-
   const onSubmit = async (data: PageFormData) => {
     try {
       setLoading(true);
 
+      const payload = {
+        page: data.page,
+        page_slug: data.page_slug,
+        is_active: data.is_active,
+      };
+
       if (isEditing && id) {
-        await updatePage(parseInt(id), data);
+        await updatePage(parseInt(id), payload);
         toast({ title: "Success", description: "Page updated successfully" });
       } else {
-        await createPage(data);
+        await createPage(payload);
         toast({ title: "Success", description: "Page created successfully" });
       }
 
@@ -175,19 +171,7 @@ export default function PagesForm() {
                   <FormItem>
                     <FormLabel>Page Slug</FormLabel>
                     <FormControl>
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="e.g., home, about, products"
-                          {...field}
-                          onChange={(e) => {
-                            setSlugTouched(true);
-                            field.onChange(e);
-                          }}
-                        />
-                        {/* <Button type="button" variant="outline" onClick={handleGenerateSlug}>
-                          Generate
-                        </Button> */}
-                      </div>
+                      <Input placeholder="e.g., home, about, products" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

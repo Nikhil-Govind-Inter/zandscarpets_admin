@@ -69,6 +69,10 @@ const FooterMediaForm = React.lazy(() => import("./pages/siteSettings/FooterMedi
 // convert all imports to lazy loading using React.lazy and Suspense
 
 const HomeCmsForm = React.lazy(() => import("./pages/home/HomeCmsForm"));
+
+// Home — Banner
+const HomeBannerList = React.lazy(() => import("./pages/home/HomeBannerList"));
+const HomeBannerForm = React.lazy(() => import("./pages/home/HomeBannerForm"));
 import PageLoader from "./components/layout/PageLoader";
 
 const queryClient = new QueryClient();
@@ -128,6 +132,34 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <HomeCmsForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Home Banner Routes */}
+              <Route
+                path="/home-banner"
+                element={
+                  <ProtectedRoute>
+                    <HomeBannerList />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/home-banner/new"
+                element={
+                  <ProtectedRoute>
+                    <HomeBannerForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/home-banner/:id/edit"
+                element={
+                  <ProtectedRoute>
+                    <HomeBannerForm />
                   </ProtectedRoute>
                 }
               />
