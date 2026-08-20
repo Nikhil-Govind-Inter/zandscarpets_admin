@@ -246,6 +246,7 @@ export default function HomeBannerList() {
     },
     {
       id: "actions",
+      header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
 

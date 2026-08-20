@@ -50,20 +50,32 @@ const IndustryList = React.lazy(() => import("./pages/masters/IndustryList"));
 const IndustryForm = React.lazy(() => import("./pages/masters/IndustryForm"));
 
 // Masters — Our Features
-const OurFeaturesList = React.lazy(() => import("./pages/masters/OurFeaturesList"));
-const OurFeaturesForm = React.lazy(() => import("./pages/masters/OurFeaturesForm"));
+const OurFeaturesList = React.lazy(
+  () => import("./pages/masters/OurFeaturesList"),
+);
+const OurFeaturesForm = React.lazy(
+  () => import("./pages/masters/OurFeaturesForm"),
+);
 
 // Masters — Ads Banner
 const AdsBannerList = React.lazy(() => import("./pages/masters/AdsBannerList"));
 const AdsBannerForm = React.lazy(() => import("./pages/masters/AdsBannerForm"));
 
 // Site Settings — Banners
-const BannersList = React.lazy(() => import("./pages/siteSettings/BannersList"));
-const BannersForm = React.lazy(() => import("./pages/siteSettings/BannersForm"));
+const BannersList = React.lazy(
+  () => import("./pages/siteSettings/BannersList"),
+);
+const BannersForm = React.lazy(
+  () => import("./pages/siteSettings/BannersForm"),
+);
 
 // Site Settings — Footer Media
-const FooterMediaList = React.lazy(() => import("./pages/siteSettings/FooterMediaList"));
-const FooterMediaForm = React.lazy(() => import("./pages/siteSettings/FooterMediaForm"));
+const FooterMediaList = React.lazy(
+  () => import("./pages/siteSettings/FooterMediaList"),
+);
+const FooterMediaForm = React.lazy(
+  () => import("./pages/siteSettings/FooterMediaForm"),
+);
 
 // Home pages that exist
 // convert all imports to lazy loading using React.lazy and Suspense
@@ -73,6 +85,15 @@ const HomeCmsForm = React.lazy(() => import("./pages/home/HomeCmsForm"));
 // Home — Banner
 const HomeBannerList = React.lazy(() => import("./pages/home/HomeBannerList"));
 const HomeBannerForm = React.lazy(() => import("./pages/home/HomeBannerForm"));
+
+// Home - Milestones
+const HomeMilestonesList = React.lazy(
+  () => import("./pages/home/HomeMilestonesList"),
+);
+const HomeMilestonesForm = React.lazy(
+  () => import("./pages/home/HomeMilestonesForm"),
+);
+
 import PageLoader from "./components/layout/PageLoader";
 
 const queryClient = new QueryClient();
@@ -160,6 +181,34 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <HomeBannerForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* HOme milestones */}
+              <Route
+                path="/home-milestones"
+                element={
+                  <ProtectedRoute>
+                    <HomeMilestonesList />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/home-milestones/new"
+                element={
+                  <ProtectedRoute>
+                    <HomeMilestonesForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/home-milestones/:id/edit"
+                element={
+                  <ProtectedRoute>
+                    <HomeMilestonesForm />
                   </ProtectedRoute>
                 }
               />

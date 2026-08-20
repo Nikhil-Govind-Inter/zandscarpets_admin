@@ -269,6 +269,7 @@ export default function FooterMediaList() {
     },
     {
       id: "actions",
+      header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
 

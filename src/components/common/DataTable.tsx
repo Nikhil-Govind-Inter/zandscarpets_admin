@@ -411,8 +411,15 @@ export function DataTable<TData, TValue>({
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
+                    {headerGroup.headers.map((header, index) => (
+                      <TableHead
+                        key={header.id}
+                        className={`text-left${
+                          index < headerGroup.headers.length - 1
+                            ? " border-r"
+                            : ""
+                        }`}
+                      >
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -443,8 +450,15 @@ export function DataTable<TData, TValue>({
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}
                     >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
+                      {row.getVisibleCells().map((cell, index) => (
+                        <TableCell
+                          key={cell.id}
+                          className={`text-left${
+                            index < row.getVisibleCells().length - 1
+                              ? " border-r"
+                              : ""
+                          }`}
+                        >
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext(),

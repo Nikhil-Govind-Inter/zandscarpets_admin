@@ -129,6 +129,7 @@ export default function BannersList() {
     },
     {
       id: "actions",
+      header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
         return (

@@ -143,6 +143,7 @@ export default function UsersList() {
     },
     {
       id: "actions",
+      header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
         return (

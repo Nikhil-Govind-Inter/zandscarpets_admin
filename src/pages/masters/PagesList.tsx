@@ -152,6 +152,7 @@ export default function PagesList() {
     },
     {
       id: "actions",
+      header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
         return (

@@ -239,6 +239,7 @@ export default function AdsBannerList() {
     },
     {
       id: "actions",
+      header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
 

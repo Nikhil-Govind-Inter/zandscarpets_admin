@@ -2,56 +2,52 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
-import RowActionsMenu from "@/components/common/RowActionsMenu";
-import StatusToggleCell from "@/components/common/StatusToggleCell";
 import SortOrderCell from "@/components/common/SortOrderCell";
-import DeleteDialogue from "@/components/common/DeleteDialogue";
-import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
+import StatusToggleCell from "@/components/common/StatusToggleCell";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import {
+  fetchHomeMilestoneList,
+  deleteHomeMilestone,
+  toggleHomeMilestoneStatus,
+  updateHomeMilestoneSortOrder,
+  HomeMilestonesRecord,
+  ApiError,
+} from "@/services/home/homeMilestonesApi";
 import { useToast } from "@/hooks/use-toast";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
-import {
-  fetchFaqsList,
-  deleteFaq,
-  toggleFaqStatus,
-  updateFaqSortOrder,
-  FaqRecord,
-  ApiError,
-} from "@/services/masters/faqsApi";
+import DeleteDialogue from "@/components/common/DeleteDialogue";
+import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
 
-export default function FaqsList() {
+export default function HomeMilestoneList() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const [statusToggleItem, setStatusToggleItem] = useState<{
-    item: FaqRecord;
-    newStatus: boolean;
-  } | null>(null);
-
   const {
-    items: faqs,
-    setItems: setFaqs,
+    items: milestones,
+    setItems: setMilestones,
     page,
     setPage,
     limit,
     setLimit,
+    itemsPage,
+    itemsLimit,
     searchInput,
     setSearchInput,
     totalCount,
     totalPages,
     loading,
     searching,
-    itemsPage,
-    itemsLimit,
     refetch,
-  } = usePaginatedList<FaqRecord>(fetchFaqsList);
+  } = usePaginatedList<HomeMilestonesRecord>(fetchHomeMilestoneList);
+  const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
+  const [statusToggleItem, setStatusToggleItem] = useState<{
+    item: HomeMilestonesRecord;
+    newStatus: boolean;
+  } | null>(null);
 
-  // Mirrors faqs so the debounced sort-order commit (below) can read the
-  // latest optimistic value at fire time, instead of a stale one captured
-  // when the timer was first scheduled.
-  const faqsRef = useRef<FaqRecord[]>(faqs);
+  const milestonesRef = useRef<HomeMilestonesRecord[]>(milestones);
   useEffect(() => {
-    faqsRef.current = faqs;
-  }, [faqs]);
+    milestonesRef.current = milestones;
+  }, [milestones]);
 
   const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
   const sortOrderOriginal = useRef<Record<number, number>>({});
@@ -63,9 +59,37 @@ export default function FaqsList() {
     };
   }, []);
 
+  const confirmStatusToggle = async () => {
+    if (!statusToggleItem) return;
+
+    try {
+      const { item, newStatus } = statusToggleItem;
+      await toggleHomeMilestoneStatus(item, newStatus);
+
+      setMilestones((prev) =>
+        prev.map((i) => (i.id === item.id ? { ...i, is_active: newStatus } : i)),
+      );
+      refetch();
+
+      toast({
+        title: "Success",
+        description: "Home milestone status updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof ApiError ? error.message : "Failed to update milestone status",
+        variant: "destructive",
+      });
+    } finally {
+      setStatusToggleItem(null);
+    }
+  };
+
   const SORT_ORDER_COMMIT_DELAY = 600;
 
-  const handleSortOrderChange = (item: FaqRecord, delta: number) => {
+  const handleSortOrderChange = (item: HomeMilestonesRecord, delta: number) => {
     const newSortOrder = Math.max(1, (item.sort_order ?? 1) + delta);
     if (newSortOrder === item.sort_order) return;
 
@@ -73,7 +97,7 @@ export default function FaqsList() {
       sortOrderOriginal.current[item.id] = item.sort_order ?? 1;
     }
 
-    setFaqs((prev) =>
+    setMilestones((prev) =>
       prev.map((i) => (i.id === item.id ? { ...i, sort_order: newSortOrder } : i)),
     );
 
@@ -85,7 +109,7 @@ export default function FaqsList() {
   };
 
   const handleSortOrder = async (itemId: number) => {
-    const latestItem = faqsRef.current.find((i) => i.id === itemId);
+    const latestItem = milestonesRef.current.find((i) => i.id === itemId);
     if (!latestItem) return;
 
     const finalSortOrder = latestItem.sort_order ?? 1;
@@ -95,10 +119,10 @@ export default function FaqsList() {
     if (finalSortOrder === originalSortOrder) return;
 
     try {
-      await updateFaqSortOrder(latestItem, finalSortOrder);
+      await updateHomeMilestoneSortOrder(latestItem, finalSortOrder);
       toast({ title: "Success", description: "Sort order updated successfully" });
     } catch (error) {
-      setFaqs((prev) =>
+      setMilestones((prev) =>
         prev.map((i) => (i.id === itemId ? { ...i, sort_order: originalSortOrder } : i)),
       );
       toast({
@@ -113,18 +137,21 @@ export default function FaqsList() {
     if (!deleteItemId) return;
 
     try {
-      await deleteFaq(deleteItemId);
-      if (faqs.length === 1 && page > 1) {
+      await deleteHomeMilestone(deleteItemId);
+      if (milestones.length === 1 && page > 1) {
         setPage(page - 1);
       } else {
         refetch();
       }
-      toast({ title: "Success", description: "FAQ deleted successfully" });
+      toast({
+        title: "Success",
+        description: "Home milestone deleted successfully",
+      });
     } catch (error) {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to delete FAQ",
+          error instanceof ApiError ? error.message : "Failed to delete milestone",
         variant: "destructive",
       });
     } finally {
@@ -132,59 +159,48 @@ export default function FaqsList() {
     }
   };
 
-  const confirmStatusToggle = async () => {
-    if (!statusToggleItem) return;
-
-    try {
-      const { item, newStatus } = statusToggleItem;
-      await toggleFaqStatus(item, newStatus);
-
-      setFaqs((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, is_active: newStatus } : i)),
-      );
-      refetch();
-
-      toast({ title: "Success", description: "FAQ status updated successfully" });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof ApiError ? error.message : "Failed to update FAQ status",
-        variant: "destructive",
-      });
-    } finally {
-      setStatusToggleItem(null);
-    }
-  };
-
-  const columns: ColumnDef<FaqRecord>[] = [
+  const columns: ColumnDef<HomeMilestonesRecord>[] = [
     {
-      accessorKey: "id",
+      id: "id",
       header: "ID",
       cell: ({ row }) => (
-        <div className="font-mono">
+        <div className="font-mono text-sm">
           {(itemsPage - 1) * itemsLimit + row.index + 1}
         </div>
       ),
     },
     {
-      accessorKey: "question",
-      header: "Question",
+      accessorKey: "media_path",
+      header: "Media",
       cell: ({ row }) => (
-        <div className="font-medium max-w-[280px] truncate">
-          {row.getValue("question")}
+        <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
+          {row.getValue("media_path") ? (
+            <img
+              src={`${import.meta.env.VITE_IMAGE_URL}/${row.getValue("media_path")}`}
+              alt={row.original.media_alt || ""}
+              className="w-8 h-8 rounded object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded bg-muted-foreground/20" />
+          )}
         </div>
       ),
     },
     {
-      accessorKey: "answer",
-      header: "Answer",
+      accessorKey: "value",
+      header: "Value",
       cell: ({ row }) => (
-        <div className="text-sm text-muted-foreground max-w-[320px] truncate">
-          {row.getValue("answer")}
-        </div>
+        <div className="font-medium">{row.getValue("value") || "-"}</div>
       ),
     },
+    {
+      accessorKey: "label",
+      header: "Label",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.getValue("label") || "-"}</div>
+      ),
+    },
+
     {
       accessorKey: "sort_order",
       header: "Sort Order",
@@ -209,7 +225,10 @@ export default function FaqsList() {
           <StatusToggleCell
             status={status}
             onCheckedChange={(checked) =>
-              setStatusToggleItem({ item: row.original, newStatus: checked })
+              setStatusToggleItem({
+                item: row.original,
+                newStatus: checked,
+              })
             }
           />
         );
@@ -231,9 +250,10 @@ export default function FaqsList() {
       header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
+
         return (
           <RowActionsMenu
-            onEdit={() => navigate(`/faqs/${item.id}/edit`)}
+            onEdit={() => navigate(`/home-milestones/${item.id}/edit`)}
             onDelete={() => setDeleteItemId(item.id)}
           />
         );
@@ -245,11 +265,11 @@ export default function FaqsList() {
     <>
       <DataTable
         columns={columns}
-        data={faqs}
-        title="FAQs"
-        searchPlaceholder="Search FAQs..."
-        onAdd={() => navigate("/faqs/new")}
-        addButtonText="Add FAQ"
+        data={milestones}
+        title="Home Milestone"
+        searchPlaceholder="Search home milestones..."
+        onAdd={() => navigate("/home-milestones/new")}
+        addButtonText="Add Home Milestone"
         loading={loading}
         searching={searching}
         searchQuery={searchInput}
@@ -277,7 +297,7 @@ export default function FaqsList() {
         statusToggleItem={statusToggleItem}
         setStatusToggleItem={setStatusToggleItem}
         confirmStatusToggle={confirmStatusToggle}
-        itemLabel="FAQ"
+        itemLabel="home milestone"
       />
     </>
   );

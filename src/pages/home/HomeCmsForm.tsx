@@ -79,7 +79,24 @@ export default function HomeCmsForm() {
   const onSubmit = async (data: HomeCmsFormData) => {
     try {
       setLoading(true);
-      const response = await saveHomeCms(data, recordId ?? 1);
+      const payload = {
+        discover_title: data.discover_title,
+        residential_title: data.residential_title,
+        home_space_title: data.home_space_title,
+        project_title: data.project_title,
+        features_title: data.features_title,
+        features_subtitle: data.features_subtitle,
+        features_description: data.features_description,
+        work_title: data.work_title,
+        testimonial_title: data.testimonial_title,
+        brand_title: data.brand_title,
+        cta_title: data.cta_title,
+        cta_description: data.cta_description,
+        faq_title: data.faq_title,
+        premium_title: data.premium_title,
+        premium_description: data.premium_description,
+      }
+      const response = await saveHomeCms(payload, recordId ?? 1);
       if (response.data?.id) {
         setRecordId(response.data.id);
       }

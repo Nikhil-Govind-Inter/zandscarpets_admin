@@ -100,7 +100,7 @@ export default function SocialMediaList() {
     }
   };
 
-  const SORT_ORDER_COMMIT_DELAY = 600;
+  const SORT_ORDER_COMMIT_DELAY = 1000;
 
   // Every click updates the visible value immediately, but the API call is
   // debounced per item: rapid clicks just reschedule the same timer, so only
@@ -232,8 +232,8 @@ export default function SocialMediaList() {
       cell: ({ row }) => {
         const link = row.getValue("link") as string;
         return (
-          <div className="flex items-center gap-2">
-            <div className="font-mono text-sm text-muted-foreground max-w-[200px] truncate">
+          <div className="flex items-center justify-center gap-2">
+            <div className="font-mono text-sm mx text-muted-foreground max-w-[200px] truncate">
               {link}
             </div>
             {link && (
@@ -294,6 +294,7 @@ export default function SocialMediaList() {
     },
     {
       id: "actions",
+      header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
 
