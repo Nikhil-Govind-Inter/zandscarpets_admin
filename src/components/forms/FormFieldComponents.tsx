@@ -1,5 +1,6 @@
 import React from "react";
 import { UseFormReturn, FieldPath, FieldValues } from "react-hook-form";
+import { X } from "lucide-react";
 import {
   FormField,
   FormItem,
@@ -9,6 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -346,6 +348,94 @@ export function FormSlugField<T extends FieldValues>({
           <FormMessage />
         </FormItem>
       )}
+    />
+  );
+}
+
+// Keywords Field Component (chip-style tag input, backed by a comma-separated
+// string field value: type a keyword and press Enter/comma to set it, click
+// the X on a chip to delete it)
+export function FormKeywordsField<T extends FieldValues>({
+  form,
+  name,
+  label,
+  placeholder,
+}: BaseFormFieldProps<T>) {
+  const [inputValue, setInputValue] = React.useState("");
+
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => {
+        const keywords: string[] = (field.value ? String(field.value) : "")
+          .split(",")
+          .map((keyword) => keyword.trim())
+          .filter(Boolean);
+
+        const setKeyword = (raw: string) => {
+          const keyword = raw.trim();
+          if (!keyword || keywords.includes(keyword)) return;
+          field.onChange([...keywords, keyword].join(", "));
+        };
+
+        const deleteKeyword = (keyword: string) => {
+          field.onChange(keywords.filter((k) => k !== keyword).join(", "));
+        };
+
+        const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+          if (e.key === "Enter" || e.key === ",") {
+            e.preventDefault();
+            setKeyword(inputValue);
+            setInputValue("");
+          } else if (e.key === "Backspace" && !inputValue && keywords.length) {
+            deleteKeyword(keywords[keywords.length - 1]);
+          }
+        };
+
+        return (
+          <FormItem>
+            <FormLabel>{label}</FormLabel>
+            <FormControl>
+              <div className="space-y-2">
+                {keywords.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {keywords.map((keyword) => (
+                      <Badge
+                        key={keyword}
+                        variant="secondary"
+                        className="gap-1 pr-1"
+                      >
+                        {keyword}
+                        <button
+                          type="button"
+                          onClick={() => deleteKeyword(keyword)}
+                          className="rounded-full p-0.5 hover:bg-secondary-foreground/20"
+                          aria-label={`Remove ${keyword}`}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                <Input
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onBlur={() => {
+                    setKeyword(inputValue);
+                    setInputValue("");
+                    field.onBlur();
+                  }}
+                  placeholder={placeholder}
+                />
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        );
+      }}
     />
   );
 }

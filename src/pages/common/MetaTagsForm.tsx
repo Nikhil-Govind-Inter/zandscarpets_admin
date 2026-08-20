@@ -16,6 +16,7 @@ import { Form } from "@/components/ui/form";
 import {
   FormTextField,
   FormTextareaField,
+  FormKeywordsField,
 } from "@/components/forms/FormFieldComponents";
 import {
   updateMetaTag,
@@ -136,11 +137,11 @@ export const MetaTagsForm: React.FC<MetaTagsFormProps> = ({
               rows={3}
             />
 
-            <FormTextField
+            <FormKeywordsField
               form={form}
               name="meta_keywords"
               label="Meta Keywords"
-              placeholder="Enter keywords separated by commas"
+              placeholder="Type a keyword and press Enter"
             />
 
             <div className="flex justify-end space-x-2 pt-4">

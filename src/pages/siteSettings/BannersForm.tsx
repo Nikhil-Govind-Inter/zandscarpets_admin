@@ -62,7 +62,7 @@ export default function BannersForm() {
     try {
       const [activePages, bannersRes] = await Promise.all([
         fetchActivePages(),
-        fetchBannersList(1, 100),
+        fetchBannersList(1, 100, undefined, ["page_id"]),
       ]);
 
       const currentId = isEditing && id ? parseInt(id) : null;

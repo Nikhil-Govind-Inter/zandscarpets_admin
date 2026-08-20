@@ -66,7 +66,7 @@ export default function HomeBannerForm() {
     try {
       const [industriesRes, bannersRes] = await Promise.all([
         fetchActiveIndustries(),
-        fetchHomeBannerList(1, 100),
+        fetchHomeBannerList(1, 100, undefined, ["industry_id"]),
       ]);
 
       const currentId = isEditing && id ? parseInt(id) : null;

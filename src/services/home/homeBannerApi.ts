@@ -94,12 +94,16 @@ export const fetchHomeBannerList = async (
   page: number,
   limit: number,
   search?: string,
+  attributes?: string[],
 ): Promise<HomeBannerListResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
   });
 
+    if (attributes && attributes.length) {
+    params.append("attributes", attributes.join(","));
+  }
   if (search) {
     params.append("search", search);
   }
