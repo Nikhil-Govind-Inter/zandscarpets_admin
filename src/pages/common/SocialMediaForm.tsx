@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PageLoader from "@/components/layout/PageLoader";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -121,11 +122,7 @@ export default function SocialMediaForm() {
   };
 
   if (initialLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">Loading social media data...</div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return (

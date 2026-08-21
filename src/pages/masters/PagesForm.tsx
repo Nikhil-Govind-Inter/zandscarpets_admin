@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import PageLoader from "@/components/layout/PageLoader";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useNavigate } from "react-router-dom";
@@ -122,11 +123,7 @@ export default function PagesForm() {
   };
 
   if (initialLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">Loading page data...</div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return (

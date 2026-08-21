@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
+import MediaThumbnail from "@/components/common/MediaThumbnail";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import { useToast } from "@/hooks/use-toast";
@@ -75,17 +76,10 @@ export default function BannersList() {
       accessorKey: "desktop_media_path",
       header: "Media",
       cell: ({ row }) => (
-        <div className="w-14 h-10 rounded-md bg-muted flex items-center justify-center overflow-hidden">
-          {row.original.desktop_media_path ? (
-            <img
-              src={`${import.meta.env.VITE_IMAGE_URL}/${row.original.desktop_media_path}`}
-              alt={row.original.media_alt}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded bg-muted-foreground/20" />
-          )}
-        </div>
+        <MediaThumbnail
+          path={row.original.desktop_media_path}
+          alt={row.original.media_alt}
+        />
       ),
     },
     {
