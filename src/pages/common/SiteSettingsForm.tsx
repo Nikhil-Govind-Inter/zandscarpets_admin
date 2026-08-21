@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PageLoader from "@/components/layout/PageLoader";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -102,11 +103,7 @@ export default function SiteSettingsForm() {
   };
 
   if (initialLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">Loading site settings...</div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return (

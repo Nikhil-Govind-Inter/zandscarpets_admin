@@ -9,6 +9,7 @@ import {
 } from "react";
 import * as authApi from "@/services/auth/authApi";
 import { registerAuthFailureHandler } from "@/lib/apiClient";
+import { hasStoredSession, markStoredSession, clearStoredSession } from "@/lib/authSession";
 import type { AdminUser } from "@/services/auth/authApi";
 
 interface AuthContextValue {
@@ -36,17 +37,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const clearSession = useCallback(() => {
     setUser(null);
     setIsAuthenticated(false);
+    clearStoredSession();
   }, []);
 
   const applySession = useCallback((sessionUser: AdminUser) => {
     setUser(sessionUser);
     setIsAuthenticated(true);
+    markStoredSession();
   }, []);
 
   useEffect(() => {
     let cancelled = false;
 
     const hydrate = async () => {
+      if (!hasStoredSession()) {
+        // Never logged in on this browser (or logged out since) — nothing to
+        // check, so skip the /auth/me + /auth/refresh round trip entirely.
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const { user: me } = await authApi.getCurrentAdmin();
         if (!cancelled) applySession(me);

@@ -20,8 +20,6 @@ import NotFound from "./pages/NotFound";
 
 // lazy
 
-import { Suspense } from "react";
-
 // Common pages that exist
 const SiteSettingsForm = React.lazy(
   () => import("./pages/common/SiteSettingsForm"),
@@ -94,14 +92,15 @@ const HomeMilestonesForm = React.lazy(
   () => import("./pages/home/HomeMilestonesForm"),
 );
 
-import PageLoader from "./components/layout/PageLoader";
-
 const queryClient = new QueryClient();
 // Protected Route Component
 
 const adminOnlyAccessRoutes = ["/users", "/users/create", "/users/edit/:id"];
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+// Layout route: renders once and stays mounted while only the matched child
+// route's element swaps inside DashboardLayout's <Outlet /> — this is what
+// keeps the sidebar/header from remounting on every navigation.
+function ProtectedRoute() {
   const { isAuthenticated, isLoading, role } = useAuth();
   const location = useLocation();
 
@@ -125,7 +124,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return <DashboardLayout />;
 }
 
 const App = () => (
@@ -135,361 +134,109 @@ const App = () => (
       <Sonner position="top-right" />
       <BrowserRouter>
         <AuthProvider>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Index />
-                  </ProtectedRoute>
-                }
-              />
+          <Routes>
+            <Route path="/login" element={<Login />} />
+
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<Index />} />
 
               {/* HOME */}
-              <Route
-                path="/home-cms"
-                element={
-                  <ProtectedRoute>
-                    <HomeCmsForm />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/home-cms" element={<HomeCmsForm />} />
 
               {/* Home Banner Routes */}
-              <Route
-                path="/home-banner"
-                element={
-                  <ProtectedRoute>
-                    <HomeBannerList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/home-banner/new"
-                element={
-                  <ProtectedRoute>
-                    <HomeBannerForm />
-                  </ProtectedRoute>
-                }
-              />
-
+              <Route path="/home-banner" element={<HomeBannerList />} />
+              <Route path="/home-banner/new" element={<HomeBannerForm />} />
               <Route
                 path="/home-banner/:id/edit"
-                element={
-                  <ProtectedRoute>
-                    <HomeBannerForm />
-                  </ProtectedRoute>
-                }
+                element={<HomeBannerForm />}
               />
 
               {/* HOme milestones */}
               <Route
                 path="/home-milestones"
-                element={
-                  <ProtectedRoute>
-                    <HomeMilestonesList />
-                  </ProtectedRoute>
-                }
+                element={<HomeMilestonesList />}
               />
-
               <Route
                 path="/home-milestones/new"
-                element={
-                  <ProtectedRoute>
-                    <HomeMilestonesForm />
-                  </ProtectedRoute>
-                }
+                element={<HomeMilestonesForm />}
               />
-
               <Route
                 path="/home-milestones/:id/edit"
-                element={
-                  <ProtectedRoute>
-                    <HomeMilestonesForm />
-                  </ProtectedRoute>
-                }
+                element={<HomeMilestonesForm />}
               />
 
               {/* Faqs Routes */}
-              <Route
-                path="/faqs"
-                element={
-                  <ProtectedRoute>
-                    <FaqsList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/faqs/new"
-                element={
-                  <ProtectedRoute>
-                    <FaqsForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/faqs/:id/edit"
-                element={
-                  <ProtectedRoute>
-                    <FaqsForm />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/faqs" element={<FaqsList />} />
+              <Route path="/faqs/new" element={<FaqsForm />} />
+              <Route path="/faqs/:id/edit" element={<FaqsForm />} />
 
               {/* Industry Routes */}
-              <Route
-                path="/industry"
-                element={
-                  <ProtectedRoute>
-                    <IndustryList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/industry/new"
-                element={
-                  <ProtectedRoute>
-                    <IndustryForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/industry/:id/edit"
-                element={
-                  <ProtectedRoute>
-                    <IndustryForm />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/industry" element={<IndustryList />} />
+              <Route path="/industry/new" element={<IndustryForm />} />
+              <Route path="/industry/:id/edit" element={<IndustryForm />} />
 
               {/* Our Features Routes */}
-              <Route
-                path="/our-features"
-                element={
-                  <ProtectedRoute>
-                    <OurFeaturesList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/our-features/new"
-                element={
-                  <ProtectedRoute>
-                    <OurFeaturesForm />
-                  </ProtectedRoute>
-                }
-              />
-
+              <Route path="/our-features" element={<OurFeaturesList />} />
+              <Route path="/our-features/new" element={<OurFeaturesForm />} />
               <Route
                 path="/our-features/:id/edit"
-                element={
-                  <ProtectedRoute>
-                    <OurFeaturesForm />
-                  </ProtectedRoute>
-                }
+                element={<OurFeaturesForm />}
               />
 
               {/* Ads Banner Routes */}
-              <Route
-                path="/ads-banner"
-                element={
-                  <ProtectedRoute>
-                    <AdsBannerList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/ads-banner/new"
-                element={
-                  <ProtectedRoute>
-                    <AdsBannerForm />
-                  </ProtectedRoute>
-                }
-              />
-
+              <Route path="/ads-banner" element={<AdsBannerList />} />
+              <Route path="/ads-banner/new" element={<AdsBannerForm />} />
               <Route
                 path="/ads-banner/:id/edit"
-                element={
-                  <ProtectedRoute>
-                    <AdsBannerForm />
-                  </ProtectedRoute>
-                }
+                element={<AdsBannerForm />}
               />
 
               {/* Site Settings Route */}
-              <Route
-                path="/site-settings"
-                element={
-                  <ProtectedRoute>
-                    <SiteSettingsForm />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/site-settings" element={<SiteSettingsForm />} />
 
               {/* Social Media Routes */}
-              <Route
-                path="/social-media"
-                element={
-                  <ProtectedRoute>
-                    <SocialMediaList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/social-media/new"
-                element={
-                  <ProtectedRoute>
-                    <SocialMediaForm />
-                  </ProtectedRoute>
-                }
-              />
-
+              <Route path="/social-media" element={<SocialMediaList />} />
+              <Route path="/social-media/new" element={<SocialMediaForm />} />
               <Route
                 path="/social-media/:id/edit"
-                element={
-                  <ProtectedRoute>
-                    <SocialMediaForm />
-                  </ProtectedRoute>
-                }
+                element={<SocialMediaForm />}
               />
 
               {/* Pages Routes */}
-              <Route
-                path="/pages"
-                element={
-                  <ProtectedRoute>
-                    <PagesList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/pages/new"
-                element={
-                  <ProtectedRoute>
-                    <PagesForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/pages/:id/edit"
-                element={
-                  <ProtectedRoute>
-                    <PagesForm />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/pages" element={<PagesList />} />
+              <Route path="/pages/new" element={<PagesForm />} />
+              <Route path="/pages/:id/edit" element={<PagesForm />} />
 
               {/* Banners Routes */}
-              <Route
-                path="/banners"
-                element={
-                  <ProtectedRoute>
-                    <BannersList />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/banners/new"
-                element={
-                  <ProtectedRoute>
-                    <BannersForm />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/banners/:id/edit"
-                element={
-                  <ProtectedRoute>
-                    <BannersForm />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/banners" element={<BannersList />} />
+              <Route path="/banners/new" element={<BannersForm />} />
+              <Route path="/banners/:id/edit" element={<BannersForm />} />
 
               {/* Footer Media Routes */}
-              <Route
-                path="/footer-media"
-                element={
-                  <ProtectedRoute>
-                    <FooterMediaList />
-                  </ProtectedRoute>
-                }
-              />
-
+              <Route path="/footer-media" element={<FooterMediaList />} />
               <Route
                 path="/footer-media/new"
-                element={
-                  <ProtectedRoute>
-                    <FooterMediaForm />
-                  </ProtectedRoute>
-                }
+                element={<FooterMediaForm />}
               />
-
               <Route
                 path="/footer-media/:id/edit"
-                element={
-                  <ProtectedRoute>
-                    <FooterMediaForm />
-                  </ProtectedRoute>
-                }
+                element={<FooterMediaForm />}
               />
 
               {/* Meta Tags Routes */}
-              <Route
-                path="/meta-tags"
-                element={
-                  <ProtectedRoute>
-                    <MetaTagsList />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/meta-tags" element={<MetaTagsList />} />
 
               {/* Users */}
-              <Route
-                path="/users"
-                element={
-                  <ProtectedRoute>
-                    <UsersList />
-                  </ProtectedRoute>
-                }
-              />
-
+              <Route path="/users" element={<UsersList />} />
               {/* create user */}
-              <Route
-                path="/users/create"
-                element={
-                  <ProtectedRoute>
-                    <UsersForm />
-                  </ProtectedRoute>
-                }
-              />
-
+              <Route path="/users/create" element={<UsersForm />} />
               {/* edit user */}
-              <Route
-                path="/users/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <UsersForm />
-                  </ProtectedRoute>
-                }
-              />
-              {/* Catch all route - must be last */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+              <Route path="/users/edit/:id" element={<UsersForm />} />
+            </Route>
+
+            {/* Catch all route - must be last */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

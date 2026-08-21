@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
+import MediaThumbnail from "@/components/common/MediaThumbnail";
 import SortOrderCell from "@/components/common/SortOrderCell";
 import StatusToggleCell from "@/components/common/StatusToggleCell";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
@@ -204,17 +205,10 @@ export default function FooterMediaList() {
       accessorKey: "media_path",
       header: "Media",
       cell: ({ row }) => (
-        <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
-          {row.getValue("media_path") ? (
-            <img
-              src={`${import.meta.env.VITE_IMAGE_URL}/${row.getValue("media_path")}`}
-              alt={row.original.media_alt}
-              className="w-8 h-8 rounded object-cover"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded bg-muted-foreground/20" />
-          )}
-        </div>
+        <MediaThumbnail
+          path={row.getValue("media_path")}
+          alt={row.original.media_alt}
+        />
       ),
     },
     {
