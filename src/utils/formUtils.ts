@@ -42,8 +42,7 @@ export const commonValidations = {
   username: z
     .string()
     .min(3, "Username must be between 3 and 50 characters")
-    .max(50, "Username must be between 3 and 50 characters")
-    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
+    .max(50, "Username must be between 3 and 50 characters"),
 
   // Password validation — mirrors server's passwordRule regex (lower/upper/digit/special char)
   requiredPassword: z

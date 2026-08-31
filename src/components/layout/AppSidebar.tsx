@@ -111,14 +111,18 @@ export function AppSidebar() {
     else if (["/users"].some((route) => path.includes(route))) {
       setOpenSection("admin");
     }
+    // Dashboard (or any other unmatched route) — collapse everything
+    else {
+      setOpenSection(null);
+    }
   }, [location.pathname]);
 
   return (
     <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon">
-      <SidebarContent className="bg-sidebar border-r border-sidebar-border">
+      <SidebarContent className="bg-sidebar border-r border-sidebar-border gap-0">
         {/* Logo Section */}
         <div
-          className={`border-b border-sidebar-border ${isCollapsed ? "p-2" : "p-4"}`}
+          className={`border-b border-sidebar-border ${isCollapsed ? "py-4 px-2k" : "p-4"}`}
         >
           {!isCollapsed ? (
             <div className="flex items-center justify-center">
