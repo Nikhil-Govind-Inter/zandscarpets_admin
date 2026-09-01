@@ -172,7 +172,7 @@ export default function HomeBannerList() {
     },
     {
       accessorKey: "media_path",
-      header: "Media",
+      header: "Image",
       cell: ({ row }) => (
         <MediaThumbnail
           path={row.getValue("media_path")}
@@ -284,6 +284,7 @@ export default function HomeBannerList() {
         deleteItemId={deleteItemId}
         setDeleteItemId={setDeleteItemId}
         confirmDelete={confirmDelete}
+        itemLabel="home banner"
       />
 
       <StatusChangeDialogue

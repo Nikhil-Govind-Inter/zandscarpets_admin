@@ -239,7 +239,7 @@ export default function HomeBannerForm() {
               <FormFileUploadField
                 form={form}
                 name="media_path"
-                label="Media"
+                label="Image"
                 placeholder="Upload banner image"
                 accept="image/*"
               />
@@ -249,7 +249,7 @@ export default function HomeBannerForm() {
                 name="media_alt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Media Alt Text</FormLabel>
+                    <FormLabel>Image Alt Text</FormLabel>
                     <FormControl>
                       <Input placeholder="Describe the banner media" {...field} />
                     </FormControl>

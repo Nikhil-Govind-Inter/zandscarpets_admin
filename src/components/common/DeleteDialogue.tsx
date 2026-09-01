@@ -9,7 +9,12 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 
-const DeleteDialogue = ({ deleteItemId, setDeleteItemId, confirmDelete }) => {
+const DeleteDialogue = ({
+  deleteItemId,
+  setDeleteItemId,
+  confirmDelete,
+  itemLabel = "Home",
+}) => {
   return (
     <div>
       <AlertDialog
@@ -20,8 +25,8 @@ const DeleteDialogue = ({ deleteItemId, setDeleteItemId, confirmDelete }) => {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              social media item and remove its data from the servers.
+              {`This action cannot be undone. This will permanently delete the
+              ${itemLabel} item and remove its data from the servers.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

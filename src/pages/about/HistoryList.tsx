@@ -2,53 +2,53 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
-import MediaThumbnail from "@/components/common/MediaThumbnail";
-import SortOrderCell from "@/components/common/SortOrderCell";
-import StatusToggleCell from "@/components/common/StatusToggleCell";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
-import {
-  fetchAdsBannerList,
-  deleteAdsBanner,
-  toggleAdsBannerStatus,
-  updateAdsBannerSortOrder,
-  AdsBannerRecord,
-  ApiError,
-} from "@/services/masters/adsBannerApi";
-import { useToast } from "@/hooks/use-toast";
-import { usePaginatedList } from "@/hooks/usePaginatedList";
+import StatusToggleCell from "@/components/common/StatusToggleCell";
+import SortOrderCell from "@/components/common/SortOrderCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
+import { useToast } from "@/hooks/use-toast";
+import { usePaginatedList } from "@/hooks/usePaginatedList";
+import {
+  fetchHistoryList,
+  deleteHistory,
+  toggleHistoryStatus,
+  updateHistorySortOrder,
+  HistoryRecord,
+  ApiError,
+} from "@/services/about/historyApi";
 
-export default function AdsBannerList() {
+export default function HistoryList() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
+  const [statusToggleItem, setStatusToggleItem] = useState<{
+    item: HistoryRecord;
+    newStatus: boolean;
+  } | null>(null);
+
   const {
-    items: banners,
-    setItems: setBanners,
+    items: history,
+    setItems: setHistory,
     page,
     setPage,
     limit,
     setLimit,
-    itemsPage,
-    itemsLimit,
     searchInput,
     setSearchInput,
     totalCount,
     totalPages,
     loading,
     searching,
+    itemsPage,
+    itemsLimit,
     refetch,
-  } = usePaginatedList<AdsBannerRecord>(fetchAdsBannerList);
-  const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const [statusToggleItem, setStatusToggleItem] = useState<{
-    item: AdsBannerRecord;
-    newStatus: boolean;
-  } | null>(null);
+  } = usePaginatedList<HistoryRecord>(fetchHistoryList);
 
-  const bannersRef = useRef<AdsBannerRecord[]>(banners);
+  const historyRef = useRef<HistoryRecord[]>(history);
   useEffect(() => {
-    bannersRef.current = banners;
-  }, [banners]);
+    historyRef.current = history;
+  }, [history]);
 
   const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
   const sortOrderOriginal = useRef<Record<number, number>>({});
@@ -60,37 +60,9 @@ export default function AdsBannerList() {
     };
   }, []);
 
-  const confirmStatusToggle = async () => {
-    if (!statusToggleItem) return;
-
-    try {
-      const { item, newStatus } = statusToggleItem;
-      await toggleAdsBannerStatus(item, newStatus);
-
-      setBanners((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, is_active: newStatus } : i)),
-      );
-      refetch();
-
-      toast({
-        title: "Success",
-        description: "Ads banner status updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof ApiError ? error.message : "Failed to update banner status",
-        variant: "destructive",
-      });
-    } finally {
-      setStatusToggleItem(null);
-    }
-  };
-
   const SORT_ORDER_COMMIT_DELAY = 600;
 
-  const handleSortOrderChange = (item: AdsBannerRecord, delta: number) => {
+  const handleSortOrderChange = (item: HistoryRecord, delta: number) => {
     const newSortOrder = Math.max(1, (item.sort_order ?? 1) + delta);
     if (newSortOrder === item.sort_order) return;
 
@@ -98,7 +70,7 @@ export default function AdsBannerList() {
       sortOrderOriginal.current[item.id] = item.sort_order ?? 1;
     }
 
-    setBanners((prev) =>
+    setHistory((prev) =>
       prev.map((i) => (i.id === item.id ? { ...i, sort_order: newSortOrder } : i)),
     );
 
@@ -110,7 +82,7 @@ export default function AdsBannerList() {
   };
 
   const handleSortOrder = async (itemId: number) => {
-    const latestItem = bannersRef.current.find((i) => i.id === itemId);
+    const latestItem = historyRef.current.find((i) => i.id === itemId);
     if (!latestItem) return;
 
     const finalSortOrder = latestItem.sort_order ?? 1;
@@ -120,10 +92,10 @@ export default function AdsBannerList() {
     if (finalSortOrder === originalSortOrder) return;
 
     try {
-      await updateAdsBannerSortOrder(latestItem, finalSortOrder);
+      await updateHistorySortOrder(latestItem, finalSortOrder);
       toast({ title: "Success", description: "Sort order updated successfully" });
     } catch (error) {
-      setBanners((prev) =>
+      setHistory((prev) =>
         prev.map((i) => (i.id === itemId ? { ...i, sort_order: originalSortOrder } : i)),
       );
       toast({
@@ -138,21 +110,18 @@ export default function AdsBannerList() {
     if (!deleteItemId) return;
 
     try {
-      await deleteAdsBanner(deleteItemId);
-      if (banners.length === 1 && page > 1) {
+      await deleteHistory(deleteItemId);
+      if (history.length === 1 && page > 1) {
         setPage(page - 1);
       } else {
         refetch();
       }
-      toast({
-        title: "Success",
-        description: "Ads banner deleted successfully",
-      });
+      toast({ title: "Success", description: "History entry deleted successfully" });
     } catch (error) {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to delete banner",
+          error instanceof ApiError ? error.message : "Failed to delete history entry",
         variant: "destructive",
       });
     } finally {
@@ -160,33 +129,64 @@ export default function AdsBannerList() {
     }
   };
 
-  const columns: ColumnDef<AdsBannerRecord>[] = [
+  const confirmStatusToggle = async () => {
+    if (!statusToggleItem) return;
+
+    try {
+      const { item, newStatus } = statusToggleItem;
+      await toggleHistoryStatus(item, newStatus);
+
+      setHistory((prev) =>
+        prev.map((i) => (i.id === item.id ? { ...i, is_active: newStatus } : i)),
+      );
+      refetch();
+
+      toast({ title: "Success", description: "History entry status updated successfully" });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof ApiError ? error.message : "Failed to update status",
+        variant: "destructive",
+      });
+    } finally {
+      setStatusToggleItem(null);
+    }
+  };
+
+  const columns: ColumnDef<HistoryRecord>[] = [
     {
-      id: "id",
+      accessorKey: "id",
       header: "ID",
       cell: ({ row }) => (
-        <div className="font-mono text-sm">
+        <div className="font-mono">
           {(itemsPage - 1) * itemsLimit + row.index + 1}
         </div>
       ),
     },
     {
-      accessorKey: "media_path",
-      header: "Image",
+      accessorKey: "year",
+      header: "Year",
       cell: ({ row }) => (
-        <MediaThumbnail
-          path={row.getValue("media_path")}
-          alt={row.original.media_alt}
-        />
+        <div className="font-medium">{row.getValue("year")}</div>
       ),
     },
     {
-      accessorKey: "media_alt",
-      header: "Alt Text",
+      accessorKey: "title",
+      header: "Title",
       cell: ({ row }) => (
-        <div className="font-medium">{row.getValue("media_alt") || "-"}</div>
+        <div className="font-medium">{row.getValue("title")}</div>
       ),
     },
+    // {
+    //   accessorKey: "description",
+    //   header: "Description",
+    //   cell: ({ row }) => (
+    //     <div className="text-sm text-muted-foreground max-w-[320px] truncate">
+    //       {row.getValue("description")}
+    //     </div>
+    //   ),
+    // },
     {
       accessorKey: "sort_order",
       header: "Sort Order",
@@ -211,10 +211,7 @@ export default function AdsBannerList() {
           <StatusToggleCell
             status={status}
             onCheckedChange={(checked) =>
-              setStatusToggleItem({
-                item: row.original,
-                newStatus: checked,
-              })
+              setStatusToggleItem({ item: row.original, newStatus: checked })
             }
           />
         );
@@ -236,10 +233,9 @@ export default function AdsBannerList() {
       header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
-
         return (
           <RowActionsMenu
-            onEdit={() => navigate(`/ads-banner/${item.id}/edit`)}
+            onEdit={() => navigate(`/about-history/${item.id}/edit`)}
             onDelete={() => setDeleteItemId(item.id)}
           />
         );
@@ -251,11 +247,11 @@ export default function AdsBannerList() {
     <>
       <DataTable
         columns={columns}
-        data={banners}
-        title="Ads Banner"
-        searchPlaceholder="Search ads banners..."
-        onAdd={() => navigate("/ads-banner/new")}
-        addButtonText="Add Ads Banner"
+        data={history}
+        title="History"
+        searchPlaceholder="Search history..."
+        onAdd={() => navigate("/about-history/new")}
+        addButtonText="Add History Entry"
         loading={loading}
         searching={searching}
         searchQuery={searchInput}
@@ -277,14 +273,14 @@ export default function AdsBannerList() {
         deleteItemId={deleteItemId}
         setDeleteItemId={setDeleteItemId}
         confirmDelete={confirmDelete}
-        itemLabel="ads banner"
+        itemLabel="history entry"
       />
 
       <StatusChangeDialogue
         statusToggleItem={statusToggleItem}
         setStatusToggleItem={setStatusToggleItem}
         confirmStatusToggle={confirmStatusToggle}
-        itemLabel="ads banner"
+        itemLabel="history entry"
       />
     </>
   );
