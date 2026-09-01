@@ -87,7 +87,7 @@ export default function UsersList() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update user status",
+        description: error?.message,
         variant: "destructive",
       });
     } finally {

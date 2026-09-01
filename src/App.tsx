@@ -80,6 +80,10 @@ const FooterMediaForm = React.lazy(
 
 const HomeCmsForm = React.lazy(() => import("./pages/home/HomeCmsForm"));
 
+// Home - Testimonials
+const HomeTestimonialsList = React.lazy(() => import("./pages/home/HomeTestimonialsList"));
+const HomeTestimonialsForm = React.lazy(() => import("./pages/home/HomeTestimonialsForm"));
+
 // Home — Banner
 const HomeBannerList = React.lazy(() => import("./pages/home/HomeBannerList"));
 const HomeBannerForm = React.lazy(() => import("./pages/home/HomeBannerForm"));
@@ -91,6 +95,25 @@ const HomeMilestonesList = React.lazy(
 const HomeMilestonesForm = React.lazy(
   () => import("./pages/home/HomeMilestonesForm"),
 );
+
+// Home - Brands
+const HomeBrandsList = React.lazy(() => import("./pages/home/HomeBrandsList"));
+const HomeBrandsForm = React.lazy(() => import("./pages/home/HomeBrandsForm"));
+
+// About — CMS
+const AboutCmsForm = React.lazy(() => import("./pages/about/AboutCmsForm"));
+
+// About — Core Values
+const CoreValuesList = React.lazy(() => import("./pages/about/CoreValuesList"));
+const CoreValuesForm = React.lazy(() => import("./pages/about/CoreValuesForm"));
+
+// About — History
+const HistoryList = React.lazy(() => import("./pages/about/HistoryList"));
+const HistoryForm = React.lazy(() => import("./pages/about/HistoryForm"));
+
+// About — Messages
+const MessagesList = React.lazy(() => import("./pages/about/MessagesList"));
+const MessagesForm = React.lazy(() => import("./pages/about/MessagesForm"));
 
 const queryClient = new QueryClient();
 // Protected Route Component
@@ -164,6 +187,37 @@ const App = () => (
                 path="/home-milestones/:id/edit"
                 element={<HomeMilestonesForm />}
               />
+
+              {/* Home Brands */}
+              <Route path="/home-brands" element={<HomeBrandsList />} />
+              <Route path="/home-brands/new" element={<HomeBrandsForm />} />
+              <Route path="/home-brands/:id/edit" element={<HomeBrandsForm />} />
+
+              {/* Home Testimonials */}
+              <Route path="/home-testimonials" element={<HomeTestimonialsList />} />
+              <Route path="/home-testimonials/new" element={<HomeTestimonialsForm />} />
+              <Route path="/home-testimonials/:id/edit" element={<HomeTestimonialsForm />} />
+
+              {/* About CMS */}
+              <Route path="/about-cms" element={<AboutCmsForm />} />
+
+              {/* About Core Values */}
+              <Route path="/about-core-values" element={<CoreValuesList />} />
+              <Route path="/about-core-values/new" element={<CoreValuesForm />} />
+              <Route
+                path="/about-core-values/:id/edit"
+                element={<CoreValuesForm />}
+              />
+
+              {/* About History */}
+              <Route path="/about-history" element={<HistoryList />} />
+              <Route path="/about-history/new" element={<HistoryForm />} />
+              <Route path="/about-history/:id/edit" element={<HistoryForm />} />
+
+              {/* About Messages */}
+              <Route path="/about-messages" element={<MessagesList />} />
+              <Route path="/about-messages/new" element={<MessagesForm />} />
+              <Route path="/about-messages/:id/edit" element={<MessagesForm />} />
 
               {/* Faqs Routes */}
               <Route path="/faqs" element={<FaqsList />} />

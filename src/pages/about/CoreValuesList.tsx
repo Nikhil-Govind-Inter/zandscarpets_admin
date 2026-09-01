@@ -7,24 +7,24 @@ import SortOrderCell from "@/components/common/SortOrderCell";
 import StatusToggleCell from "@/components/common/StatusToggleCell";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import {
-  fetchAdsBannerList,
-  deleteAdsBanner,
-  toggleAdsBannerStatus,
-  updateAdsBannerSortOrder,
-  AdsBannerRecord,
+  fetchCoreValuesList,
+  deleteCoreValues,
+  toggleCoreValuesStatus,
+  updateCoreValuesSortOrder,
+  CoreValuesRecord,
   ApiError,
-} from "@/services/masters/adsBannerApi";
+} from "@/services/about/coreValuesApi";
 import { useToast } from "@/hooks/use-toast";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
 
-export default function AdsBannerList() {
+export default function CoreValuesList() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const {
-    items: banners,
-    setItems: setBanners,
+    items: coreValues,
+    setItems: setCoreValues,
     page,
     setPage,
     limit,
@@ -38,17 +38,18 @@ export default function AdsBannerList() {
     loading,
     searching,
     refetch,
-  } = usePaginatedList<AdsBannerRecord>(fetchAdsBannerList);
+  } = usePaginatedList<CoreValuesRecord>(fetchCoreValuesList);
+
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
   const [statusToggleItem, setStatusToggleItem] = useState<{
-    item: AdsBannerRecord;
+    item: CoreValuesRecord;
     newStatus: boolean;
   } | null>(null);
 
-  const bannersRef = useRef<AdsBannerRecord[]>(banners);
+  const coreValuesRef = useRef<CoreValuesRecord[]>(coreValues);
   useEffect(() => {
-    bannersRef.current = banners;
-  }, [banners]);
+    coreValuesRef.current = coreValues;
+  }, [coreValues]);
 
   const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
   const sortOrderOriginal = useRef<Record<number, number>>({});
@@ -65,22 +66,22 @@ export default function AdsBannerList() {
 
     try {
       const { item, newStatus } = statusToggleItem;
-      await toggleAdsBannerStatus(item, newStatus);
+      await toggleCoreValuesStatus(item, newStatus);
 
-      setBanners((prev) =>
+      setCoreValues((prev) =>
         prev.map((i) => (i.id === item.id ? { ...i, is_active: newStatus } : i)),
       );
       refetch();
 
       toast({
         title: "Success",
-        description: "Ads banner status updated successfully",
+        description: "Core value status updated successfully",
       });
     } catch (error) {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to update banner status",
+          error instanceof ApiError ? error.message : "Failed to update core value status",
         variant: "destructive",
       });
     } finally {
@@ -90,7 +91,7 @@ export default function AdsBannerList() {
 
   const SORT_ORDER_COMMIT_DELAY = 600;
 
-  const handleSortOrderChange = (item: AdsBannerRecord, delta: number) => {
+  const handleSortOrderChange = (item: CoreValuesRecord, delta: number) => {
     const newSortOrder = Math.max(1, (item.sort_order ?? 1) + delta);
     if (newSortOrder === item.sort_order) return;
 
@@ -98,7 +99,7 @@ export default function AdsBannerList() {
       sortOrderOriginal.current[item.id] = item.sort_order ?? 1;
     }
 
-    setBanners((prev) =>
+    setCoreValues((prev) =>
       prev.map((i) => (i.id === item.id ? { ...i, sort_order: newSortOrder } : i)),
     );
 
@@ -110,7 +111,7 @@ export default function AdsBannerList() {
   };
 
   const handleSortOrder = async (itemId: number) => {
-    const latestItem = bannersRef.current.find((i) => i.id === itemId);
+    const latestItem = coreValuesRef.current.find((i) => i.id === itemId);
     if (!latestItem) return;
 
     const finalSortOrder = latestItem.sort_order ?? 1;
@@ -120,10 +121,10 @@ export default function AdsBannerList() {
     if (finalSortOrder === originalSortOrder) return;
 
     try {
-      await updateAdsBannerSortOrder(latestItem, finalSortOrder);
+      await updateCoreValuesSortOrder(latestItem, finalSortOrder);
       toast({ title: "Success", description: "Sort order updated successfully" });
     } catch (error) {
-      setBanners((prev) =>
+      setCoreValues((prev) =>
         prev.map((i) => (i.id === itemId ? { ...i, sort_order: originalSortOrder } : i)),
       );
       toast({
@@ -138,21 +139,21 @@ export default function AdsBannerList() {
     if (!deleteItemId) return;
 
     try {
-      await deleteAdsBanner(deleteItemId);
-      if (banners.length === 1 && page > 1) {
+      await deleteCoreValues(deleteItemId);
+      if (coreValues.length === 1 && page > 1) {
         setPage(page - 1);
       } else {
         refetch();
       }
       toast({
         title: "Success",
-        description: "Ads banner deleted successfully",
+        description: "Core value deleted successfully",
       });
     } catch (error) {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to delete banner",
+          error instanceof ApiError ? error.message : "Failed to delete core value",
         variant: "destructive",
       });
     } finally {
@@ -160,7 +161,7 @@ export default function AdsBannerList() {
     }
   };
 
-  const columns: ColumnDef<AdsBannerRecord>[] = [
+  const columns: ColumnDef<CoreValuesRecord>[] = [
     {
       id: "id",
       header: "ID",
@@ -172,17 +173,14 @@ export default function AdsBannerList() {
     },
     {
       accessorKey: "media_path",
-      header: "Image",
+      header: "Media",
       cell: ({ row }) => (
-        <MediaThumbnail
-          path={row.getValue("media_path")}
-          alt={row.original.media_alt}
-        />
+        <MediaThumbnail path={row.getValue("media_path")} alt={row.original.media_alt} />
       ),
     },
     {
       accessorKey: "media_alt",
-      header: "Alt Text",
+      header: "Media Alt",
       cell: ({ row }) => (
         <div className="font-medium">{row.getValue("media_alt") || "-"}</div>
       ),
@@ -211,10 +209,7 @@ export default function AdsBannerList() {
           <StatusToggleCell
             status={status}
             onCheckedChange={(checked) =>
-              setStatusToggleItem({
-                item: row.original,
-                newStatus: checked,
-              })
+              setStatusToggleItem({ item: row.original, newStatus: checked })
             }
           />
         );
@@ -236,10 +231,9 @@ export default function AdsBannerList() {
       header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
-
         return (
           <RowActionsMenu
-            onEdit={() => navigate(`/ads-banner/${item.id}/edit`)}
+            onEdit={() => navigate(`/about-core-values/${item.id}/edit`)}
             onDelete={() => setDeleteItemId(item.id)}
           />
         );
@@ -251,11 +245,11 @@ export default function AdsBannerList() {
     <>
       <DataTable
         columns={columns}
-        data={banners}
-        title="Ads Banner"
-        searchPlaceholder="Search ads banners..."
-        onAdd={() => navigate("/ads-banner/new")}
-        addButtonText="Add Ads Banner"
+        data={coreValues}
+        title="Core Values"
+        searchPlaceholder="Search core values..."
+        onAdd={() => navigate("/about-core-values/new")}
+        addButtonText="Add Core Value"
         loading={loading}
         searching={searching}
         searchQuery={searchInput}
@@ -277,14 +271,14 @@ export default function AdsBannerList() {
         deleteItemId={deleteItemId}
         setDeleteItemId={setDeleteItemId}
         confirmDelete={confirmDelete}
-        itemLabel="ads banner"
+        itemLabel="core value"
       />
 
       <StatusChangeDialogue
         statusToggleItem={statusToggleItem}
         setStatusToggleItem={setStatusToggleItem}
         confirmStatusToggle={confirmStatusToggle}
-        itemLabel="ads banner"
+        itemLabel="core value"
       />
     </>
   );

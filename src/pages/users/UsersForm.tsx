@@ -106,7 +106,7 @@ export default function UsersForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to save user",
+        description: error?.message,
         variant: "destructive",
       });
     } finally {

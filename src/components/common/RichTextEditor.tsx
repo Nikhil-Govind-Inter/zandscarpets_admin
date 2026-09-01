@@ -42,6 +42,7 @@ interface RichTextEditorProps {
   className?: string;
   required?: boolean;
   maxLength?: number;
+  height?: string;
 }
 
 export function RichTextEditor({
@@ -51,7 +52,8 @@ export function RichTextEditor({
   placeholder = "Start typing...",
   className,
   required = false,
-  maxLength
+  maxLength,
+  height
 }: RichTextEditorProps) {
   const [showIconSelector, setShowIconSelector] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -98,7 +100,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class: cn(
-          "prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[120px] p-3",
+          "prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl mx-auto focus:outline-none p-3",
           "prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground",
           "prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground",
           "prose-blockquote:text-muted-foreground prose-blockquote:border-border",
@@ -387,9 +389,10 @@ export function RichTextEditor({
         </div>
 
         {/* Editor */}
-        <EditorContent 
-          editor={editor} 
-          className="min-h-[120px]"
+        <EditorContent
+          editor={editor}
+          className="p-3"
+          style={{ minHeight: height ?? "300px" }}
           placeholder={placeholder}
         />
         

@@ -19,6 +19,8 @@ import {
   Clock,
   Image,
   Users,
+  RadioTower,
+  MessageSquare,
 } from "lucide-react";
 
 import {
@@ -46,8 +48,16 @@ const homeSection = [
   { title: "CMS", url: "/home-cms", icon: Home },
   { title: "Banner", url: "/home-banner", icon: Image },
   { title: "Milestone", url: "/home-milestones", icon: Monitor },
+  {title: "Brands", url: "/home-brands", icon: RadioTower},
+  {title: "Testimonials", url: "/home-testimonials", icon: Monitor}
 ];
 
+const aboutSection = [
+  { title: "CMS", url: "/about-cms", icon: Info },
+  { title: "Core Values", url: "/about-core-values", icon: Heart },
+  { title: "History", url: "/about-history", icon: Clock },
+  { title: "Messages", url: "/about-messages", icon: MessageSquare },
+];
 
 const commonSection = [
   { title: "Site Settings", url: "/site-settings", icon: Settings },
@@ -111,14 +121,18 @@ export function AppSidebar() {
     else if (["/users"].some((route) => path.includes(route))) {
       setOpenSection("admin");
     }
+    // Dashboard (or any other unmatched route) — collapse everything
+    else {
+      setOpenSection(null);
+    }
   }, [location.pathname]);
 
   return (
     <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon">
-      <SidebarContent className="bg-sidebar border-r border-sidebar-border">
+      <SidebarContent className="bg-sidebar border-r border-sidebar-border gap-0">
         {/* Logo Section */}
         <div
-          className={`border-b border-sidebar-border ${isCollapsed ? "p-2" : "p-4"}`}
+          className={`border-b border-sidebar-border ${isCollapsed ? "py-4 px-2k" : "p-4"}`}
         >
           {!isCollapsed ? (
             <div className="flex items-center justify-center">
@@ -165,6 +179,17 @@ export function AppSidebar() {
           onOpenChange={(isOpen) => setOpenSection(isOpen ? "home" : null)}
           pathname={location.pathname}
           Section={homeSection}
+        />
+
+        {/* About Management */}
+        <GetLayout
+          Icon={Info}
+          title="About"
+          isCollapsed={isCollapsed}
+          open={openSection === "about"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "about" : null)}
+          pathname={location.pathname}
+          Section={aboutSection}
         />
 
         {/* Common Sections */}

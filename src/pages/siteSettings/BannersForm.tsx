@@ -234,7 +234,7 @@ export default function BannersForm() {
                 name="media_alt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Media Alt Text</FormLabel>
+                    <FormLabel>Image Alt Text</FormLabel>
                     <FormControl>
                       <Input placeholder="Describe the banner image" {...field} />
                     </FormControl>
@@ -247,7 +247,7 @@ export default function BannersForm() {
                 <FormFileUploadField
                   form={form}
                   name="desktop_media_path"
-                  label="Desktop Media"
+                  label="Desktop Image"
                   placeholder="Upload desktop banner image"
                   accept="image/*"
                 />
@@ -255,7 +255,7 @@ export default function BannersForm() {
                 <FormFileUploadField
                   form={form}
                   name="mobile_media_path"
-                  label="Mobile Media"
+                  label="Mobile Image"
                   placeholder="Upload mobile banner image"
                   accept="image/*"
                 />

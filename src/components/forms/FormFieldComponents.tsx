@@ -30,6 +30,7 @@ interface BaseFormFieldProps<T extends FieldValues> {
   placeholder?: string;
   description?: string;
   required?: boolean;
+  height?: string;
 }
 
 // Text Input Field Component
@@ -108,7 +109,7 @@ export function FormTextareaField<T extends FieldValues>({
   name,
   label,
   placeholder,
-  rows = 3,
+  rows = 6,
 }: FormTextareaFieldProps<T>) {
   return (
     <FormField
@@ -246,7 +247,7 @@ export function FormFileUploadField<T extends FieldValues>({
 
 // Rich Text Editor Field Component
 interface FormRichTextFieldProps<T extends FieldValues> extends BaseFormFieldProps<T> {
-  height?: string;
+  // height?: string;
   maxLength?: number;
 }
 
@@ -322,7 +323,8 @@ export function FormSlugField<T extends FieldValues>({
     const sourceValue = form.getValues(sourceField);
     if (sourceValue && typeof sourceValue === 'string') {
       const generatedSlug = generateSlug(sourceValue);
-      form.setValue(name, generatedSlug as any);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      form.setValue(name as any, generatedSlug as any);
     }
   };
 

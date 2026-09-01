@@ -7,24 +7,24 @@ import SortOrderCell from "@/components/common/SortOrderCell";
 import StatusToggleCell from "@/components/common/StatusToggleCell";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import {
-  fetchAdsBannerList,
-  deleteAdsBanner,
-  toggleAdsBannerStatus,
-  updateAdsBannerSortOrder,
-  AdsBannerRecord,
+  fetchHomeBrandsList,
+  deleteHomeBrands,
+  toggleHomeBrandsStatus,
+  updateHomeBrandsSortOrder,
+  HomeBrandsRecord,
   ApiError,
-} from "@/services/masters/adsBannerApi";
+} from "@/services/home/homeBrandsApi";
 import { useToast } from "@/hooks/use-toast";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
 
-export default function AdsBannerList() {
+export default function HomeBrandsList() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const {
-    items: banners,
-    setItems: setBanners,
+    items: brands,
+    setItems: setBrands,
     page,
     setPage,
     limit,
@@ -38,19 +38,22 @@ export default function AdsBannerList() {
     loading,
     searching,
     refetch,
-  } = usePaginatedList<AdsBannerRecord>(fetchAdsBannerList);
+  } = usePaginatedList<HomeBrandsRecord>(fetchHomeBrandsList);
+
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
   const [statusToggleItem, setStatusToggleItem] = useState<{
-    item: AdsBannerRecord;
+    item: HomeBrandsRecord;
     newStatus: boolean;
   } | null>(null);
 
-  const bannersRef = useRef<AdsBannerRecord[]>(banners);
+  const brandsRef = useRef<HomeBrandsRecord[]>(brands);
   useEffect(() => {
-    bannersRef.current = banners;
-  }, [banners]);
+    brandsRef.current = brands;
+  }, [brands]);
 
-  const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
+  const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>(
+    {},
+  );
   const sortOrderOriginal = useRef<Record<number, number>>({});
 
   useEffect(() => {
@@ -65,22 +68,26 @@ export default function AdsBannerList() {
 
     try {
       const { item, newStatus } = statusToggleItem;
-      await toggleAdsBannerStatus(item, newStatus);
+      await toggleHomeBrandsStatus(item, newStatus);
 
-      setBanners((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, is_active: newStatus } : i)),
+      setBrands((prev) =>
+        prev.map((i) =>
+          i.id === item.id ? { ...i, is_active: newStatus } : i,
+        ),
       );
       refetch();
 
       toast({
         title: "Success",
-        description: "Ads banner status updated successfully",
+        description: "Home brand status updated successfully",
       });
     } catch (error) {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to update banner status",
+          error instanceof ApiError
+            ? error.message
+            : "Failed to update brand status",
         variant: "destructive",
       });
     } finally {
@@ -90,7 +97,7 @@ export default function AdsBannerList() {
 
   const SORT_ORDER_COMMIT_DELAY = 600;
 
-  const handleSortOrderChange = (item: AdsBannerRecord, delta: number) => {
+  const handleSortOrderChange = (item: HomeBrandsRecord, delta: number) => {
     const newSortOrder = Math.max(1, (item.sort_order ?? 1) + delta);
     if (newSortOrder === item.sort_order) return;
 
@@ -98,8 +105,10 @@ export default function AdsBannerList() {
       sortOrderOriginal.current[item.id] = item.sort_order ?? 1;
     }
 
-    setBanners((prev) =>
-      prev.map((i) => (i.id === item.id ? { ...i, sort_order: newSortOrder } : i)),
+    setBrands((prev) =>
+      prev.map((i) =>
+        i.id === item.id ? { ...i, sort_order: newSortOrder } : i,
+      ),
     );
 
     clearTimeout(sortOrderTimers.current[item.id]);
@@ -110,7 +119,7 @@ export default function AdsBannerList() {
   };
 
   const handleSortOrder = async (itemId: number) => {
-    const latestItem = bannersRef.current.find((i) => i.id === itemId);
+    const latestItem = brandsRef.current.find((i) => i.id === itemId);
     if (!latestItem) return;
 
     const finalSortOrder = latestItem.sort_order ?? 1;
@@ -120,11 +129,16 @@ export default function AdsBannerList() {
     if (finalSortOrder === originalSortOrder) return;
 
     try {
-      await updateAdsBannerSortOrder(latestItem, finalSortOrder);
-      toast({ title: "Success", description: "Sort order updated successfully" });
+      await updateHomeBrandsSortOrder(latestItem, finalSortOrder);
+      toast({
+        title: "Success",
+        description: "Sort order updated successfully",
+      });
     } catch (error) {
-      setBanners((prev) =>
-        prev.map((i) => (i.id === itemId ? { ...i, sort_order: originalSortOrder } : i)),
+      setBrands((prev) =>
+        prev.map((i) =>
+          i.id === itemId ? { ...i, sort_order: originalSortOrder } : i,
+        ),
       );
       toast({
         title: "Error",
@@ -138,21 +152,21 @@ export default function AdsBannerList() {
     if (!deleteItemId) return;
 
     try {
-      await deleteAdsBanner(deleteItemId);
-      if (banners.length === 1 && page > 1) {
+      await deleteHomeBrands(deleteItemId);
+      if (brands.length === 1 && page > 1) {
         setPage(page - 1);
       } else {
         refetch();
       }
       toast({
         title: "Success",
-        description: "Ads banner deleted successfully",
+        description: "Home brand deleted successfully",
       });
     } catch (error) {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to delete banner",
+          error instanceof ApiError ? error.message : "Failed to delete brand",
         variant: "destructive",
       });
     } finally {
@@ -160,7 +174,7 @@ export default function AdsBannerList() {
     }
   };
 
-  const columns: ColumnDef<AdsBannerRecord>[] = [
+  const columns: ColumnDef<HomeBrandsRecord>[] = [
     {
       id: "id",
       header: "ID",
@@ -172,7 +186,7 @@ export default function AdsBannerList() {
     },
     {
       accessorKey: "media_path",
-      header: "Image",
+      header: "Icon",
       cell: ({ row }) => (
         <MediaThumbnail
           path={row.getValue("media_path")}
@@ -182,11 +196,9 @@ export default function AdsBannerList() {
     },
     {
       accessorKey: "media_alt",
-      header: "Alt Text",
-      cell: ({ row }) => (
-        <div className="font-medium">{row.getValue("media_alt") || "-"}</div>
-      ),
-    },
+      header: "Icon Alt",
+      cell: ({ row }) => <div className="font-medium">{row.getValue("media_alt")}</div>,
+    },  
     {
       accessorKey: "sort_order",
       header: "Sort Order",
@@ -211,10 +223,7 @@ export default function AdsBannerList() {
           <StatusToggleCell
             status={status}
             onCheckedChange={(checked) =>
-              setStatusToggleItem({
-                item: row.original,
-                newStatus: checked,
-              })
+              setStatusToggleItem({ item: row.original, newStatus: checked })
             }
           />
         );
@@ -236,10 +245,9 @@ export default function AdsBannerList() {
       header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
-
         return (
           <RowActionsMenu
-            onEdit={() => navigate(`/ads-banner/${item.id}/edit`)}
+            onEdit={() => navigate(`/home-brands/${item.id}/edit`)}
             onDelete={() => setDeleteItemId(item.id)}
           />
         );
@@ -251,11 +259,11 @@ export default function AdsBannerList() {
     <>
       <DataTable
         columns={columns}
-        data={banners}
-        title="Ads Banner"
-        searchPlaceholder="Search ads banners..."
-        onAdd={() => navigate("/ads-banner/new")}
-        addButtonText="Add Ads Banner"
+        data={brands}
+        title="Home Brands"
+        searchPlaceholder="Search home brands..."
+        onAdd={() => navigate("/home-brands/new")}
+        addButtonText="Add Home Brand"
         loading={loading}
         searching={searching}
         searchQuery={searchInput}
@@ -277,14 +285,14 @@ export default function AdsBannerList() {
         deleteItemId={deleteItemId}
         setDeleteItemId={setDeleteItemId}
         confirmDelete={confirmDelete}
-        itemLabel="ads banner"
+        itemLabel="home brand"
       />
 
       <StatusChangeDialogue
         statusToggleItem={statusToggleItem}
         setStatusToggleItem={setStatusToggleItem}
         confirmStatusToggle={confirmStatusToggle}
-        itemLabel="ads banner"
+        itemLabel="home brand"
       />
     </>
   );

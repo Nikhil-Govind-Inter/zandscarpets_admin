@@ -172,7 +172,7 @@ export default function HomeMilestoneList() {
     },
     {
       accessorKey: "media_path",
-      header: "Media",
+      header: "Image",
       cell: ({ row }) => (
         <MediaThumbnail
           path={row.getValue("media_path")}
@@ -285,6 +285,7 @@ export default function HomeMilestoneList() {
         deleteItemId={deleteItemId}
         setDeleteItemId={setDeleteItemId}
         confirmDelete={confirmDelete}
+        itemLabel="home milestone"
       />
 
       <StatusChangeDialogue
