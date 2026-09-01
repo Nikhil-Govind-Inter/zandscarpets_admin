@@ -21,6 +21,8 @@ import {
   Users,
   RadioTower,
   MessageSquare,
+  Phone,
+  Link2,
 } from "lucide-react";
 
 import {
@@ -57,6 +59,11 @@ const aboutSection = [
   { title: "Core Values", url: "/about-core-values", icon: Heart },
   { title: "History", url: "/about-history", icon: Clock },
   { title: "Messages", url: "/about-messages", icon: MessageSquare },
+];
+
+const contactSection = [
+  { title: "CMS", url: "/contact-cms", icon: Phone },
+  { title: "Connections", url: "/contact-connections", icon: Link2 },
 ];
 
 const commonSection = [
@@ -100,6 +107,10 @@ export function AppSidebar() {
     // About section
     else if (path.includes("/about-")) {
       setOpenSection("about");
+    }
+    // Contact section
+    else if (path.includes("/contact-")) {
+      setOpenSection("contact");
     }
     // Common sections
     else if (
@@ -190,6 +201,17 @@ export function AppSidebar() {
           onOpenChange={(isOpen) => setOpenSection(isOpen ? "about" : null)}
           pathname={location.pathname}
           Section={aboutSection}
+        />
+
+        {/* Contact Management */}
+        <GetLayout
+          Icon={Phone}
+          title="Contact"
+          isCollapsed={isCollapsed}
+          open={openSection === "contact"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "contact" : null)}
+          pathname={location.pathname}
+          Section={contactSection}
         />
 
         {/* Common Sections */}

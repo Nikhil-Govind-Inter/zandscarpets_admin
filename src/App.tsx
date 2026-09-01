@@ -115,6 +115,13 @@ const HistoryForm = React.lazy(() => import("./pages/about/HistoryForm"));
 const MessagesList = React.lazy(() => import("./pages/about/MessagesList"));
 const MessagesForm = React.lazy(() => import("./pages/about/MessagesForm"));
 
+// Contact — CMS
+const ContactCmsForm = React.lazy(() => import("./pages/contact/ContactCmsForm"));
+
+// Contact — Connections
+const ConnectionsList = React.lazy(() => import("./pages/contact/ConnectionsList"));
+const ConnectionsForm = React.lazy(() => import("./pages/contact/ConnectionsForm"));
+
 const queryClient = new QueryClient();
 // Protected Route Component
 
@@ -218,6 +225,17 @@ const App = () => (
               <Route path="/about-messages" element={<MessagesList />} />
               <Route path="/about-messages/new" element={<MessagesForm />} />
               <Route path="/about-messages/:id/edit" element={<MessagesForm />} />
+
+              {/* Contact CMS */}
+              <Route path="/contact-cms" element={<ContactCmsForm />} />
+
+              {/* Contact Connections */}
+              <Route path="/contact-connections" element={<ConnectionsList />} />
+              <Route path="/contact-connections/new" element={<ConnectionsForm />} />
+              <Route
+                path="/contact-connections/:id/edit"
+                element={<ConnectionsForm />}
+              />
 
               {/* Faqs Routes */}
               <Route path="/faqs" element={<FaqsList />} />
