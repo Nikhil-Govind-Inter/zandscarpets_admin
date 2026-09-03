@@ -47,6 +47,23 @@ const FaqsForm = React.lazy(() => import("./pages/masters/FaqsForm"));
 const IndustryList = React.lazy(() => import("./pages/masters/IndustryList"));
 const IndustryForm = React.lazy(() => import("./pages/masters/IndustryForm"));
 
+// Services — Service
+const ServiceList = React.lazy(() => import("./pages/services/ServiceList"));
+const ServiceForm = React.lazy(() => import("./pages/services/ServiceForm"));
+
+// Services — CMS
+const ServiceCmsForm = React.lazy(
+  () => import("./pages/services/ServiceCmsForm"),
+);
+
+// Services — Process Steps
+const ProcessStepList = React.lazy(
+  () => import("./pages/services/ProcessStepList"),
+);
+const ProcessStepForm = React.lazy(
+  () => import("./pages/services/ProcessStepForm"),
+);
+
 // Masters — Our Features
 const OurFeaturesList = React.lazy(
   () => import("./pages/masters/OurFeaturesList"),
@@ -58,6 +75,10 @@ const OurFeaturesForm = React.lazy(
 // Masters — Ads Banner
 const AdsBannerList = React.lazy(() => import("./pages/masters/AdsBannerList"));
 const AdsBannerForm = React.lazy(() => import("./pages/masters/AdsBannerForm"));
+
+// Masters — Projects
+const ProjectsList = React.lazy(() => import("./pages/masters/ProjectsList"));
+const ProjectsForm = React.lazy(() => import("./pages/masters/ProjectsForm"));
 
 // Site Settings — Banners
 const BannersList = React.lazy(
@@ -114,6 +135,13 @@ const HistoryForm = React.lazy(() => import("./pages/about/HistoryForm"));
 // About — Messages
 const MessagesList = React.lazy(() => import("./pages/about/MessagesList"));
 const MessagesForm = React.lazy(() => import("./pages/about/MessagesForm"));
+
+// Contact — CMS
+const ContactCmsForm = React.lazy(() => import("./pages/contact/ContactCmsForm"));
+
+// Contact — Connections
+const ConnectionsList = React.lazy(() => import("./pages/contact/ConnectionsList"));
+const ConnectionsForm = React.lazy(() => import("./pages/contact/ConnectionsForm"));
 
 const queryClient = new QueryClient();
 // Protected Route Component
@@ -219,6 +247,17 @@ const App = () => (
               <Route path="/about-messages/new" element={<MessagesForm />} />
               <Route path="/about-messages/:id/edit" element={<MessagesForm />} />
 
+              {/* Contact CMS */}
+              <Route path="/contact-cms" element={<ContactCmsForm />} />
+
+              {/* Contact Connections */}
+              <Route path="/contact-connections" element={<ConnectionsList />} />
+              <Route path="/contact-connections/new" element={<ConnectionsForm />} />
+              <Route
+                path="/contact-connections/:id/edit"
+                element={<ConnectionsForm />}
+              />
+
               {/* Faqs Routes */}
               <Route path="/faqs" element={<FaqsList />} />
               <Route path="/faqs/new" element={<FaqsForm />} />
@@ -228,6 +267,22 @@ const App = () => (
               <Route path="/industry" element={<IndustryList />} />
               <Route path="/industry/new" element={<IndustryForm />} />
               <Route path="/industry/:id/edit" element={<IndustryForm />} />
+
+              {/* Service Routes */}
+              <Route path="/services" element={<ServiceList />} />
+              <Route path="/services/new" element={<ServiceForm />} />
+              <Route path="/services/:id/edit" element={<ServiceForm />} />
+
+              {/* Service CMS */}
+              <Route path="/service-cms" element={<ServiceCmsForm />} />
+
+              {/* Process Step Routes */}
+              <Route path="/process-steps" element={<ProcessStepList />} />
+              <Route path="/process-steps/new" element={<ProcessStepForm />} />
+              <Route
+                path="/process-steps/:id/edit"
+                element={<ProcessStepForm />}
+              />
 
               {/* Our Features Routes */}
               <Route path="/our-features" element={<OurFeaturesList />} />
@@ -244,6 +299,11 @@ const App = () => (
                 path="/ads-banner/:id/edit"
                 element={<AdsBannerForm />}
               />
+
+              {/* Projects Routes */}
+              <Route path="/projects" element={<ProjectsList />} />
+              <Route path="/projects/new" element={<ProjectsForm />} />
+              <Route path="/projects/:id/edit" element={<ProjectsForm />} />
 
               {/* Site Settings Route */}
               <Route path="/site-settings" element={<SiteSettingsForm />} />
