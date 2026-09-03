@@ -24,6 +24,8 @@ import {
   Phone,
   Link2,
   Briefcase,
+  Wrench,
+  ListChecks,
 } from "lucide-react";
 
 import {
@@ -90,6 +92,11 @@ const mastersSection = [
   { title: "Ads Banner", url: "/ads-banner", icon: Image },
   { title: "Projects", url: "/projects", icon: Briefcase },
 ];
+const servicesSection = [
+  { title: "Services", url: "/services", icon: Wrench },
+  { title: "CMS", url: "/service-cms", icon: Info },
+  { title: "Process Steps", url: "/process-steps", icon: ListChecks },
+];
 const adminSection = [{ title: "Users", url: "/users", icon: Users }];
 
 const isNavActive = (pathname: string, url: string, end = false) =>
@@ -149,6 +156,14 @@ export function AppSidebar() {
       ].some((route) => path.includes(route))
     ) {
       setOpenSection("masters");
+    }
+    // Services section
+    else if (
+      ["/services", "/service-cms", "/process-steps"].some((route) =>
+        path.includes(route),
+      )
+    ) {
+      setOpenSection("services");
     }
     // Admin section
     else if (["/users"].some((route) => path.includes(route))) {
@@ -266,6 +281,17 @@ export function AppSidebar() {
           onOpenChange={(isOpen) => setOpenSection(isOpen ? "masters" : null)}
           pathname={location.pathname}
           Section={mastersSection}
+        />
+
+        {/* Services */}
+        <GetLayout
+          Icon={Wrench}
+          title="Services"
+          isCollapsed={isCollapsed}
+          open={openSection === "services"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "services" : null)}
+          pathname={location.pathname}
+          Section={servicesSection}
         />
 
         {role === ROLES.ADMIN && (

@@ -47,6 +47,23 @@ const FaqsForm = React.lazy(() => import("./pages/masters/FaqsForm"));
 const IndustryList = React.lazy(() => import("./pages/masters/IndustryList"));
 const IndustryForm = React.lazy(() => import("./pages/masters/IndustryForm"));
 
+// Services — Service
+const ServiceList = React.lazy(() => import("./pages/services/ServiceList"));
+const ServiceForm = React.lazy(() => import("./pages/services/ServiceForm"));
+
+// Services — CMS
+const ServiceCmsForm = React.lazy(
+  () => import("./pages/services/ServiceCmsForm"),
+);
+
+// Services — Process Steps
+const ProcessStepList = React.lazy(
+  () => import("./pages/services/ProcessStepList"),
+);
+const ProcessStepForm = React.lazy(
+  () => import("./pages/services/ProcessStepForm"),
+);
+
 // Masters — Our Features
 const OurFeaturesList = React.lazy(
   () => import("./pages/masters/OurFeaturesList"),
@@ -250,6 +267,22 @@ const App = () => (
               <Route path="/industry" element={<IndustryList />} />
               <Route path="/industry/new" element={<IndustryForm />} />
               <Route path="/industry/:id/edit" element={<IndustryForm />} />
+
+              {/* Service Routes */}
+              <Route path="/services" element={<ServiceList />} />
+              <Route path="/services/new" element={<ServiceForm />} />
+              <Route path="/services/:id/edit" element={<ServiceForm />} />
+
+              {/* Service CMS */}
+              <Route path="/service-cms" element={<ServiceCmsForm />} />
+
+              {/* Process Step Routes */}
+              <Route path="/process-steps" element={<ProcessStepList />} />
+              <Route path="/process-steps/new" element={<ProcessStepForm />} />
+              <Route
+                path="/process-steps/:id/edit"
+                element={<ProcessStepForm />}
+              />
 
               {/* Our Features Routes */}
               <Route path="/our-features" element={<OurFeaturesList />} />
