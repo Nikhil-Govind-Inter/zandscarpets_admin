@@ -4,7 +4,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormFileUploadField,
@@ -38,6 +47,8 @@ export default function ConnectionsForm() {
       content: "",
       icon_media_path: "",
       icon_media_alt: "",
+      sort_order: "1",
+      is_active: true,
     },
   });
 
@@ -61,6 +72,8 @@ export default function ConnectionsForm() {
           content: data.content || "",
           icon_media_path: data.icon_media_path || "",
           icon_media_alt: data.icon_media_alt || "",
+          sort_order: (data.sort_order ?? 1).toString(),
+          is_active: data.is_active ?? true,
         });
       }
     } catch (error) {
@@ -84,6 +97,8 @@ export default function ConnectionsForm() {
       formData.append("description", data.description);
       formData.append("content", data.content);
       formData.append("icon_media_alt", data.icon_media_alt || "");
+      formData.append("sort_order", (data.sort_order || "1").toString());
+      formData.append("is_active", (data.is_active ?? true).toString());
 
       if (data.icon_media_path instanceof File) {
         formData.append("icon_media_path", data.icon_media_path);
@@ -139,23 +154,26 @@ export default function ConnectionsForm() {
               <CardTitle>Connection Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
               <FormTextField
                 form={form}
                 name="title"
                 label="Title"
                 placeholder="Enter connection title"
               />
+              
+              <FormTextField
+                form={form}
+                name="content"
+                label="Content"
+                placeholder="Enter connection content"
+              />
+              </div>
               <FormTextareaField
                 form={form}
                 name="description"
                 label="Description"
                 placeholder="Enter connection description"
-              />
-              <FormTextareaField
-                form={form}
-                name="content"
-                label="Content"
-                placeholder="Enter connection content"
               />
               <FormFileUploadField
                 form={form}
@@ -170,6 +188,36 @@ export default function ConnectionsForm() {
                 label="Icon Alt Text"
                 placeholder="Describe the connection icon"
               />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="sort_order"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sort Order</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={1} placeholder="1" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="is_active"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Status</FormLabel>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 

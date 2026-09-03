@@ -2,54 +2,59 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
-import MediaThumbnail from "@/components/common/MediaThumbnail";
-import SortOrderCell from "@/components/common/SortOrderCell";
-import StatusToggleCell from "@/components/common/StatusToggleCell";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
-import {
-  fetchConnectionsList,
-  deleteConnections,
-  toggleConnectionsStatus,
-  updateConnectionsSortOrder,
-  ConnectionsRecord,
-  ApiError,
-} from "@/services/contact/connectionsApi";
-import { useToast } from "@/hooks/use-toast";
-import { usePaginatedList } from "@/hooks/usePaginatedList";
+import StatusToggleCell from "@/components/common/StatusToggleCell";
+import SortOrderCell from "@/components/common/SortOrderCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
+import { useToast } from "@/hooks/use-toast";
+import { usePaginatedList } from "@/hooks/usePaginatedList";
+import {
+  fetchProjectsList,
+  deleteProject,
+  toggleProjectStatus,
+  updateProjectSortOrder,
+  ProjectRecord,
+  ApiError,
+} from "@/services/masters/projectsApi";
 
-export default function ConnectionsList() {
+const resolveImageUrl = (path: string | null) => {
+  if (!path) return null;
+  if (/^https?:\/\//.test(path)) return path;
+  return `${import.meta.env.VITE_IMAGE_URL}/${path}`;
+};
+
+export default function ProjectsList() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
+  const [statusToggleItem, setStatusToggleItem] = useState<{
+    item: ProjectRecord;
+    newStatus: boolean;
+  } | null>(null);
+
   const {
-    items: connections,
-    setItems: setConnections,
+    items: projects,
+    setItems: setProjects,
     page,
     setPage,
     limit,
     setLimit,
-    itemsPage,
-    itemsLimit,
     searchInput,
     setSearchInput,
     totalCount,
     totalPages,
     loading,
     searching,
+    itemsPage,
+    itemsLimit,
     refetch,
-  } = usePaginatedList<ConnectionsRecord>(fetchConnectionsList);
+  } = usePaginatedList<ProjectRecord>(fetchProjectsList);
 
-  const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const [statusToggleItem, setStatusToggleItem] = useState<{
-    item: ConnectionsRecord;
-    newStatus: boolean;
-  } | null>(null);
-
-  const connectionsRef = useRef<ConnectionsRecord[]>(connections);
+  const projectsRef = useRef<ProjectRecord[]>(projects);
   useEffect(() => {
-    connectionsRef.current = connections;
-  }, [connections]);
+    projectsRef.current = projects;
+  }, [projects]);
 
   const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
   const sortOrderOriginal = useRef<Record<number, number>>({});
@@ -61,46 +66,18 @@ export default function ConnectionsList() {
     };
   }, []);
 
-  const confirmStatusToggle = async () => {
-    if (!statusToggleItem) return;
-
-    try {
-      const { item, newStatus } = statusToggleItem;
-      await toggleConnectionsStatus(item, newStatus);
-
-      setConnections((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, is_active: newStatus } : i)),
-      );
-      refetch();
-
-      toast({
-        title: "Success",
-        description: "Connection status updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof ApiError ? error.message : "Failed to update connection status",
-        variant: "destructive",
-      });
-    } finally {
-      setStatusToggleItem(null);
-    }
-  };
-
   const SORT_ORDER_COMMIT_DELAY = 600;
 
-  const handleSortOrderChange = (item: ConnectionsRecord, delta: number) => {
-    const newSortOrder = Math.max(1, (item.sort_order ?? 1) + delta);
+  const handleSortOrderChange = (item: ProjectRecord, delta: number) => {
+    const newSortOrder = Math.max(0, (item.sort_order ?? 0) + delta);
     if (newSortOrder === item.sort_order) return;
 
     if (!sortOrderTimers.current[item.id]) {
-      sortOrderOriginal.current[item.id] = item.sort_order ?? 1;
+      sortOrderOriginal.current[item.id] = item.sort_order ?? 0;
     }
 
-    setConnections((prev) =>
-      prev.map((i) => (i.id === item.id ? { ...i, sort_order: newSortOrder } : i)),
+    setProjects((prev) =>
+      prev.map((p) => (p.id === item.id ? { ...p, sort_order: newSortOrder } : p)),
     );
 
     clearTimeout(sortOrderTimers.current[item.id]);
@@ -111,21 +88,21 @@ export default function ConnectionsList() {
   };
 
   const handleSortOrder = async (itemId: number) => {
-    const latestItem = connectionsRef.current.find((i) => i.id === itemId);
+    const latestItem = projectsRef.current.find((p) => p.id === itemId);
     if (!latestItem) return;
 
-    const finalSortOrder = latestItem.sort_order ?? 1;
+    const finalSortOrder = latestItem.sort_order ?? 0;
     const originalSortOrder = sortOrderOriginal.current[itemId];
     delete sortOrderOriginal.current[itemId];
 
     if (finalSortOrder === originalSortOrder) return;
 
     try {
-      await updateConnectionsSortOrder(latestItem, finalSortOrder);
+      await updateProjectSortOrder(latestItem, finalSortOrder);
       toast({ title: "Success", description: "Sort order updated successfully" });
     } catch (error) {
-      setConnections((prev) =>
-        prev.map((i) => (i.id === itemId ? { ...i, sort_order: originalSortOrder } : i)),
+      setProjects((prev) =>
+        prev.map((p) => (p.id === itemId ? { ...p, sort_order: originalSortOrder } : p)),
       );
       toast({
         title: "Error",
@@ -139,21 +116,18 @@ export default function ConnectionsList() {
     if (!deleteItemId) return;
 
     try {
-      await deleteConnections(deleteItemId);
-      if (connections.length === 1 && page > 1) {
+      await deleteProject(deleteItemId);
+      if (projects.length === 1 && page > 1) {
         setPage(page - 1);
       } else {
         refetch();
       }
-      toast({
-        title: "Success",
-        description: "Connection deleted successfully",
-      });
+      toast({ title: "Success", description: "Project deleted successfully" });
     } catch (error) {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to delete connection",
+          error instanceof ApiError ? error.message : "Failed to delete project",
         variant: "destructive",
       });
     } finally {
@@ -161,25 +135,56 @@ export default function ConnectionsList() {
     }
   };
 
-  const columns: ColumnDef<ConnectionsRecord>[] = [
+  const confirmStatusToggle = async () => {
+    if (!statusToggleItem) return;
+
+    try {
+      const { item, newStatus } = statusToggleItem;
+      await toggleProjectStatus(item, newStatus);
+
+      setProjects((prev) =>
+        prev.map((p) => (p.id === item.id ? { ...p, is_active: newStatus } : p)),
+      );
+      refetch();
+
+      toast({ title: "Success", description: "Project status updated successfully" });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof ApiError ? error.message : "Failed to update project status",
+        variant: "destructive",
+      });
+    } finally {
+      setStatusToggleItem(null);
+    }
+  };
+
+  const columns: ColumnDef<ProjectRecord>[] = [
     {
-      id: "id",
+      accessorKey: "id",
       header: "ID",
       cell: ({ row }) => (
-        <div className="font-mono text-sm">
+        <div className="font-mono">
           {(itemsPage - 1) * itemsLimit + row.index + 1}
         </div>
       ),
     },
     {
-      accessorKey: "icon_media_path",
-      header: "Icon",
-      cell: ({ row }) => (
-        <MediaThumbnail
-          path={row.getValue("icon_media_path")}
-          alt={row.original.icon_media_alt}
-        />
-      ),
+      accessorKey: "thumbnail",
+      header: "Thumbnail",
+      cell: ({ row }) => {
+        const url = resolveImageUrl(row.original.thumbnail);
+        return url ? (
+          <img
+            src={url}
+            alt={row.original.title}
+            className="h-10 w-10 rounded object-cover border"
+          />
+        ) : (
+          <div className="h-10 w-10 rounded border bg-muted" />
+        );
+      },
     },
     {
       accessorKey: "title",
@@ -189,16 +194,22 @@ export default function ConnectionsList() {
       ),
     },
     {
-      accessorKey: "description",
-      header: "Description",
-      cell: ({ row }) => {
-        const description = row.getValue("description") as string;
-        return (
-          <div className="max-w-xs truncate text-sm text-muted-foreground">
-            {description}
-          </div>
-        );
-      },
+      id: "category",
+      header: "Category",
+      cell: ({ row }) => (
+        <div className="text-sm text-muted-foreground">
+          {row.original.category?.title || "-"}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "location",
+      header: "Location",
+      cell: ({ row }) => (
+        <div className="text-sm text-muted-foreground">
+          {row.getValue("location") || "-"}
+        </div>
+      ),
     },
     {
       accessorKey: "sort_order",
@@ -248,7 +259,7 @@ export default function ConnectionsList() {
         const item = row.original;
         return (
           <RowActionsMenu
-            onEdit={() => navigate(`/contact-connections/${item.id}/edit`)}
+            onEdit={() => navigate(`/projects/${item.id}/edit`)}
             onDelete={() => setDeleteItemId(item.id)}
           />
         );
@@ -260,11 +271,11 @@ export default function ConnectionsList() {
     <>
       <DataTable
         columns={columns}
-        data={connections}
-        title="Connections"
-        searchPlaceholder="Search connections..."
-        onAdd={() => navigate("/contact-connections/new")}
-        addButtonText="Add Connection"
+        data={projects}
+        title="Projects"
+        searchPlaceholder="Search projects..."
+        onAdd={() => navigate("/projects/new")}
+        addButtonText="Add Project"
         loading={loading}
         searching={searching}
         searchQuery={searchInput}
@@ -286,14 +297,13 @@ export default function ConnectionsList() {
         deleteItemId={deleteItemId}
         setDeleteItemId={setDeleteItemId}
         confirmDelete={confirmDelete}
-        itemLabel="connection"
       />
 
       <StatusChangeDialogue
         statusToggleItem={statusToggleItem}
         setStatusToggleItem={setStatusToggleItem}
         confirmStatusToggle={confirmStatusToggle}
-        itemLabel="connection"
+        itemLabel="project"
       />
     </>
   );

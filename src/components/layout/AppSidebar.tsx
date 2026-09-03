@@ -23,6 +23,7 @@ import {
   MessageSquare,
   Phone,
   Link2,
+  Briefcase,
 } from "lucide-react";
 
 import {
@@ -50,8 +51,8 @@ const homeSection = [
   { title: "CMS", url: "/home-cms", icon: Home },
   { title: "Banner", url: "/home-banner", icon: Image },
   { title: "Milestone", url: "/home-milestones", icon: Monitor },
-  {title: "Brands", url: "/home-brands", icon: RadioTower},
-  {title: "Testimonials", url: "/home-testimonials", icon: Monitor}
+  { title: "Brands", url: "/home-brands", icon: RadioTower },
+  { title: "Testimonials", url: "/home-testimonials", icon: Monitor },
 ];
 
 const aboutSection = [
@@ -64,6 +65,14 @@ const aboutSection = [
 const contactSection = [
   { title: "CMS", url: "/contact-cms", icon: Phone },
   { title: "Connections", url: "/contact-connections", icon: Link2 },
+];
+
+const projectsSection = [
+  {
+    title: "Projects",
+    url: "/projects",
+    icon: Briefcase,
+  },
 ];
 
 const commonSection = [
@@ -79,6 +88,7 @@ const mastersSection = [
   { title: "Industry", url: "/industry", icon: MapPin },
   { title: "Our Features", url: "/our-features", icon: TrendingUp },
   { title: "Ads Banner", url: "/ads-banner", icon: Image },
+  { title: "Projects", url: "/projects", icon: Briefcase },
 ];
 const adminSection = [{ title: "Users", url: "/users", icon: Users }];
 
@@ -114,17 +124,29 @@ export function AppSidebar() {
     }
     // Common sections
     else if (
-      ["/site-settings", "/social-media", "/meta-tags", "/common-faq", "/banners", "/footer-media"].some(
-        (route) => path.includes(route),
-      )
+      [
+        "/site-settings",
+        "/social-media",
+        "/meta-tags",
+        "/common-faq",
+        "/banners",
+        "/footer-media",
+      ].some((route) => path.includes(route))
     ) {
       setOpenSection("common");
+    } else if (["/projects"].some((route) => path.includes(route))) {
+      setOpenSection("projects");
     }
     // Masters section
     else if (
-      ["/pages", "/faqs", "/industry", "/our-features", "/ads-banner"].some(
-        (route) => path.includes(route),
-      )
+      [
+        "/pages",
+        "/faqs",
+        "/industry",
+        "/our-features",
+        "/ads-banner",
+        "/projects",
+      ].some((route) => path.includes(route))
     ) {
       setOpenSection("masters");
     }
@@ -214,6 +236,16 @@ export function AppSidebar() {
           Section={contactSection}
         />
 
+        <GetLayout
+          Icon={Compass}
+          title="Projects"
+          isCollapsed={isCollapsed}
+          open={openSection === "projects"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "projects" : null)}
+          pathname={location.pathname}
+          Section={projectsSection}
+        />
+
         {/* Common Sections */}
         <GetLayout
           Icon={Settings}
@@ -252,7 +284,15 @@ export function AppSidebar() {
   );
 }
 
-function GetLayout({ open, onOpenChange, pathname, Section, isCollapsed, title, Icon }) {
+function GetLayout({
+  open,
+  onOpenChange,
+  pathname,
+  Section,
+  isCollapsed,
+  title,
+  Icon,
+}) {
   return (
     <SidebarGroup>
       <Collapsible open={!isCollapsed && open} onOpenChange={onOpenChange}>

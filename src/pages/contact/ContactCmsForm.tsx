@@ -153,7 +153,7 @@ export default function ContactCmsForm() {
               <CardTitle>Map Section</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormTextField
+              <FormTextareaField
                 form={form}
                 name="map_url"
                 label="Map URL"

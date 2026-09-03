@@ -59,6 +59,10 @@ const OurFeaturesForm = React.lazy(
 const AdsBannerList = React.lazy(() => import("./pages/masters/AdsBannerList"));
 const AdsBannerForm = React.lazy(() => import("./pages/masters/AdsBannerForm"));
 
+// Masters — Projects
+const ProjectsList = React.lazy(() => import("./pages/masters/ProjectsList"));
+const ProjectsForm = React.lazy(() => import("./pages/masters/ProjectsForm"));
+
 // Site Settings — Banners
 const BannersList = React.lazy(
   () => import("./pages/siteSettings/BannersList"),
@@ -262,6 +266,11 @@ const App = () => (
                 path="/ads-banner/:id/edit"
                 element={<AdsBannerForm />}
               />
+
+              {/* Projects Routes */}
+              <Route path="/projects" element={<ProjectsList />} />
+              <Route path="/projects/new" element={<ProjectsForm />} />
+              <Route path="/projects/:id/edit" element={<ProjectsForm />} />
 
               {/* Site Settings Route */}
               <Route path="/site-settings" element={<SiteSettingsForm />} />
