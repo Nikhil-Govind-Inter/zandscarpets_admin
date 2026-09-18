@@ -45,6 +45,7 @@ export default function HomeBrandsForm() {
     defaultValues: {
       media_path: "",
       media_alt: "",
+      media_alt_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -65,6 +66,7 @@ export default function HomeBrandsForm() {
         form.reset({
           media_path: data.media_path || "",
           media_alt: data.media_alt || "",
+          media_alt_ar: data.media_alt_ar || "",
           sort_order: (data.sort_order ?? 1).toString(),
           is_active: data.is_active ?? true,
         });
@@ -90,6 +92,7 @@ export default function HomeBrandsForm() {
       const formData = new FormData();
 
       formData.append("media_alt", data.media_alt || "");
+      formData.append("media_alt_ar", data.media_alt_ar || "");
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
 
@@ -157,23 +160,42 @@ export default function HomeBrandsForm() {
               <CardTitle>Brand Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-
-               <FormField
-                control={form.control}
-                name="media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Icon Alt Text</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Describe the brand icon"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Icon Alt Text</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Describe the brand icon"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="media_alt_ar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Icon Alt Text (Arabic)</FormLabel>
+                      <FormControl>
+                        <Input
+                          dir="rtl"
+                          className="text-right"
+                          placeholder="وصف رمز العلامة"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormFileUploadField
                 form={form}
@@ -182,9 +204,14 @@ export default function HomeBrandsForm() {
                 placeholder="Upload brand image"
                 accept="image/*"
               />
+            </CardContent>
+          </Card>
 
-             
-
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -211,6 +238,7 @@ export default function HomeBrandsForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
+                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
                       </div>
                       <FormControl>
                         <Switch

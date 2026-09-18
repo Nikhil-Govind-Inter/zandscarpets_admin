@@ -16,8 +16,8 @@ export const commonValidations = {
     .string()
     .refine((val) => {
       const num = parseInt(val);
-      return !isNaN(num) && num >= 0;
-    }, "Sort order must be 0 or greater")
+      return !isNaN(num) && num > 0;
+    }, "Sort order must be a positive integer")
     .optional(),
   
   requiredNumber: (fieldName: string) => 

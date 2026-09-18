@@ -10,6 +10,7 @@ export interface CoreValuesRecord {
   id: number;
   media_path: string | null;
   media_alt: string | null;
+  media_alt_ar: string | null;
   sort_order: number;
   is_active: boolean;
   deleted_at?: string | null;
@@ -145,11 +146,12 @@ export const deleteCoreValues = async (
 // dropped.
 const buildCoreValuesFormData = (
   item: CoreValuesRecord,
-  overrides: Partial<Pick<CoreValuesRecord, "media_alt" | "sort_order" | "is_active">>,
+  overrides: Partial<Pick<CoreValuesRecord, "media_alt" | "media_alt_ar" | "sort_order" | "is_active">>,
 ): FormData => {
   const formData = new FormData();
 
   formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
+  formData.append("media_alt_ar", overrides.media_alt_ar ?? item.media_alt_ar ?? "");
   formData.append(
     "sort_order",
     (overrides.sort_order ?? item.sort_order ?? 1).toString(),

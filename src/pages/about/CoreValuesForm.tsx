@@ -40,6 +40,7 @@ export default function CoreValuesForm() {
     defaultValues: {
       media_path: "",
       media_alt: "",
+      media_alt_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -62,6 +63,7 @@ export default function CoreValuesForm() {
         form.reset({
           media_path: data.media_path || "",
           media_alt: data.media_alt || "",
+          media_alt_ar: data.media_alt_ar || "",
           sort_order: (data.sort_order ?? 1).toString(),
           is_active: data.is_active ?? true,
         });
@@ -84,6 +86,7 @@ export default function CoreValuesForm() {
 
       const formData = new FormData();
       formData.append("media_alt", data.media_alt || "");
+      formData.append("media_alt_ar", data.media_alt_ar || "");
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
 
@@ -149,6 +152,7 @@ export default function CoreValuesForm() {
                 accept="image/*"
               />
 
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="media_alt"
@@ -162,7 +166,28 @@ export default function CoreValuesForm() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="media_alt_ar"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image Alt Text (Arabic)</FormLabel>
+                    <FormControl>
+                      <Input dir="rtl" placeholder="صف الصورة" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              </div>
+            </CardContent>
+          </Card>
 
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -184,6 +209,8 @@ export default function CoreValuesForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
+                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
+                     
                       </div>
                       <FormControl>
                         <Switch checked={field.value} onCheckedChange={field.onChange} />

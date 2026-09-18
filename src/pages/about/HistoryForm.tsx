@@ -40,7 +40,9 @@ export default function HistoryForm() {
     defaultValues: {
       year: "",
       title: "",
+      title_ar: "",
       description: "",
+      description_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -62,7 +64,9 @@ export default function HistoryForm() {
       form.reset({
         year: data.year || "",
         title: data.title || "",
+        title_ar: data.title_ar || "",
         description: data.description || "",
+        description_ar: data.description_ar || "",
         sort_order: (data.sort_order ?? 1).toString(),
         is_active: data.is_active ?? true,
       });
@@ -84,7 +88,9 @@ export default function HistoryForm() {
       const payload = {
         year: data.year,
         title: data.title,
+        title_ar: data.title_ar,
         description: data.description,
+        description_ar: data.description_ar,
         sort_order: parseInt(data.sort_order || "1"),
         is_active: data.is_active,
       };
@@ -151,6 +157,7 @@ export default function HistoryForm() {
                 )}
               />
 
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="title"
@@ -165,6 +172,22 @@ export default function HistoryForm() {
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="title_ar"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title (Arabic)</FormLabel>
+                    <FormControl>
+                      <Input dir="rtl" placeholder="عنوان الحدث" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormTextareaField
                 form={form}
                 name="description"
@@ -172,7 +195,21 @@ export default function HistoryForm() {
                 placeholder="Describe this milestone"
                 // rows={4}
               />
+              <FormTextareaField
+                form={form}
+                name="description_ar"
+                label="Description (Arabic)"
+                placeholder="صف هذا الحدث"
+              />
+              </div>
+            </CardContent>
+          </Card>
 
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -195,6 +232,7 @@ export default function HistoryForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
+                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
                       </div>
                       <FormControl>
                         <Switch checked={field.value} onCheckedChange={field.onChange} />

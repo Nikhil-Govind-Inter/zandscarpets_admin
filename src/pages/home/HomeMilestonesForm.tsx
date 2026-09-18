@@ -44,9 +44,12 @@ export default function HomeMilestoneForm() {
     resolver: zodResolver(homeMilestoneSchema),
     defaultValues: {
       value: "",
+      value_ar: "",
       label: "",
+      label_ar: "",
       media_path: "",
       media_alt: "",
+      media_alt_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -69,10 +72,13 @@ export default function HomeMilestoneForm() {
 
       if (data) {
         form.reset({
-          label: data.label || "",
           value: data.value || "",
+          value_ar: data.value_ar || "",
+          label: data.label || "",
+          label_ar: data.label_ar || "",
           media_path: data.media_path || "",
           media_alt: data.media_alt || "",
+          media_alt_ar: data.media_alt_ar || "",
           sort_order: (data.sort_order ?? 1).toString(),
           is_active: data.is_active ?? true,
         });
@@ -94,8 +100,11 @@ export default function HomeMilestoneForm() {
 
       const formData = new FormData();
       formData.append("value", data.value);
+      formData.append("value_ar", data.value_ar);
       formData.append("label", data.label);
+      formData.append("label_ar", data.label_ar);
       formData.append("media_alt", data.media_alt || "");
+      formData.append("media_alt_ar", data.media_alt_ar || "");
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
 
@@ -153,26 +162,48 @@ export default function HomeMilestoneForm() {
               <CardTitle>Milestone Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="value"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Value</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Milestone value" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormTextareaField
-                form={form}
-                name="label"
-                label="Label"
-                placeholder="Milestone label"
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="value"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Value</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Milestone value" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="value_ar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Value (Arabic)</FormLabel>
+                      <FormControl>
+                        <Input dir="rtl" className="text-right" placeholder="قيمة الإنجاز" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormTextareaField
+                  form={form}
+                  name="label"
+                  label="Label"
+                  placeholder="Milestone label"
+                />
+                <FormTextareaField
+                  form={form}
+                  name="label_ar"
+                  label="Label (Arabic)"
+                  placeholder="وصف الإنجاز"
+                />
+              </div>
 
               <FormFileUploadField
                 form={form}
@@ -182,20 +213,43 @@ export default function HomeMilestoneForm() {
                 accept="image/*"
               />
 
-              <FormField
-                control={form.control}
-                name="media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Describe the milestone media" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Describe the milestone media" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="media_alt_ar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image Alt Text (Arabic)</FormLabel>
+                      <FormControl>
+                        <Input dir="rtl" className="text-right" placeholder="وصف صورة الإنجاز" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -217,6 +271,8 @@ export default function HomeMilestoneForm() {
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div className="space-y-0.5">
                       <FormLabel className="text-base">Status</FormLabel>
+                      <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
+                      
                     </div>
                     <FormControl>
                       <Switch

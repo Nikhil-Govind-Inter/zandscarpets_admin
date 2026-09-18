@@ -12,10 +12,15 @@ export interface MessagesRecord {
   id: number;
   media_path: string | null;
   media_alt: string | null;
+  media_alt_ar: string | null;
   quotes: string;
+  quotes_ar: string;
   name: string;
+  name_ar: string;
   designation: string;
+  designation_ar: string;
   Organization: string;
+  organization_ar: string;
   sort_order: number;
   is_active: boolean;
   deleted_at?: string | null;
@@ -155,10 +160,15 @@ const buildMessagesFormData = (
     Pick<
       MessagesRecord,
       | "media_alt"
+      | "media_alt_ar"
       | "quotes"
+      | "quotes_ar"
       | "name"
+      | "name_ar"
       | "designation"
+      | "designation_ar"
       | "Organization"
+      | "organization_ar"
       | "sort_order"
       | "is_active"
     >
@@ -167,10 +177,15 @@ const buildMessagesFormData = (
   const formData = new FormData();
 
   formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
+  formData.append("media_alt_ar", overrides.media_alt_ar ?? item.media_alt_ar ?? "");
   formData.append("quotes", overrides.quotes ?? item.quotes ?? "");
+  formData.append("quotes_ar", overrides.quotes_ar ?? item.quotes_ar ?? "");
   formData.append("name", overrides.name ?? item.name ?? "");
+  formData.append("name_ar", overrides.name_ar ?? item.name_ar ?? "");
   formData.append("designation", overrides.designation ?? item.designation ?? "");
+  formData.append("designation_ar", overrides.designation_ar ?? item.designation_ar ?? "");
   formData.append("Organization", overrides.Organization ?? item.Organization ?? "");
+  formData.append("organization_ar", overrides.organization_ar ?? item.organization_ar ?? "");
   formData.append(
     "sort_order",
     (overrides.sort_order ?? item.sort_order ?? 1).toString(),

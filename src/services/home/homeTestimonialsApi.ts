@@ -8,8 +8,11 @@ export interface HomeTestimonialsRecord {
   id: number;
   profile_media_path: string | null;
   name: string;
+  name_ar: string;
   designation?: string | null;
+  designation_ar?: string | null;
   message: string;
+  message_ar: string;
   sort_order: number;
   is_active: boolean;
   deleted_at?: string | null;
@@ -93,12 +96,15 @@ export const deleteHomeTestimonials = async (id: number): Promise<{ data: { id: 
 
 const buildHomeTestimonialsFormData = (
   item: HomeTestimonialsRecord,
-  overrides: Partial<Pick<HomeTestimonialsRecord, "name" | "designation" | "message" | "sort_order" | "is_active">>,
+  overrides: Partial<Pick<HomeTestimonialsRecord, "name" | "name_ar" | "designation" | "designation_ar" | "message" | "message_ar" | "sort_order" | "is_active">>,
 ): FormData => {
   const formData = new FormData();
   formData.append("name", overrides.name ?? item.name ?? "");
+  formData.append("name_ar", overrides.name_ar ?? item.name_ar ?? "");
   formData.append("designation", overrides.designation ?? item.designation ?? "");
+  formData.append("designation_ar", overrides.designation_ar ?? item.designation_ar ?? "");
   formData.append("message", overrides.message ?? item.message ?? "");
+  formData.append("message_ar", overrides.message_ar ?? item.message_ar ?? "");
   formData.append("sort_order", (overrides.sort_order ?? item.sort_order ?? 1).toString());
   formData.append("is_active", (overrides.is_active ?? item.is_active ?? true).toString());
 

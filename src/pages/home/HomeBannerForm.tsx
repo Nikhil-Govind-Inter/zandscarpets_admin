@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import PageLoader from "@/components/layout/PageLoader";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,9 +47,12 @@ export default function HomeBannerForm() {
     defaultValues: {
       industry_id: "",
       title: "",
+      title_ar: "",
       description: "",
+      description_ar: "",
       media_path: "",
       media_alt: "",
+      media_alt_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -59,11 +62,7 @@ export default function HomeBannerForm() {
   // picker (one banner per industry, enforced here rather than in the DB —
   // the currently-edited banner's own industry stays selectable since its
   // own row is excluded from the "used" set).
-  useEffect(() => {
-    loadIndustryOptions();
-  }, [id]);
-
-  const loadIndustryOptions = async () => {
+  const loadIndustryOptions = useCallback(async () => {
     try {
       const [industriesRes, bannersRes] = await Promise.all([
         fetchActiveIndustries(),
@@ -93,41 +92,51 @@ export default function HomeBannerForm() {
         variant: "destructive",
       });
     }
-  };
+  }, [id, isEditing, toast]);
+
+  const loadHomeBannerData = useCallback(
+    async (itemId: number) => {
+      try {
+        setInitialLoading(true);
+        const response = await fetchHomeBannerById(itemId);
+        const data = response.data;
+
+        if (data) {
+          form.reset({
+            industry_id: data.industry_id.toString(),
+            title: data.title || "",
+            title_ar: data.title_ar || "",
+            description: data.description || "",
+            description_ar: data.description_ar || "",
+            media_path: data.media_path || "",
+            media_alt: data.media_alt || "",
+            media_alt_ar: data.media_alt_ar || "",
+            sort_order: (data.sort_order ?? 1).toString(),
+            is_active: data.is_active ?? true,
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: error instanceof ApiError ? error.message : "Failed to load banner data",
+          variant: "destructive",
+        });
+      } finally {
+        setInitialLoading(false);
+      }
+    },
+    [form, toast],
+  );
+
+  useEffect(() => {
+    loadIndustryOptions();
+  }, [loadIndustryOptions]);
 
   useEffect(() => {
     if (isEditing && id) {
       loadHomeBannerData(parseInt(id));
     }
-  }, [id, isEditing]);
-
-  const loadHomeBannerData = async (itemId: number) => {
-    try {
-      setInitialLoading(true);
-      const response = await fetchHomeBannerById(itemId);
-      const data = response.data;
-
-      if (data) {
-        form.reset({
-          industry_id: data.industry_id.toString(),
-          title: data.title || "",
-          description: data.description || "",
-          media_path: data.media_path || "",
-          media_alt: data.media_alt || "",
-          sort_order: (data.sort_order ?? 1).toString(),
-          is_active: data.is_active ?? true,
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof ApiError ? error.message : "Failed to load banner data",
-        variant: "destructive",
-      });
-    } finally {
-      setInitialLoading(false);
-    }
-  };
+  }, [id, isEditing, loadHomeBannerData]);
 
   const onSubmit = async (data: HomeBannerFormData) => {
     try {
@@ -136,8 +145,11 @@ export default function HomeBannerForm() {
       const formData = new FormData();
       formData.append("industry_id", data.industry_id);
       formData.append("title", data.title);
+      formData.append("title_ar", data.title_ar);
       formData.append("description", data.description);
+      formData.append("description_ar", data.description_ar);
       formData.append("media_alt", data.media_alt || "");
+      formData.append("media_alt_ar", data.media_alt_ar || "");
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
 
@@ -215,26 +227,49 @@ export default function HomeBannerForm() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Banner title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Banner title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="title_ar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title (Arabic)</FormLabel>
+                      <FormControl>
+                        <Input dir="rtl" className="text-right" placeholder="عنوان البانر" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-              <FormTextareaField
-                form={form}
-                name="description"
-                label="Description"
-                placeholder="Banner description"
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormTextareaField
+                  form={form}
+                  name="description"
+                  label="Description"
+                  placeholder="Banner description"
+                />
+                <FormTextareaField
+                  form={form}
+                  name="description_ar"
+                  label="Description (Arabic)"
+                  placeholder="وصف البانر"
+                />
+              </div>
 
               <FormFileUploadField
                 form={form}
@@ -244,37 +279,78 @@ export default function HomeBannerForm() {
                 accept="image/*"
               />
 
-              <FormField
-                control={form.control}
-                name="media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Describe the banner media" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="media_alt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image Alt Text</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Describe the banner media" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="media_alt_ar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image Alt Text (Arabic)</FormLabel>
+                      <FormControl>
+                        <Input dir="rtl" className="text-right" placeholder="وصف صورة البانر" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
 
-              <FormField
-                control={form.control}
-                name="is_active"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Status</FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+          <Card>
+            <CardHeader>
+              <CardTitle>Banner Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="sort_order"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sort Order</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="Sort order" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="is_active"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Status</FormLabel>
+                        <p className="text-sm text-muted-foreground">
+                          Enable or disable this banner slider
+                        </p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 

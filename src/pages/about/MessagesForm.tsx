@@ -44,10 +44,15 @@ export default function MessagesForm() {
     defaultValues: {
       media_path: "",
       media_alt: "",
+      media_alt_ar: "",
       quotes: "",
+      quotes_ar: "",
       name: "",
+      name_ar: "",
       designation: "",
+      designation_ar: "",
       Organization: "",
+      organization_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -62,10 +67,15 @@ export default function MessagesForm() {
         form.reset({
           media_path: data.media_path || "",
           media_alt: data.media_alt || "",
+          media_alt_ar: data.media_alt_ar || "",
           quotes: data.quotes || "",
+          quotes_ar: data.quotes_ar || "",
           name: data.name || "",
+          name_ar: data.name_ar || "",
           designation: data.designation || "",
+          designation_ar: data.designation_ar || "",
           Organization: data.Organization || "",
+          organization_ar: data.organization_ar || "",
           sort_order: (data.sort_order ?? 1).toString(),
           is_active: data.is_active ?? true,
         });
@@ -93,10 +103,15 @@ export default function MessagesForm() {
       setLoading(true);
       const formData = new FormData();
       formData.append("media_alt", data.media_alt ?? "");
+      formData.append("media_alt_ar", data.media_alt_ar ?? "");
       formData.append("quotes", data.quotes);
+      formData.append("quotes_ar", data.quotes_ar);
       formData.append("name", data.name);
+      formData.append("name_ar", data.name_ar);
       formData.append("designation", data.designation);
+      formData.append("designation_ar", data.designation_ar);
       formData.append("Organization", data.Organization);
+      formData.append("organization_ar", data.organization_ar);
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
 
@@ -166,6 +181,17 @@ export default function MessagesForm() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="name_ar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name (Arabic)</FormLabel>
+                      <FormControl><Input dir="rtl" placeholder="الاسم" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
@@ -180,8 +206,20 @@ export default function MessagesForm() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="designation_ar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Designation (Arabic)</FormLabel>
+                      <FormControl><Input dir="rtl" placeholder="المسمى الوظيفي" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="Organization"
@@ -195,6 +233,18 @@ export default function MessagesForm() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="organization_ar"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Organization (Arabic)</FormLabel>
+                    <FormControl><Input dir="rtl" placeholder="اسم المنظمة" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              </div>
 
               <FormFileUploadField
                 form={form}
@@ -204,6 +254,7 @@ export default function MessagesForm() {
                 accept="image/*"
               />
 
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="media_alt"
@@ -217,14 +268,39 @@ export default function MessagesForm() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="media_alt_ar"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Profile Alt Text (Arabic)</FormLabel>
+                    <FormControl><Input dir="rtl" placeholder="وصف الصورة" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              </div>
 
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormRichTextField
                 form={form}
                 name="quotes"
                 label="Quote"
                 placeholder="Short quote"
               />
+              <FormRichTextField
+                form={form}
+                name="quotes_ar"
+                label="Quote (Arabic)"
+                placeholder="اقتباس قصير"
+              />
+              </div>
+            </CardContent>
+          </Card>
 
+          <Card>
+            <CardHeader><CardTitle>Publishing Settings</CardTitle></CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -246,6 +322,7 @@ export default function MessagesForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
+                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
                       </div>
                       <FormControl>
                         <Switch checked={field.value} onCheckedChange={field.onChange} />

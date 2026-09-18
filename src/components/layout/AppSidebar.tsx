@@ -261,16 +261,7 @@ export function AppSidebar() {
           Section={projectsSection}
         />
 
-        {/* Common Sections */}
-        <GetLayout
-          Icon={Settings}
-          title="Settings & Common"
-          isCollapsed={isCollapsed}
-          open={openSection === "common"}
-          onOpenChange={(isOpen) => setOpenSection(isOpen ? "common" : null)}
-          pathname={location.pathname}
-          Section={commonSection}
-        />
+     
 
         {/* Masters */}
         <GetLayout
@@ -292,6 +283,17 @@ export function AppSidebar() {
           onOpenChange={(isOpen) => setOpenSection(isOpen ? "services" : null)}
           pathname={location.pathname}
           Section={servicesSection}
+        />
+
+           {/* Common Sections */}
+        <GetLayout
+          Icon={Settings}
+          title="Settings & Common"
+          isCollapsed={isCollapsed}
+          open={openSection === "common"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "common" : null)}
+          pathname={location.pathname}
+          Section={commonSection}
         />
 
         {role === ROLES.ADMIN && (

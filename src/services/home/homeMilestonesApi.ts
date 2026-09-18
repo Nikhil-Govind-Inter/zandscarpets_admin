@@ -12,8 +12,11 @@ export interface HomeMilestonesRecord {
   id: number;
   media_path: string | null;
   media_alt: string | null;
+  media_alt_ar: string | null;
   value: string;
+  value_ar: string;
   label: string;
+  label_ar: string;
   sort_order: number;
   is_active: boolean;
   deleted_at?: string | null;
@@ -154,18 +157,28 @@ const buildHomeMilestonesFormData = (
   overrides: Partial<
     Pick<
       HomeMilestonesRecord,
-      "value" | "label" | "media_alt" | "sort_order" | "is_active"
+      | "value"
+      | "value_ar"
+      | "label"
+      | "label_ar"
+      | "media_alt"
+      | "media_alt_ar"
+      | "sort_order"
+      | "is_active"
     >
   >,
 ): FormData => {
   const formData = new FormData();
- 
+
   formData.append("value", overrides.value ?? item.value ?? "");
-  formData.append(
-    "label",
-    overrides.label ?? item.label ?? "",
-  );
+  formData.append("value_ar", overrides.value_ar ?? item.value_ar ?? "");
+  formData.append("label_ar", overrides.label_ar ?? item.label_ar ?? "");
+  formData.append("label", overrides.label ?? item.label ?? "");
   formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
+  formData.append(
+    "media_alt_ar",
+    overrides.media_alt_ar ?? item.media_alt_ar ?? "",
+  );
   formData.append(
     "sort_order",
     (overrides.sort_order ?? item.sort_order ?? 1).toString(),

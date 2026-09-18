@@ -43,6 +43,7 @@ interface RichTextEditorProps {
   required?: boolean;
   maxLength?: number;
   height?: string;
+  dir?: "ltr" | "rtl";
 }
 
 export function RichTextEditor({
@@ -53,7 +54,8 @@ export function RichTextEditor({
   className,
   required = false,
   maxLength,
-  height
+  height,
+  dir,
 }: RichTextEditorProps) {
   const [showIconSelector, setShowIconSelector] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -99,6 +101,7 @@ export function RichTextEditor({
     },
     editorProps: {
       attributes: {
+        dir,
         class: cn(
           "prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl mx-auto focus:outline-none p-3",
           "prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground",
@@ -106,6 +109,7 @@ export function RichTextEditor({
           "prose-blockquote:text-muted-foreground prose-blockquote:border-border",
           "prose-a:text-primary prose-a:no-underline hover:prose-a:underline",
           "prose-img:rounded-md prose-img:border"
+          , dir === "rtl" && "text-right"
         ),
       },
       handleKeyDown: (view, event) => {
