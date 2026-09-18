@@ -5,6 +5,7 @@ export const homeBrandsSchema = z.object({
   industry_id: z.string().optional(),
   media_path: commonValidations.requiredFile("Brand Image"),
   media_alt: commonValidations.requiredString("Alt text"),
+  media_alt_ar: commonValidations.requiredString("Alt text (Arabic)"),
   sort_order: commonValidations.sortOrder,
   is_active: commonValidations.booleanStatus,
 });

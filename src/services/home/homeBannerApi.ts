@@ -13,9 +13,12 @@ export interface HomeBannerRecord {
   id: number;
   industry_id: number;
   title: string;
+  title_ar: string;
   description: string;
+  description_ar: string;
   media_path: string | null;
   media_alt: string | null;
+  media_alt_ar: string | null;
   sort_order: number;
   is_active: boolean;
   industry?: { id: number; title: string } | null;
@@ -161,7 +164,7 @@ const buildHomeBannerFormData = (
   overrides: Partial<
     Pick<
       HomeBannerRecord,
-      "industry_id" | "title" | "description" | "media_alt" | "sort_order" | "is_active"
+      "industry_id" | "title" | "title_ar" | "description" | "description_ar" | "media_alt" | "media_alt_ar" | "sort_order" | "is_active"
     >
   >,
 ): FormData => {
@@ -171,8 +174,11 @@ const buildHomeBannerFormData = (
     (overrides.industry_id ?? item.industry_id).toString(),
   );
   formData.append("title", overrides.title ?? item.title ?? "");
+  formData.append("title_ar", overrides.title_ar ?? item.title_ar ?? "");
   formData.append("description", overrides.description ?? item.description ?? "");
+  formData.append("description_ar", overrides.description_ar ?? item.description_ar ?? "");
   formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
+  formData.append("media_alt_ar", overrides.media_alt_ar ?? item.media_alt_ar ?? "");
   formData.append(
     "sort_order",
     (overrides.sort_order ?? item.sort_order ?? 1).toString(),

@@ -46,8 +46,11 @@ export default function HomeTestimonialsForm() {
     defaultValues: {
       profile_media_path: "",
       name: "",
+      name_ar: "",
       designation: "",
+      designation_ar: "",
       message: "",
+      message_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -62,8 +65,11 @@ export default function HomeTestimonialsForm() {
         form.reset({
           profile_media_path: data.profile_media_path || "",
           name: data.name || "",
+          name_ar: data.name_ar || "",
           designation: data.designation || "",
+          designation_ar: data.designation_ar || "",
           message: data.message || "",
+          message_ar: data.message_ar || "",
           sort_order: (data.sort_order ?? 1).toString(),
           is_active: data.is_active ?? true,
         });
@@ -90,8 +96,11 @@ export default function HomeTestimonialsForm() {
       setLoading(true);
       const formData = new FormData();
       formData.append("name", data.name);
+      formData.append("name_ar", data.name_ar);
       formData.append("designation", data.designation ?? "");
+      formData.append("designation_ar", data.designation_ar ?? "");
       formData.append("message", data.message);
+      formData.append("message_ar", data.message_ar);
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
 
@@ -176,7 +185,22 @@ export default function HomeTestimonialsForm() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="name_ar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name (Arabic)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="الاسم" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="designation"
@@ -185,6 +209,19 @@ export default function HomeTestimonialsForm() {
                       <FormLabel>Designation</FormLabel>
                       <FormControl>
                         <Input placeholder="Designation" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="designation_ar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Designation (Arabic)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="المنصب" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -205,6 +242,14 @@ export default function HomeTestimonialsForm() {
                 name="message"
                 label="Message"
                 placeholder="Testimonial message"
+                height="300px"
+              />
+
+              <FormRichTextField
+                form={form}
+                name="message_ar"
+                label="Message (Arabic)"
+                placeholder="رسالة التدشين"
                 height="300px"
               />
 

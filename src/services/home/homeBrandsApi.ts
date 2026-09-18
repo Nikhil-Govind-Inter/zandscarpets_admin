@@ -9,6 +9,7 @@ export interface HomeBrandsRecord {
   industry_id?: number | null;
   media_path: string | null;
   media_alt: string | null;
+  media_alt_ar: string | null;
   sort_order: number;
   is_active: boolean;
   industry?: { id: number; title: string } | null;
@@ -96,11 +97,12 @@ export const deleteHomeBrands = async (id: number): Promise<{ data: { id: number
 
 const buildHomeBrandsFormData = (
   item: HomeBrandsRecord,
-  overrides: Partial<Pick<HomeBrandsRecord, "industry_id" | "media_alt" | "sort_order" | "is_active">>,
+  overrides: Partial<Pick<HomeBrandsRecord, "industry_id" | "media_alt" | "media_alt_ar" | "sort_order" | "is_active">>,
 ): FormData => {
   const formData = new FormData();
   if (overrides.industry_id ?? item.industry_id) formData.append("industry_id", (overrides.industry_id ?? item.industry_id ?? "").toString());
   formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
+  formData.append("media_alt_ar", overrides.media_alt_ar ?? item.media_alt_ar ?? "");
   formData.append("sort_order", (overrides.sort_order ?? item.sort_order ?? 1).toString());
   formData.append("is_active", (overrides.is_active ?? item.is_active ?? true).toString());
 
