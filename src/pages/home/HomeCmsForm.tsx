@@ -296,18 +296,10 @@ export default function HomeCmsForm() {
                   placeholder="أدخل العنوان الفرعي للمميزات"
                 />
               </div>
-              <FormTextareaField
-                form={form}
-                name="features_description"
-                label="Features Description"
-                placeholder="Enter features description"
-              />
-              <FormTextareaField
-                form={form}
-                name="features_description_ar"
-                label="Features Description (Arabic)"
-                placeholder="أدخل وصف المميزات"
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormTextareaField form={form} name="features_description" label="Features Description" placeholder="Enter features description" />
+                <FormTextareaField form={form} name="features_description_ar" label="Features Description (Arabic)" placeholder="أدخل وصف المميزات" />
+              </div>
             </CardContent>
           </Card>
 
@@ -396,18 +388,10 @@ export default function HomeCmsForm() {
                   placeholder="أدخل عنوان CTA"
                 />
               </div>
-              <FormTextareaField
-                form={form}
-                name="cta_description"
-                label="CTA Description"
-                placeholder="Enter CTA description"
-              />
-              <FormTextareaField
-                form={form}
-                name="cta_description_ar"
-                label="CTA Description (Arabic)"
-                placeholder="أدخل وصف CTA"
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormTextareaField form={form} name="cta_description" label="CTA Description" placeholder="Enter CTA description" />
+                <FormTextareaField form={form} name="cta_description_ar" label="CTA Description (Arabic)" placeholder="أدخل وصف CTA" />
+              </div>
             </CardContent>
           </Card>
 
@@ -452,18 +436,10 @@ export default function HomeCmsForm() {
                   placeholder="أدخل عنوان البريميوم"
                 />
               </div>
-              <FormTextareaField
-                form={form}
-                name="premium_description"
-                label="Premium Description"
-                placeholder="Enter premium description"
-              />
-              <FormTextareaField
-                form={form}
-                name="premium_description_ar"
-                label="Premium Description (Arabic)"
-                placeholder="أدخل وصف البريميوم"
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormTextareaField form={form} name="premium_description" label="Premium Description" placeholder="Enter premium description" />
+                <FormTextareaField form={form} name="premium_description_ar" label="Premium Description (Arabic)" placeholder="أدخل وصف البريميوم" />
+              </div>
             </CardContent>
           </Card>
 

@@ -192,7 +192,7 @@ export default function HomeTestimonialsForm() {
                     <FormItem>
                       <FormLabel>Name (Arabic)</FormLabel>
                       <FormControl>
-                        <Input placeholder="الاسم" {...field} />
+                        <Input dir="rtl" className="text-right" placeholder="الاسم" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -221,7 +221,7 @@ export default function HomeTestimonialsForm() {
                     <FormItem>
                       <FormLabel>Designation (Arabic)</FormLabel>
                       <FormControl>
-                        <Input placeholder="المنصب" {...field} />
+                        <Input dir="rtl" className="text-right" placeholder="المنصب" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -237,22 +237,18 @@ export default function HomeTestimonialsForm() {
                 accept="image/*"
               />
 
-              <FormRichTextField
-                form={form}
-                name="message"
-                label="Message"
-                placeholder="Testimonial message"
-                height="300px"
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormRichTextField form={form} name="message" label="Message" placeholder="Testimonial message" height="300px" />
+                <FormRichTextField form={form} name="message_ar" label="Message (Arabic)" placeholder="رسالة التدشين" height="300px" />
+              </div>
+            </CardContent>
+          </Card>
 
-              <FormRichTextField
-                form={form}
-                name="message_ar"
-                label="Message (Arabic)"
-                placeholder="رسالة التدشين"
-                height="300px"
-              />
-
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -279,6 +275,7 @@ export default function HomeTestimonialsForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
+                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
                       </div>
                       <FormControl>
                         <Switch

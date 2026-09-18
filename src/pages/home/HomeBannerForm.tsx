@@ -248,7 +248,7 @@ export default function HomeBannerForm() {
                     <FormItem>
                       <FormLabel>Title (Arabic)</FormLabel>
                       <FormControl>
-                        <Input placeholder="عنوان البانر" {...field} />
+                        <Input dir="rtl" className="text-right" placeholder="عنوان البانر" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -300,7 +300,7 @@ export default function HomeBannerForm() {
                     <FormItem>
                       <FormLabel>Image Alt Text (Arabic)</FormLabel>
                       <FormControl>
-                        <Input placeholder="وصف صورة البانر" {...field} />
+                        <Input dir="rtl" className="text-right" placeholder="وصف صورة البانر" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

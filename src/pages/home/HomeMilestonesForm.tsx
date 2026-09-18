@@ -183,14 +183,13 @@ export default function HomeMilestoneForm() {
                     <FormItem>
                       <FormLabel>Value (Arabic)</FormLabel>
                       <FormControl>
-                        <Input placeholder="قيمة الإنجاز" {...field} />
+                        <Input dir="rtl" className="text-right" placeholder="قيمة الإنجاز" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormTextareaField
                   form={form}
@@ -235,7 +234,7 @@ export default function HomeMilestoneForm() {
                     <FormItem>
                       <FormLabel>Image Alt Text (Arabic)</FormLabel>
                       <FormControl>
-                        <Input placeholder="وصف صورة الإنجاز" {...field} />
+                        <Input dir="rtl" className="text-right" placeholder="وصف صورة الإنجاز" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -243,6 +242,14 @@ export default function HomeMilestoneForm() {
                 />
               </div>
 
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -264,6 +271,8 @@ export default function HomeMilestoneForm() {
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div className="space-y-0.5">
                       <FormLabel className="text-base">Status</FormLabel>
+                      <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
+                      
                     </div>
                     <FormControl>
                       <Switch

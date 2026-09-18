@@ -185,6 +185,8 @@ export default function HomeBrandsForm() {
                       <FormLabel>Icon Alt Text (Arabic)</FormLabel>
                       <FormControl>
                         <Input
+                          dir="rtl"
+                          className="text-right"
                           placeholder="وصف رمز العلامة"
                           {...field}
                         />
@@ -202,9 +204,14 @@ export default function HomeBrandsForm() {
                 placeholder="Upload brand image"
                 accept="image/*"
               />
+            </CardContent>
+          </Card>
 
-             
-
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -231,6 +238,7 @@ export default function HomeBrandsForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
+                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
                       </div>
                       <FormControl>
                         <Switch

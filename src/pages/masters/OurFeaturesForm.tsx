@@ -177,6 +177,7 @@ export default function OurFeaturesForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
+                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
                       </div>
                       <FormControl>
                         <Switch checked={field.value} onCheckedChange={field.onChange} />

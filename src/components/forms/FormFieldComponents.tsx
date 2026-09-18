@@ -45,6 +45,7 @@ export function FormTextField<T extends FieldValues>({
   placeholder,
   type = "text",
 }: FormTextFieldProps<T>) {
+  const isArabic = name.endsWith("_ar");
   return (
     <FormField
       control={form.control}
@@ -53,7 +54,7 @@ export function FormTextField<T extends FieldValues>({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input {...field} type={type} placeholder={placeholder} />
+            <Input {...field} type={type} placeholder={placeholder} dir={isArabic ? "rtl" : undefined} className={isArabic ? "text-right" : undefined} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -111,6 +112,7 @@ export function FormTextareaField<T extends FieldValues>({
   placeholder,
   rows = 6,
 }: FormTextareaFieldProps<T>) {
+  const isArabic = name.endsWith("_ar");
   return (
     <FormField
       control={form.control}
@@ -119,7 +121,7 @@ export function FormTextareaField<T extends FieldValues>({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Textarea {...field} placeholder={placeholder} rows={rows} />
+            <Textarea {...field} placeholder={placeholder} rows={rows} dir={isArabic ? "rtl" : undefined} className={isArabic ? "text-right" : undefined} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -259,6 +261,7 @@ export function FormRichTextField<T extends FieldValues>({
   height,
   maxLength,
 }: FormRichTextFieldProps<T>) {
+  const isArabic = name.endsWith("_ar");
   return (
     <FormField
       control={form.control}
@@ -273,6 +276,7 @@ export function FormRichTextField<T extends FieldValues>({
               placeholder={placeholder}
               height={height}
               maxLength={maxLength}
+              dir={isArabic ? "rtl" : undefined}
             />
           </FormControl>
           <FormMessage />

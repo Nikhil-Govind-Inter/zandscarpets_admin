@@ -10,7 +10,9 @@ export interface HistoryRecord {
   id: number;
   year: string;
   title: string;
+  title_ar: string;
   description: string;
+  description_ar: string;
   sort_order: number;
   is_active: boolean;
   deleted_at?: string | null;
@@ -86,7 +88,9 @@ export interface HistoryListResponse {
 export interface HistoryPayload {
   year: string;
   title: string;
+  title_ar: string;
   description: string;
+  description_ar: string;
   sort_order: number;
   is_active: boolean;
 }
@@ -154,7 +158,9 @@ export const toggleHistoryStatus = (item: HistoryRecord, isActive: boolean) =>
   updateHistory(item.id, {
     year: item.year,
     title: item.title,
+    title_ar: item.title_ar,
     description: item.description,
+    description_ar: item.description_ar,
     sort_order: item.sort_order,
     is_active: isActive,
   });
@@ -163,7 +169,9 @@ export const updateHistorySortOrder = (item: HistoryRecord, sortOrder: number) =
   updateHistory(item.id, {
     year: item.year,
     title: item.title,
+    title_ar: item.title_ar,
     description: item.description,
+    description_ar: item.description_ar,
     sort_order: Math.max(1, sortOrder),
     is_active: item.is_active,
   });
