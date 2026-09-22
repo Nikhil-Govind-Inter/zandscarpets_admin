@@ -9,8 +9,10 @@ const INDUSTRY_URL = `${API_BASE_URL}/masters/industry`;
 export interface IndustryRecord {
   id: number;
   title: string;
+  title_ar?: string;
   slug: string;
   description: string;
+  description_ar?: string;
   link?: string | null;
   sort_order: number;
   is_active: boolean;

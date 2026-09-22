@@ -6,6 +6,7 @@ export interface SiteSettings {
   header_logo_media_path: string;
   footer_logo_media_path: string;
   address: string;
+  address_ar: string;
   email: string;
   phone_number: string;
   whatsapp_number: string;
@@ -26,6 +27,7 @@ export interface SaveSiteSettingsData {
   header_logo_media_path?: File | string;
   footer_logo_media_path?: File | string;
   address: string;
+  address_ar: string;
   email: string;
   phone_number: string;
   whatsapp_number: string;
@@ -48,7 +50,6 @@ export const fetchSiteSettings = async (): Promise<SiteSettingsResponse> => {
 // Update Site Settings data (only a PUT /:id endpoint exists on the backend)
 export const saveSiteSettings = async (
   formData: FormData,
-  id: number
 ): Promise<SiteSettings> => {
   const response = await apiFetch(`${fetchUrl}/1`, {
     method: "PUT",

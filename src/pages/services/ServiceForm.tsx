@@ -15,7 +15,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormTextareaField } from "@/components/forms/FormFieldComponents";
+import {
+  FormTextareaField,
+  FormTextField,
+} from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -39,7 +42,9 @@ export default function ServiceForm() {
     resolver: zodResolver(serviceSchema),
     defaultValues: {
       title: "",
+      title_ar: "",
       description: "",
+      description_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -59,14 +64,19 @@ export default function ServiceForm() {
 
       form.reset({
         title: data.title || "",
+        title_ar: data.title_ar || "",
         description: data.description || "",
+        description_ar: data.description_ar || "",
         sort_order: (data.sort_order ?? 1).toString(),
         is_active: data.is_active ?? true,
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof ApiError ? error.message : "Failed to load service data",
+        description:
+          error instanceof ApiError
+            ? error.message
+            : "Failed to load service data",
         variant: "destructive",
       });
     } finally {
@@ -80,17 +90,25 @@ export default function ServiceForm() {
 
       const payload = {
         title: data.title,
+        title_ar: data.title_ar,
         description: data.description,
+        description_ar: data.description_ar,
         sort_order: parseInt(data.sort_order || "1"),
         is_active: data.is_active,
       };
 
       if (isEditing && id) {
         await updateService(parseInt(id), payload);
-        toast({ title: "Success", description: "Service updated successfully" });
+        toast({
+          title: "Success",
+          description: "Service updated successfully",
+        });
       } else {
         await createService(payload);
-        toast({ title: "Success", description: "Service created successfully" });
+        toast({
+          title: "Success",
+          description: "Service created successfully",
+        });
       }
 
       navigate("/services");
@@ -115,11 +133,17 @@ export default function ServiceForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/services")}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/services")}
+        >
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Service</h1>
+          <h1 className="text-2xl font-bold">
+            {isEditing ? "Edit" : "Add"} Service
+          </h1>
           <p className="text-muted-foreground">
             {isEditing ? "Update" : "Create a new"} service
           </p>
@@ -133,28 +157,63 @@ export default function ServiceForm() {
               <CardTitle>Service Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="title"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Interior Design, Renovation" {...field} />
+                      <Input
+                        placeholder="e.g., Interior Design, Renovation"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
 
-              <FormTextareaField
-                form={form}
-                name="description"
-                label="Description"
-                placeholder="Describe this service"
-                rows={4}
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextField
+                  form={form}
+                  name="title"
+                  label="Title"
+                  placeholder="Interior Design, Renovation"
+                />
 
+                <FormTextField
+                  form={form}
+                  name="title_ar"
+                  label="Arabic Title"
+                  placeholder="تصميم داخلي, تصليح"
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextareaField
+                  form={form}
+                  name="description"
+                  label="Description"
+                  placeholder="Describe this service"
+                  rows={4}
+                />
+
+                <FormTextareaField
+                  form={form}
+                  name="description_ar"
+                  label="Arabic Description"
+                  placeholder="وصف هذا الخدمة"
+                  rows={4}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -163,13 +222,17 @@ export default function ServiceForm() {
                     <FormItem>
                       <FormLabel>Sort Order</FormLabel>
                       <FormControl>
-                        <Input type="number" min={1} placeholder="1" {...field} />
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="1"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="is_active"
@@ -177,10 +240,15 @@ export default function ServiceForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
-                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
+                        <p className="text-sm text-muted-foreground">
+                          Enable or disable this item.
+                        </p>
                       </div>
                       <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
                       </FormControl>
                     </FormItem>
                   )}
@@ -190,7 +258,11 @@ export default function ServiceForm() {
           </Card>
 
           <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => navigate("/services")}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/services")}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>

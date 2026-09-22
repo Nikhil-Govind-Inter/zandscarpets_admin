@@ -2,13 +2,13 @@ import { apiFetch } from "@/lib/apiClient";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-
 const baseUrl = `${API_BASE_URL}/site-settings/social-media`;
 
 export interface SocialMedia {
   id?: number;
   media_path: string | null;
   media_alt: string;
+  media_alt_ar?: string;
   link: string;
   sort_order?: number;
   is_active?: boolean;
@@ -54,15 +54,15 @@ export interface CreateSocialMediaData {
 export const fetchSocialMediaList = async (
   page: number = 1,
   limit: number = 10,
-  search?: string
+  search?: string,
 ): Promise<SocialMediaResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
   });
-  
+
   if (search) {
-    params.append('search', search);
+    params.append("search", search);
   }
 
   const response = await apiFetch(`${baseUrl}?${params}`);
@@ -75,7 +75,9 @@ export const fetchSocialMediaList = async (
 };
 
 // Fetch single social media item
-export const fetchSocialMediaById = async (id: number): Promise<SocialMediaItemResponse> => {
+export const fetchSocialMediaById = async (
+  id: number,
+): Promise<SocialMediaItemResponse> => {
   const response = await apiFetch(`${baseUrl}/${id}`);
 
   if (!response.ok) {
@@ -86,7 +88,9 @@ export const fetchSocialMediaById = async (id: number): Promise<SocialMediaItemR
 };
 
 // Create social media item
-export const createSocialMedia = async (formData: FormData): Promise<SocialMediaItemResponse> => {
+export const createSocialMedia = async (
+  formData: FormData,
+): Promise<SocialMediaItemResponse> => {
   const response = await apiFetch(`${baseUrl}`, {
     method: "POST",
     body: formData,
@@ -102,7 +106,7 @@ export const createSocialMedia = async (formData: FormData): Promise<SocialMedia
 // Update social media item
 export const updateSocialMedia = async (
   id: number,
-  formData: FormData
+  formData: FormData,
 ): Promise<SocialMediaItemResponse> => {
   const response = await apiFetch(`${baseUrl}/${id}`, {
     method: "PUT",
@@ -141,13 +145,22 @@ export const deleteSocialMedia = async (id: number): Promise<void> => {
 // we resend it as an absolute URL to round-trip correctly.
 const buildSocialMediaFormData = (
   item: SocialMedia,
-  overrides: Partial<Pick<SocialMedia, "media_alt" | "link" | "sort_order" | "is_active">>
+  overrides: Partial<
+    Pick<SocialMedia, "media_alt" | "link" | "sort_order" | "is_active" | "media_alt_ar">
+  >,
 ): FormData => {
   const formData = new FormData();
   formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
+  formData.append("media_alt_ar", overrides.media_alt ?? item.media_alt_ar ?? "");
   formData.append("link", overrides.link ?? item.link ?? "");
-  formData.append("sort_order", ((overrides.sort_order ?? item.sort_order ?? 1)).toString());
-  formData.append("is_active", ((overrides.is_active ?? item.is_active ?? true)).toString());
+  formData.append(
+    "sort_order",
+    (overrides.sort_order ?? item.sort_order ?? 1).toString(),
+  );
+  formData.append(
+    "is_active",
+    (overrides.is_active ?? item.is_active ?? true).toString(),
+  );
 
   if (item.media_path) {
     const isAbsoluteUrl = /^https?:\/\//.test(item.media_path);
@@ -163,8 +176,17 @@ const buildSocialMediaFormData = (
 // Toggle status — resends the full record (see buildSocialMediaFormData)
 // since there is no separate toggle-status route on the backend.
 export const toggleSocialMediaStatus = (item: SocialMedia, isActive: boolean) =>
-  updateSocialMedia(item.id!, buildSocialMediaFormData(item, { is_active: isActive }));
+  updateSocialMedia(
+    item.id!,
+    buildSocialMediaFormData(item, { is_active: isActive }),
+  );
 
 // Persist a new sort order — same idea, clamped to the backend's `min: 1`.
-export const updateSocialMediaSortOrder = (item: SocialMedia, sortOrder: number) =>
-  updateSocialMedia(item.id!, buildSocialMediaFormData(item, { sort_order: Math.max(1, sortOrder) }));
+export const updateSocialMediaSortOrder = (
+  item: SocialMedia,
+  sortOrder: number,
+) =>
+  updateSocialMedia(
+    item.id!,
+    buildSocialMediaFormData(item, { sort_order: Math.max(1, sortOrder) }),
+  );

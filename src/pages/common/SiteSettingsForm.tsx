@@ -14,14 +14,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormFileUploadField } from "@/components/forms/FormFieldComponents";
+import {
+  FormFileUploadField,
+  FormTextareaField,
+  FormTextField,
+} from "@/components/forms/FormFieldComponents";
 import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   fetchSiteSettings,
   saveSiteSettings,
 } from "@/services/common/siteSettingsApi";
-import { siteSettingsSchema, SiteSettingsFormData } from "@/schemas/commonSchemas";
+import {
+  siteSettingsSchema,
+  SiteSettingsFormData,
+} from "@/schemas/commonSchemas";
 
 export default function SiteSettingsForm() {
   const { toast } = useToast();
@@ -52,12 +59,12 @@ export default function SiteSettingsForm() {
       const data = response.data;
 
       if (data) {
-
         // Set existing file paths for preview if they exist — FileUpload itself
         // resolves relative paths against VITE_IMAGE_URL, so pass the raw path.
         form.reset({
           email: data.email || "",
           address: data.address || "",
+          address_ar: data.address_ar || "",
           admin_email: data.admin_email || "",
           phone_number: data.phone_number || "",
           whatsapp_number: data.whatsapp_number || "",
@@ -78,6 +85,7 @@ export default function SiteSettingsForm() {
 
       const formData = new FormData();
       formData.append("address", data.address);
+      formData.append("address_ar", data.address_ar);
       formData.append("email", data.email);
       formData.append("phone_number", data.phone_number);
       formData.append("whatsapp_number", data.whatsapp_number);
@@ -123,20 +131,21 @@ export default function SiteSettingsForm() {
               <CardTitle>Contact Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="address"  
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Enter address" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormTextareaField
+                  form={form}
+                  name="address"
+                  label="Address"
+                  placeholder="Enter address"
+                />
 
+                <FormTextareaField
+                  form={form}
+                  name="address_ar"
+                  label="Arabic Address"
+                  placeholder="Enter arabic address"
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -145,7 +154,11 @@ export default function SiteSettingsForm() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter email" type="email" {...field} />
+                        <Input
+                          placeholder="Enter email"
+                          type="email"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -167,33 +180,35 @@ export default function SiteSettingsForm() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="whatsapp_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Whatsapp Number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter whatsapp number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="whatsapp_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Whatsapp Number</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter whatsapp number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="admin_email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Admin Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter admin email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="admin_email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Admin Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter admin email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 

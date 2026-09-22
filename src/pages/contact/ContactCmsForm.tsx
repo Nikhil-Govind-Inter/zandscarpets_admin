@@ -7,15 +7,28 @@ import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { FormTextField, FormTextareaField } from "@/components/forms/FormFieldComponents";
-import { contactCmsSchema, ContactCmsFormData } from "@/schemas/contactCmsSchema";
-import { fetchContactCms, saveContactCms } from "@/services/contact/contactCmsApi";
+import {
+  FormTextField,
+  FormTextareaField,
+} from "@/components/forms/FormFieldComponents";
+import {
+  contactCmsSchema,
+  ContactCmsFormData,
+} from "@/schemas/contactCmsSchema";
+import {
+  fetchContactCms,
+  saveContactCms,
+} from "@/services/contact/contactCmsApi";
 
 const defaultValues: ContactCmsFormData = {
   title: "",
+  title_ar: "",
   description: "",
+  description_ar: "",
   form_title: "",
+  form_title_ar: "",
   social_media_title: "",
+  social_media_title_ar: "",
   map_url: "",
 };
 
@@ -44,9 +57,13 @@ export default function ContactCmsForm() {
         setRecordId(data.id);
         form.reset({
           title: data.title || "",
+          title_ar: data.title_ar || "",
           description: data.description || "",
+          description_ar: data.description_ar || "",
           form_title: data.form_title || "",
+          form_title_ar: data.form_title_ar || "",
           social_media_title: data.social_media_title || "",
+          social_media_title_ar: data.social_media_title_ar || "",
           map_url: data.map_url || "",
         });
       }
@@ -62,9 +79,13 @@ export default function ContactCmsForm() {
       setLoading(true);
       const payload = {
         title: data.title,
+        title_ar: data.title_ar,
         description: data.description,
+        description_ar: data.description_ar,
         form_title: data.form_title,
+        form_title_ar: data.form_title_ar,
         social_media_title: data.social_media_title,
+        social_media_title_ar: data.social_media_title_ar,
         map_url: data.map_url,
       };
       const response = await saveContactCms(payload, recordId ?? 1);
@@ -79,7 +100,9 @@ export default function ContactCmsForm() {
       toast({
         title: "Error",
         description:
-          error instanceof Error ? error.message : "Failed to save Contact CMS data",
+          error instanceof Error
+            ? error.message
+            : "Failed to save Contact CMS data",
         variant: "destructive",
       });
     } finally {
@@ -95,7 +118,9 @@ export default function ContactCmsForm() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Contact Page CMS</h1>
-        <p className="text-muted-foreground">Manage content for the Contact page</p>
+        <p className="text-muted-foreground">
+          Manage content for the Contact page
+        </p>
       </div>
 
       <Form {...form}>
@@ -105,18 +130,35 @@ export default function ContactCmsForm() {
               <CardTitle>Contact Section</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormTextField
-                form={form}
-                name="title"
-                label="Title"
-                placeholder="Enter contact title"
-              />
-              <FormTextareaField
-                form={form}
-                name="description"
-                label="Description"
-                placeholder="Enter contact description"
-              />
+              <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
+                <FormTextField
+                  form={form}
+                  name="title"
+                  label="Title"
+                  placeholder="Enter contact title"
+                />
+                <FormTextField
+                  form={form}
+                  name="title_ar"
+                  label="Title (Arabic)"
+                  placeholder="أدخل عنوان جهة الاتصال"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
+                <FormTextareaField
+                  form={form}
+                  name="description"
+                  label="Description"
+                  placeholder="Enter contact description"
+                />
+                <FormTextareaField
+                  form={form}
+                  name="description_ar"
+                  label="Description (Arabic)"
+                      placeholder="أدخل وصف جهة الاتصال"
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -125,12 +167,20 @@ export default function ContactCmsForm() {
               <CardTitle>Form Section</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormTextField
-                form={form}
-                name="form_title"
-                label="Form Title"
-                placeholder="Enter form title"
-              />
+              <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
+                <FormTextField
+                  form={form}
+                  name="form_title"
+                  label="Form Title"
+                  placeholder="Enter form title"
+                />
+                <FormTextField
+                  form={form}
+                  name="form_title_ar"
+                  label="Form Title (Arabic)"
+                  placeholder="أدخل عنوان النموذج"
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -139,12 +189,21 @@ export default function ContactCmsForm() {
               <CardTitle>Social Media Section</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormTextField
-                form={form}
-                name="social_media_title"
-                label="Social Media Title"
-                placeholder="Enter social media title"
-              />
+              <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
+                <FormTextField
+                  form={form}
+                  name="social_media_title"
+                  label="Social Media Title"
+                  placeholder="Enter social media title"
+                />
+                <FormTextField
+                  form={form}
+                  name="social_media_title_ar"
+                  label="Social Media Title (Arabic)"
+                  // arabic placeholder is intentionally left empty as per the original code
+                  placeholder="أدخل عنوان وسائل التواصل الاجتماعي"
+                />
+              </div>
             </CardContent>
           </Card>
 

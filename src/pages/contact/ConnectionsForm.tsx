@@ -28,7 +28,10 @@ import {
   updateConnections,
   ApiError,
 } from "@/services/contact/connectionsApi";
-import { connectionsSchema, ConnectionsFormData } from "@/schemas/connectionsSchema";
+import {
+  connectionsSchema,
+  ConnectionsFormData,
+} from "@/schemas/connectionsSchema";
 
 export default function ConnectionsForm() {
   const { toast } = useToast();
@@ -43,10 +46,14 @@ export default function ConnectionsForm() {
     resolver: zodResolver(connectionsSchema),
     defaultValues: {
       title: "",
+      title_ar: "",
       description: "",
+      description_ar: "",
       content: "",
+      content_ar: "",
       icon_media_path: "",
       icon_media_alt: "",
+      icon_media_alt_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -68,10 +75,14 @@ export default function ConnectionsForm() {
       if (data) {
         form.reset({
           title: data.title || "",
+          title_ar: data.title_ar || "",
           description: data.description || "",
+          description_ar: data.description_ar || "",
           content: data.content || "",
+          content_ar: data.content_ar || "",
           icon_media_path: data.icon_media_path || "",
           icon_media_alt: data.icon_media_alt || "",
+          icon_media_alt_ar: data.icon_media_alt_ar || "",
           sort_order: (data.sort_order ?? 1).toString(),
           is_active: data.is_active ?? true,
         });
@@ -80,7 +91,9 @@ export default function ConnectionsForm() {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to load connection data",
+          error instanceof ApiError
+            ? error.message
+            : "Failed to load connection data",
         variant: "destructive",
       });
     } finally {
@@ -94,24 +107,37 @@ export default function ConnectionsForm() {
 
       const formData = new FormData();
       formData.append("title", data.title);
+      formData.append("title_ar", data.title_ar);
       formData.append("description", data.description);
+      formData.append("description_ar", data.description_ar);
       formData.append("content", data.content);
+      formData.append("content_ar", data.content_ar);
       formData.append("icon_media_alt", data.icon_media_alt || "");
+      formData.append("icon_media_alt_ar", data.icon_media_alt_ar || "");
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
 
       if (data.icon_media_path instanceof File) {
         formData.append("icon_media_path", data.icon_media_path);
-      } else if (typeof data.icon_media_path === "string" && data.icon_media_path) {
+      } else if (
+        typeof data.icon_media_path === "string" &&
+        data.icon_media_path
+      ) {
         formData.append("icon_media_path", data.icon_media_path);
       }
 
       if (isEditing && id) {
         await updateConnections(parseInt(id), formData);
-        toast({ title: "Success", description: "Connection updated successfully" });
+        toast({
+          title: "Success",
+          description: "Connection updated successfully",
+        });
       } else {
         await createConnections(formData);
-        toast({ title: "Success", description: "Connection created successfully" });
+        toast({
+          title: "Success",
+          description: "Connection created successfully",
+        });
       }
 
       navigate("/contact-connections");
@@ -136,11 +162,17 @@ export default function ConnectionsForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/contact-connections")}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/contact-connections")}
+        >
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Connection</h1>
+          <h1 className="text-2xl font-bold">
+            {isEditing ? "Edit" : "Add"} Connection
+          </h1>
           <p className="text-muted-foreground">
             {isEditing ? "Update" : "Create a new"} connection
           </p>
@@ -154,27 +186,52 @@ export default function ConnectionsForm() {
               <CardTitle>Connection Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-              <FormTextField
-                form={form}
-                name="title"
-                label="Title"
-                placeholder="Enter connection title"
-              />
-              
-              <FormTextField
-                form={form}
-                name="content"
-                label="Content"
-                placeholder="Enter connection content"
-              />
+              <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
+                <FormTextField
+                  form={form}
+                  name="title"
+                  label="Title"
+                  placeholder="Enter connection title"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="title_ar"
+                  label="Title (Arabic)"
+                  placeholder="Enter connection title (Arabic)"
+                />
               </div>
-              <FormTextareaField
-                form={form}
-                name="description"
-                label="Description"
-                placeholder="Enter connection description"
-              />
+
+              <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
+                <FormTextField
+                  form={form}
+                  name="content"
+                  label="Content"
+                  placeholder="Enter connection content"
+                />
+                <FormTextField
+                  form={form}
+                  name="content_ar"
+                  label="Content (Arabic)"
+                  placeholder="Enter connection content (Arabic)"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
+                <FormTextareaField
+                  form={form}
+                  name="description"
+                  label="Description"
+                  placeholder="Enter connection description"
+                />
+                <FormTextareaField
+                  form={form}
+                  name="description_ar"
+                  label="Description (Arabic)"
+                  placeholder="Enter connection description (Arabic)"
+                />
+              </div>
+
               <FormFileUploadField
                 form={form}
                 name="icon_media_path"
@@ -182,13 +239,30 @@ export default function ConnectionsForm() {
                 placeholder="Upload connection icon"
                 accept="image/*"
               />
-              <FormTextField
-                form={form}
-                name="icon_media_alt"
-                label="Icon Alt Text"
-                placeholder="Describe the connection icon"
-              />
 
+              <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
+                <FormTextField
+                  form={form}
+                  name="icon_media_alt"
+                  label="Icon Alt Text"
+                  placeholder="Describe the connection icon"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="icon_media_alt_ar"
+                  label="Icon Alt Text (Arabic)"
+                  placeholder="Describe the connection icon (Arabic)"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -197,7 +271,12 @@ export default function ConnectionsForm() {
                     <FormItem>
                       <FormLabel>Sort Order</FormLabel>
                       <FormControl>
-                        <Input type="number" min={1} placeholder="1" {...field} />
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="1"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -210,10 +289,15 @@ export default function ConnectionsForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
-                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
+                        <p className="text-sm text-muted-foreground">
+                          Enable or disable this item.
+                        </p>
                       </div>
                       <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
                       </FormControl>
                     </FormItem>
                   )}

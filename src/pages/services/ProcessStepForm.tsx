@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormFileUploadField,
   FormTextareaField,
+  FormTextField,
 } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -27,7 +28,10 @@ import {
   updateProcessStep,
   ApiError,
 } from "@/services/services/processStepApi";
-import { processStepSchema, ProcessStepFormData } from "@/schemas/processStepSchema";
+import {
+  processStepSchema,
+  ProcessStepFormData,
+} from "@/schemas/processStepSchema";
 
 export default function ProcessStepForm() {
   const { toast } = useToast();
@@ -42,9 +46,12 @@ export default function ProcessStepForm() {
     resolver: zodResolver(processStepSchema),
     defaultValues: {
       title: "",
+      title_ar: "",
       description: "",
+      description_ar: "",
       media_path: "",
       media_alt: "",
+      media_alt_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -65,9 +72,12 @@ export default function ProcessStepForm() {
       if (data) {
         form.reset({
           title: data.title || "",
+          title_ar: data.title_ar || "",
           description: data.description || "",
+          description_ar: data.description_ar || "",
           media_path: data.media_path || "",
           media_alt: data.media_alt || "",
+          media_alt_ar: data.media_alt_ar || "",
           sort_order: (data.sort_order ?? 1).toString(),
           is_active: data.is_active ?? true,
         });
@@ -75,7 +85,10 @@ export default function ProcessStepForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof ApiError ? error.message : "Failed to load process step data",
+        description:
+          error instanceof ApiError
+            ? error.message
+            : "Failed to load process step data",
         variant: "destructive",
       });
     } finally {
@@ -89,8 +102,11 @@ export default function ProcessStepForm() {
 
       const formData = new FormData();
       formData.append("title", data.title);
+      formData.append("title_ar", data.title_ar);
       formData.append("description", data.description);
+      formData.append("description_ar", data.description_ar);
       formData.append("media_alt", data.media_alt || "");
+      formData.append("media_alt_ar", data.media_alt_ar || "");
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
 
@@ -102,10 +118,16 @@ export default function ProcessStepForm() {
 
       if (isEditing && id) {
         await updateProcessStep(parseInt(id), formData);
-        toast({ title: "Success", description: "Process step updated successfully" });
+        toast({
+          title: "Success",
+          description: "Process step updated successfully",
+        });
       } else {
         await createProcessStep(formData);
-        toast({ title: "Success", description: "Process step created successfully" });
+        toast({
+          title: "Success",
+          description: "Process step created successfully",
+        });
       }
 
       navigate("/process-steps");
@@ -130,11 +152,17 @@ export default function ProcessStepForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/process-steps")}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/process-steps")}
+        >
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Process Step</h1>
+          <h1 className="text-2xl font-bold">
+            {isEditing ? "Edit" : "Add"} Process Step
+          </h1>
           <p className="text-muted-foreground">
             {isEditing ? "Update" : "Create a new"} process step
           </p>
@@ -148,27 +176,36 @@ export default function ProcessStepForm() {
               <CardTitle>Process Step Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Process step title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextField
+                  form={form}
+                  name="title"
+                  label="Title"
+                  placeholder="Process step title"
+                />
 
-              <FormTextareaField
-                form={form}
-                name="description"
-                label="Description"
-                placeholder="Describe this process step"
-              />
+                <FormTextField
+                  form={form}
+                  name="title_ar"
+                  label="Title (Arabic)"
+                  placeholder="Process step title (Arabic)"
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextareaField
+                  form={form}
+                  name="description"
+                  label="Description"
+                  placeholder="Describe this process step"
+                />
 
+                <FormTextareaField
+                  form={form}
+                  name="description_ar"
+                  label="Description (Arabic)"
+                  placeholder="Describe this process step (Arabic)"
+                />
+              </div>
               <FormFileUploadField
                 form={form}
                 name="media_path"
@@ -177,20 +214,29 @@ export default function ProcessStepForm() {
                 accept="image/*"
               />
 
-              <FormField
-                control={form.control}
-                name="media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Describe the process step media" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextField
+                  form={form}
+                  name="media_alt"
+                  label="Image Alt Text"
+                  placeholder="Describe the process step media"
+                />
 
+                <FormTextField
+                  form={form}
+                  name="media_alt_ar"
+                  label="Image Alt Text (Arabic)"
+                  placeholder="Describe the process step media (Arabic)"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -199,7 +245,12 @@ export default function ProcessStepForm() {
                     <FormItem>
                       <FormLabel>Sort Order</FormLabel>
                       <FormControl>
-                        <Input type="number" min={1} placeholder="1" {...field} />
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="1"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -212,7 +263,9 @@ export default function ProcessStepForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
-                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
+                        <p className="text-sm text-muted-foreground">
+                          Enable or disable this item.
+                        </p>
                       </div>
                       <FormControl>
                         <Switch

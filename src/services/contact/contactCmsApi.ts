@@ -9,9 +9,13 @@ const CONTACT_CMS_URL = `${API_BASE_URL}/contact/contact-cms`;
 export interface ContactCms {
   id?: number;
   title: string;
+  title_ar: string;
   description: string;
+  description_ar: string;
   form_title: string;
+  form_title_ar: string;
   social_media_title: string;
+  social_media_title_ar: string;
   map_url: string;
   createdAt?: string;
   updatedAt?: string;

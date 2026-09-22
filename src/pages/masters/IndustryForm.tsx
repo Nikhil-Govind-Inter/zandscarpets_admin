@@ -15,7 +15,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormTextareaField } from "@/components/forms/FormFieldComponents";
+import {
+  FormTextareaField,
+  FormTextField,
+} from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateSlug } from "@/utils/formUtils";
@@ -43,8 +46,10 @@ export default function IndustryForm() {
     resolver: zodResolver(industrySchema),
     defaultValues: {
       title: "",
+      title_ar: "",
       slug: "",
       description: "",
+      description_ar: "",
       link: "",
       sort_order: "1",
       is_active: true,
@@ -78,8 +83,10 @@ export default function IndustryForm() {
 
       form.reset({
         title: data.title || "",
+        title_ar: data.title_ar || "",
         slug: data.slug || "",
         description: data.description || "",
+        description_ar: data.description_ar || "",
         link: data.link || "",
         sort_order: (data.sort_order ?? 1).toString(),
         is_active: data.is_active ?? true,
@@ -88,7 +95,10 @@ export default function IndustryForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof ApiError ? error.message : "Failed to load industry data",
+        description:
+          error instanceof ApiError
+            ? error.message
+            : "Failed to load industry data",
         variant: "destructive",
       });
     } finally {
@@ -102,8 +112,10 @@ export default function IndustryForm() {
 
       const payload = {
         title: data.title,
+        title_ar: data.title_ar,
         slug: data.slug,
         description: data.description,
+        description_ar: data.description_ar,
         link: data.link || undefined,
         sort_order: parseInt(data.sort_order || "1"),
         is_active: data.is_active,
@@ -111,10 +123,16 @@ export default function IndustryForm() {
 
       if (isEditing && id) {
         await updateIndustry(parseInt(id), payload);
-        toast({ title: "Success", description: "Industry updated successfully" });
+        toast({
+          title: "Success",
+          description: "Industry updated successfully",
+        });
       } else {
         await createIndustry(payload);
-        toast({ title: "Success", description: "Industry created successfully" });
+        toast({
+          title: "Success",
+          description: "Industry created successfully",
+        });
       }
 
       navigate("/industry");
@@ -139,11 +157,17 @@ export default function IndustryForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/industry")}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/industry")}
+        >
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Industry</h1>
+          <h1 className="text-2xl font-bold">
+            {isEditing ? "Edit" : "Add"} Industry
+          </h1>
           <p className="text-muted-foreground">
             {isEditing ? "Update" : "Create a new"} industry
           </p>
@@ -157,56 +181,61 @@ export default function IndustryForm() {
               <CardTitle>Industry Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Healthcare, Retail" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextField
+                  form={form}
+                  name="title"
+                  label="Title"
+                  placeholder="e.g., Healthcare, Retail"
+                />
 
-              <FormField
-                control={form.control}
-                name="slug"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Slug</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., healthcare, retail" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormTextField
+                  form={form}
+                  name="title_ar"
+                  label="Title (Arabic)"
+                  placeholder="e.g., صحة, تجارة"
+                />
+              </div>
 
-              <FormTextareaField
+              <FormTextField
                 form={form}
-                name="description"
-                label="Description"
-                placeholder="Describe this industry"
-                rows={4}
+                name="slug"
+                label="Slug"
+                placeholder="e.g., healthcare, retail"
               />
 
-              <FormField
-                control={form.control}
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextareaField
+                  form={form}
+                  name="description"
+                  label="Description"
+                  placeholder="Describe this industry"
+                  rows={4}
+                />
+
+                <FormTextareaField
+                  form={form}
+                  name="description_ar"
+                  label="Description (Arabic)"
+                  placeholder="وصف هذا الصناعة"
+                  rows={4}
+                />
+              </div>
+
+              <FormTextField
+                form={form}
                 name="link"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Link</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Link"
+                placeholder="https://..."
               />
+            </CardContent>
+          </Card>
 
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -215,13 +244,17 @@ export default function IndustryForm() {
                     <FormItem>
                       <FormLabel>Sort Order</FormLabel>
                       <FormControl>
-                        <Input type="number" min={1} placeholder="1" {...field} />
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="1"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="is_active"
@@ -229,10 +262,15 @@ export default function IndustryForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
-                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
+                        <p className="text-sm text-muted-foreground">
+                          Enable or disable this item.
+                        </p>
                       </div>
                       <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
                       </FormControl>
                     </FormItem>
                   )}
@@ -242,7 +280,11 @@ export default function IndustryForm() {
           </Card>
 
           <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => navigate("/industry")}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/industry")}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>

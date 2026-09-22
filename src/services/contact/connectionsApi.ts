@@ -10,10 +10,14 @@ const CONNECTIONS_URL = `${API_BASE_URL}/contact/connections`;
 export interface ConnectionsRecord {
   id: number;
   title: string;
+  title_ar: string;
   description: string;
+  description_ar: string;
   content: string;
+  content_ar: string;
   icon_media_path: string | null;
   icon_media_alt: string | null;
+  icon_media_alt_ar: string | null;
   sort_order: number;
   is_active: boolean;
   createdAt?: string;
@@ -153,9 +157,13 @@ const buildConnectionsFormData = (
   const formData = new FormData();
 
   formData.append("title", item.title);
+  formData.append("title_ar", item.title_ar);
   formData.append("description", item.description);
+  formData.append("description_ar", item.description_ar);
   formData.append("content", item.content);
+  formData.append("content_ar", item.content_ar);
   formData.append("icon_media_alt", item.icon_media_alt ?? "");
+  formData.append("icon_media_alt_ar", item.icon_media_alt_ar ?? "");
   formData.append(
     "sort_order",
     (overrides.sort_order ?? item.sort_order ?? 1).toString(),
@@ -179,7 +187,11 @@ const buildConnectionsFormData = (
 export const toggleConnectionsStatus = (
   item: ConnectionsRecord,
   isActive: boolean,
-) => updateConnections(item.id, buildConnectionsFormData(item, { is_active: isActive }));
+) =>
+  updateConnections(
+    item.id,
+    buildConnectionsFormData(item, { is_active: isActive }),
+  );
 
 export const updateConnectionsSortOrder = (
   item: ConnectionsRecord,

@@ -30,14 +30,31 @@ const metaTagSchema = z.object({
     .string()
     .min(1, "Meta title is required")
     .max(60, "Meta title should be under 60 characters"),
+
+  meta_title_ar: z
+    .string()
+    .min(1, "Arabic meta title is required")
+    .max(60, "Arabic meta title should be under 60 characters"),
+
   meta_description: z
     .string()
     .min(1, "Meta description is required")
     .max(160, "Meta description should be under 160 characters"),
+
+  meta_description_ar: z
+    .string()
+    .min(1, "Arabic meta description is required")
+    .max(160, "Arabic meta description should be under 160 characters"),
+
   meta_keywords: z
     .string()
     .min(1, "Meta keywords is required")
     .max(255, "Meta keywords should be under 255 characters"),
+
+  meta_keywords_ar: z
+    .string()
+    .min(1, "Arabic meta keywords is required")
+    .max(255, "Arabic meta keywords should be under 255 characters"),
 });
 
 type MetaTagFormData = z.infer<typeof metaTagSchema>;
@@ -65,8 +82,11 @@ export const MetaTagsForm: React.FC<MetaTagsFormProps> = ({
     resolver: zodResolver(metaTagSchema),
     defaultValues: {
       meta_title: displayMetaTag?.meta_title || "",
+      meta_title_ar:  displayMetaTag?.meta_title_ar || "",
       meta_description: displayMetaTag?.meta_description || "",
+      meta_description_ar: displayMetaTag?.meta_description_ar || "",
       meta_keywords: displayMetaTag?.meta_keywords || "",
+      meta_keywords_ar: displayMetaTag?.meta_keywords_ar || "",
     },
   });
 
@@ -74,8 +94,11 @@ export const MetaTagsForm: React.FC<MetaTagsFormProps> = ({
     if (metaTag) {
       form.reset({
         meta_title: metaTag.meta_title || "",
+        meta_title_ar: metaTag.meta_title_ar || "",
         meta_description: metaTag.meta_description || "",
+        meta_description_ar: metaTag.meta_description_ar || "",
         meta_keywords: metaTag.meta_keywords || "",
+        meta_keywords_ar: metaTag.meta_keywords_ar || "",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,8 +121,11 @@ export const MetaTagsForm: React.FC<MetaTagsFormProps> = ({
 
     const updateData: UpdateMetaTagRequest = {
       meta_title: data.meta_title,
+      meta_title_ar: data.meta_title_ar,
       meta_description: data.meta_description,
+      meta_description_ar: data.meta_description_ar,
       meta_keywords: data.meta_keywords,
+      meta_keywords_ar: data.meta_keywords_ar,
     };
 
     updateMutation.mutate(updateData);
@@ -116,34 +142,60 @@ export const MetaTagsForm: React.FC<MetaTagsFormProps> = ({
         <DialogHeader>
           <DialogTitle>Edit Meta Tags</DialogTitle>
           <DialogDescription>
-            Page: <span className="font-medium">{displayMetaTag?.page?.page}</span>
+            Page:{" "}
+            <span className="font-medium">{displayMetaTag?.page?.page}</span>
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormTextField
-              form={form}
-              name="meta_title"
-              label="Meta Title"
-              placeholder="Enter meta title (recommended: 50-60 characters)"
-            />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+              <FormTextField
+                form={form}
+                name="meta_title"
+                label="Meta Title"
+                placeholder="Enter meta title (recommended: 50-60 characters)"
+              />
 
-            <FormTextareaField
-              form={form}
-              name="meta_description"
-              label="Meta Description"
-              placeholder="Enter meta description (recommended: 150-160 characters)"
-              rows={3}
-            />
+              <FormTextField
+                form={form}
+                name="meta_title_ar"
+                label="Meta Title (Arabic)"
+                placeholder="Enter meta title (recommended: 50-60 characters)"
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+              <FormTextareaField
+                form={form}
+                name="meta_description"
+                label="Meta Description"
+                placeholder="Enter meta description (recommended: 150-160 characters)"
+                rows={3}
+              />
 
-            <FormKeywordsField
-              form={form}
-              name="meta_keywords"
-              label="Meta Keywords"
-              placeholder="Type a keyword and press Enter"
-            />
+              <FormTextareaField
+                form={form}
+                name="meta_description_ar"
+                label="Meta Description (Arabic)"
+                placeholder="Enter meta description (recommended: 150-160 characters)"
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+              <FormKeywordsField
+                form={form}
+                name="meta_keywords"
+                label="Meta Keywords"
+                placeholder="Type a keyword and press Enter"
+              />
 
+              <FormKeywordsField
+                form={form}
+                name="meta_keywords_ar"
+                label="Meta Keywords (Arabic)"
+                placeholder="Type a keyword and press Enter"
+              />
+            </div>
             <div className="flex justify-end space-x-2 pt-4">
               <Button
                 type="button"

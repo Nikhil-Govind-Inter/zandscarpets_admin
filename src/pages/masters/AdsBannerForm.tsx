@@ -15,7 +15,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormFileUploadField } from "@/components/forms/FormFieldComponents";
+import {
+  FormFileUploadField,
+  FormTextField,
+} from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -40,6 +43,7 @@ export default function AdsBannerForm() {
     defaultValues: {
       media_path: "",
       media_alt: "",
+      media_alt_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -61,6 +65,7 @@ export default function AdsBannerForm() {
         form.reset({
           media_path: data.media_path || "",
           media_alt: data.media_alt || "",
+          media_alt_ar: data.media_alt_ar || "",
           sort_order: (data.sort_order ?? 1).toString(),
           is_active: data.is_active ?? true,
         });
@@ -68,7 +73,10 @@ export default function AdsBannerForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof ApiError ? error.message : "Failed to load banner data",
+        description:
+          error instanceof ApiError
+            ? error.message
+            : "Failed to load banner data",
         variant: "destructive",
       });
     } finally {
@@ -82,6 +90,7 @@ export default function AdsBannerForm() {
 
       const formData = new FormData();
       formData.append("media_alt", data.media_alt || "");
+      formData.append("media_alt_ar", data.media_alt_ar || "");
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
 
@@ -93,10 +102,16 @@ export default function AdsBannerForm() {
 
       if (isEditing && id) {
         await updateAdsBanner(parseInt(id), formData);
-        toast({ title: "Success", description: "Ads banner updated successfully" });
+        toast({
+          title: "Success",
+          description: "Ads banner updated successfully",
+        });
       } else {
         await createAdsBanner(formData);
-        toast({ title: "Success", description: "Ads banner created successfully" });
+        toast({
+          title: "Success",
+          description: "Ads banner created successfully",
+        });
       }
 
       navigate("/ads-banner");
@@ -121,11 +136,17 @@ export default function AdsBannerForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/ads-banner")}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/ads-banner")}
+        >
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Ads Banner</h1>
+          <h1 className="text-2xl font-bold">
+            {isEditing ? "Edit" : "Add"} Ads Banner
+          </h1>
           <p className="text-muted-foreground">
             {isEditing ? "Update" : "Create a new"} ads banner
           </p>
@@ -142,25 +163,33 @@ export default function AdsBannerForm() {
               <FormFileUploadField
                 form={form}
                 name="media_path"
-                label="Media"
+                label="Banner image"
                 placeholder="Upload banner image"
                 accept="image/*"
               />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormTextField
+                  form={form}
+                  name="media_alt"
+                  label="Media Alt Text"
+                  placeholder="Describe the banner media"
+                />
 
-              <FormField
-                control={form.control}
-                name="media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Media Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Describe the banner media" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormTextField
+                  form={form}
+                  name="media_alt_ar"
+                  label="Media Alt Text (Arabic)"
+                  placeholder="Describe the banner media in Arabic"
+                />
+              </div>
+            </CardContent>
+          </Card>
 
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -169,13 +198,17 @@ export default function AdsBannerForm() {
                     <FormItem>
                       <FormLabel>Sort Order</FormLabel>
                       <FormControl>
-                        <Input type="number" min={1} placeholder="1" {...field} />
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="1"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="is_active"
@@ -183,7 +216,9 @@ export default function AdsBannerForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
-                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
+                        <p className="text-sm text-muted-foreground">
+                          Enable or disable this item.
+                        </p>
                       </div>
                       <FormControl>
                         <Switch

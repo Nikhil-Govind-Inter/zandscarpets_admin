@@ -5,6 +5,7 @@ import { commonValidations } from "@/utils/formUtils";
 export const socialMediaSchema = z.object({
   media_path: commonValidations.requiredFile("Icon"),
   media_alt: commonValidations.requiredString("Alt text"),
+  media_alt_ar: commonValidations.requiredString("Alt text (Arabic)"),
   link: commonValidations.requiredString("Link"),
   sort_order: commonValidations.sortOrder,
   is_active: commonValidations.booleanStatus,
@@ -13,12 +14,14 @@ export const socialMediaSchema = z.object({
 export const footerMediaSchema = z.object({
   media_path: commonValidations.requiredFile("Media"),
   media_alt: commonValidations.requiredString("Alt text"),
+  media_alt_ar: commonValidations.requiredString("Alt text (Arabic)"),
   sort_order: commonValidations.sortOrder,
   is_active: commonValidations.booleanStatus,
 });
 
 export const siteSettingsSchema = z.object({
   address: commonValidations.requiredText("Address"),
+  address_ar: commonValidations.requiredText("Address (Arabic)"),
   email: commonValidations.requiredEmail,
   admin_email: commonValidations.requiredEmail,
   phone_number: commonValidations.requiredString("Phone Number"),

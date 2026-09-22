@@ -7,15 +7,28 @@ import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { FormTextField, FormTextareaField } from "@/components/forms/FormFieldComponents";
-import { serviceCmsSchema, ServiceCmsFormData } from "@/schemas/serviceCmsSchema";
-import { fetchServiceCms, saveServiceCms } from "@/services/services/serviceCmsApi";
+import {
+  FormTextField,
+  FormTextareaField,
+} from "@/components/forms/FormFieldComponents";
+import {
+  serviceCmsSchema,
+  ServiceCmsFormData,
+} from "@/schemas/serviceCmsSchema";
+import {
+  fetchServiceCms,
+  saveServiceCms,
+} from "@/services/services/serviceCmsApi";
 
 const defaultValues: ServiceCmsFormData = {
   title: "",
+  title_ar: "",
   description: "",
+  description_ar: "",
   service_title: "",
+  service_title_ar: "",
   process_steps_title: "",
+  process_steps_title_ar: "",
 };
 
 export default function ServiceCmsForm() {
@@ -43,9 +56,13 @@ export default function ServiceCmsForm() {
         setRecordId(data.id);
         form.reset({
           title: data.title || "",
+          title_ar: data.title_ar || "",
           description: data.description || "",
+          description_ar: data.description_ar || "",
           service_title: data.service_title || "",
+          service_title_ar: data.service_title_ar || "",
           process_steps_title: data.process_steps_title || "",
+          process_steps_title_ar: data.process_steps_title_ar || "",
         });
       }
     } catch (error) {
@@ -60,9 +77,13 @@ export default function ServiceCmsForm() {
       setLoading(true);
       const payload = {
         title: data.title,
+        title_ar: data.title_ar,
         description: data.description,
+        description_ar: data.description_ar,
         service_title: data.service_title,
+        service_title_ar: data.service_title_ar,
         process_steps_title: data.process_steps_title,
+        process_steps_title_ar: data.process_steps_title_ar,
       };
       const response = await saveServiceCms(payload, recordId ?? 1);
       if (response.data?.id) {
@@ -76,7 +97,9 @@ export default function ServiceCmsForm() {
       toast({
         title: "Error",
         description:
-          error instanceof Error ? error.message : "Failed to save Service CMS data",
+          error instanceof Error
+            ? error.message
+            : "Failed to save Service CMS data",
         variant: "destructive",
       });
     } finally {
@@ -92,7 +115,9 @@ export default function ServiceCmsForm() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Services Page CMS</h1>
-        <p className="text-muted-foreground">Manage content for the Services page</p>
+        <p className="text-muted-foreground">
+          Manage content for the Services page
+        </p>
       </div>
 
       <Form {...form}>
@@ -102,38 +127,66 @@ export default function ServiceCmsForm() {
               <CardTitle>Services Section</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormTextField
-                form={form}
-                name="title"
-                label="Title"
-                placeholder="Enter section title"
-              />
-              <FormTextareaField
-                form={form}
-                name="description"
-                label="Description"
-                placeholder="Enter section description"
-              />
-              <FormTextField
-                form={form}
-                name="service_title"
-                label="Services List Title"
-                placeholder="Enter services list heading"
-              />
-            </CardContent>
-          </Card>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextField
+                  form={form}
+                  name="title"
+                  label="Title"
+                  placeholder="Enter section title"
+                />
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Process Steps Section</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormTextField
-                form={form}
-                name="process_steps_title"
-                label="Process Steps Title"
-                placeholder="Enter process steps heading"
-              />
+                <FormTextField
+                  form={form}
+                  name="title_ar"
+                  label="Title (Arabic)"
+                  placeholder="Enter section title (Arabic)"
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextareaField
+                  form={form}
+                  name="description"
+                  label="Description"
+                  placeholder="Enter section description"
+                />
+
+                <FormTextareaField
+                  form={form}
+                  name="description_ar"
+                  label="Description (Arabic)"
+                  placeholder="Enter section description (Arabic)"
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextField
+                  form={form}
+                  name="service_title"
+                  label="Services List Title"
+                  placeholder="Enter services list heading"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="service_title_ar"
+                  label="Services List Title (Arabic)"
+                  placeholder="Enter services list heading (Arabic)"
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextField
+                  form={form}
+                  name="process_steps_title"
+                  label="Process Steps Title"
+                  placeholder="Enter process steps heading"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="process_steps_title_ar"
+                  label="Process Steps Title (Arabic)"
+                  placeholder="Enter process steps heading (Arabic)"
+                />
+              </div>
             </CardContent>
           </Card>
 

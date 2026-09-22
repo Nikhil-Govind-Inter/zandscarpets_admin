@@ -10,9 +10,13 @@ const SERVICE_CMS_URL = `${API_BASE_URL}/services/service-cms`;
 export interface ServiceCms {
   id?: number;
   title: string;
+  title_ar?: string;
   description: string;
+  description_ar?: string;
   service_title: string;
+  service_title_ar?: string;
   process_steps_title: string;
+  process_steps_title_ar?: string;
   createdAt?: string;
   updatedAt?: string;
 }

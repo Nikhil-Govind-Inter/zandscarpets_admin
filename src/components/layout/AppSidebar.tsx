@@ -90,7 +90,6 @@ const mastersSection = [
   { title: "Industry", url: "/industry", icon: MapPin },
   { title: "Our Features", url: "/our-features", icon: TrendingUp },
   { title: "Ads Banner", url: "/ads-banner", icon: Image },
-  { title: "Projects", url: "/projects", icon: Briefcase },
 ];
 const servicesSection = [
   { title: "Services", url: "/services", icon: Wrench },

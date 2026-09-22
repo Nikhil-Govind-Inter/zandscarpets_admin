@@ -11,7 +11,9 @@ const OUR_FEATURES_URL = `${API_BASE_URL}/masters/our-features`;
 export interface OurFeatureRecord {
   id: number;
   title: string;
+  title_ar?: string;
   description: string;
+  description_ar?: string;
   sort_order: number;
   is_active: boolean;
   deleted_at?: string | null;

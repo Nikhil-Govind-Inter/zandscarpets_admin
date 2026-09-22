@@ -10,7 +10,9 @@ const FAQS_URL = `${API_BASE_URL}/masters/faqs`;
 export interface FaqRecord {
   id: number;
   question: string;
+  question_ar?: string;
   answer: string;
+  answer_ar?: string;
   sort_order: number;
   is_active: boolean;
   deleted_at?: string | null;

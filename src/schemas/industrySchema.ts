@@ -3,6 +3,7 @@ import { commonValidations } from "@/utils/formUtils";
 
 export const industrySchema = z.object({
   title: commonValidations.requiredString("Title"),
+  title_ar: commonValidations.requiredString("Title (Arabic)"),
   slug: commonValidations
     .requiredString("Slug")
     .regex(
@@ -10,6 +11,7 @@ export const industrySchema = z.object({
       "Slug must be lowercase letters, numbers, and hyphens",
     ),
   description: commonValidations.requiredString("Description"),
+  description_ar: commonValidations.requiredString("Description (Arabic)"),
   link: commonValidations.optionalString,
   sort_order: commonValidations.sortOrder,
   is_active: commonValidations.booleanStatus,
