@@ -143,6 +143,10 @@ const ContactCmsForm = React.lazy(() => import("./pages/contact/ContactCmsForm")
 const ConnectionsList = React.lazy(() => import("./pages/contact/ConnectionsList"));
 const ConnectionsForm = React.lazy(() => import("./pages/contact/ConnectionsForm"));
 
+// Contact Enquiries — read-only, no create/edit (submissions come from the public site)
+const ContactEnquiryList = React.lazy(() => import("./pages/enquiries/ContactEnquiryList"));
+const ContactEnquiryView = React.lazy(() => import("./pages/enquiries/ContactEnquiryView"));
+
 const queryClient = new QueryClient();
 // Protected Route Component
 
@@ -304,6 +308,10 @@ const App = () => (
               <Route path="/projects" element={<ProjectsList />} />
               <Route path="/projects/new" element={<ProjectsForm />} />
               <Route path="/projects/:id/edit" element={<ProjectsForm />} />
+
+              {/* Contact Enquiries Routes — list + view only, no new/edit */}
+              <Route path="/enquiries" element={<ContactEnquiryList />} />
+              <Route path="/enquiries/:id" element={<ContactEnquiryView />} />
 
               {/* Site Settings Route */}
               <Route path="/site-settings" element={<SiteSettingsForm />} />

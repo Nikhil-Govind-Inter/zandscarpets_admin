@@ -26,6 +26,7 @@ import {
   Briefcase,
   Wrench,
   ListChecks,
+  Mail,
 } from "lucide-react";
 
 import {
@@ -74,6 +75,14 @@ const projectsSection = [
     title: "Projects",
     url: "/projects",
     icon: Briefcase,
+  },
+];
+
+const enquiriesSection = [
+  {
+    title: "Contact Enquiries",
+    url: "/enquiries",
+    icon: Mail,
   },
 ];
 
@@ -142,6 +151,8 @@ export function AppSidebar() {
       setOpenSection("common");
     } else if (["/projects"].some((route) => path.includes(route))) {
       setOpenSection("projects");
+    } else if (["/enquiries"].some((route) => path.includes(route))) {
+      setOpenSection("enquiries");
     }
     // Masters section
     else if (
@@ -260,7 +271,16 @@ export function AppSidebar() {
           Section={projectsSection}
         />
 
-     
+        {/* Contact Enquiries */}
+        <GetLayout
+          Icon={Mail}
+          title="Enquiries"
+          isCollapsed={isCollapsed}
+          open={openSection === "enquiries"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "enquiries" : null)}
+          pathname={location.pathname}
+          Section={enquiriesSection}
+        />
 
         {/* Masters */}
         <GetLayout

@@ -82,12 +82,16 @@ export default function ProjectsForm() {
     defaultValues: {
       category_id: "",
       title: "",
+      title_ar: "",
       location: "",
+      location_ar: "",
       date_of_completion: "",
       material_type: "",
+      material_type_ar: "",
       thumbnail: "",
       media_path: "",
       description: "",
+      description_ar: "",
       sort_order: "0",
       is_active: true,
       is_show_in_home: false,
@@ -149,14 +153,18 @@ export default function ProjectsForm() {
       form.reset({
         category_id: data.category_id.toString(),
         title: data.title || "",
+        title_ar: data.title_ar || "",
         location: data.location || "",
+        location_ar: data.location_ar || "",
         date_of_completion: data.date_of_completion
           ? data.date_of_completion.slice(0, 10)
           : "",
         material_type: data.material_type || "",
+        material_type_ar: data.material_type_ar || "",
         thumbnail: data.thumbnail || "",
         media_path: data.media_path || "",
         description: data.description || "",
+        description_ar: data.description_ar || "",
         sort_order: (data.sort_order ?? 0).toString(),
         is_active: data.is_active ?? true,
         is_show_in_home: data.is_show_in_home ?? false,
@@ -195,10 +203,14 @@ export default function ProjectsForm() {
       const formData = new FormData();
       formData.append("category_id", data.category_id);
       formData.append("title", data.title);
+      formData.append("title_ar", data.title_ar);
       formData.append("location", data.location || "");
+      formData.append("location_ar", data.location_ar || "");
       formData.append("date_of_completion", data.date_of_completion || "");
       formData.append("material_type", data.material_type || "");
+      formData.append("material_type_ar", data.material_type_ar || "");
       formData.append("description", data.description || "");
+      formData.append("description_ar", data.description_ar || "");
       formData.append("sort_order", (data.sort_order || "0").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
       formData.append("is_show_in_home", (data.is_show_in_home ?? false).toString());
@@ -304,6 +316,19 @@ export default function ProjectsForm() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="title_ar"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title (Arabic)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="عنوان المشروع" dir="rtl" className="text-right" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
@@ -314,6 +339,20 @@ export default function ProjectsForm() {
                       <FormLabel>Location</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g., Dubai, UAE" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="location_ar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location (Arabic)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="مثال: دبي، الإمارات العربية المتحدة" dir="rtl" className="text-right" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -349,11 +388,32 @@ export default function ProjectsForm() {
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="material_type_ar"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Material Type (Arabic)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="مثال: رخام، صوف" dir="rtl" className="text-right" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormTextareaField
                 form={form}
                 name="description"
                 label="Description"
                 placeholder="Describe this project"
+                rows={4}
+              />
+              <FormTextareaField
+                form={form}
+                name="description_ar"
+                label="Description (Arabic)"
+                placeholder="صف هذا المشروع"
                 rows={4}
               />
 

@@ -19,11 +19,15 @@ export interface ProjectRecord {
   category_id: number;
   thumbnail: string | null;
   title: string;
+  title_ar: string;
   location: string | null;
+  location_ar: string | null;
   date_of_completion: string | null;
   material_type: string | null;
+  material_type_ar: string | null;
   media_path: string | null;
   description: string | null;
+  description_ar: string | null;
   project_media: string[];
   is_active: boolean;
   is_show_in_home: boolean;
@@ -190,10 +194,14 @@ const buildProjectFormData = (
       ProjectRecord,
       | "category_id"
       | "title"
+      | "title_ar"
       | "location"
+      | "location_ar"
       | "date_of_completion"
       | "material_type"
+      | "material_type_ar"
       | "description"
+      | "description_ar"
       | "sort_order"
       | "is_active"
       | "is_show_in_home"
@@ -206,7 +214,9 @@ const buildProjectFormData = (
     (overrides.category_id ?? item.category_id).toString(),
   );
   formData.append("title", overrides.title ?? item.title ?? "");
+  formData.append("title_ar", overrides.title_ar ?? item.title_ar ?? "");
   formData.append("location", overrides.location ?? item.location ?? "");
+  formData.append("location_ar", overrides.location_ar ?? item.location_ar ?? "");
   formData.append(
     "date_of_completion",
     overrides.date_of_completion ?? item.date_of_completion ?? "",
@@ -216,8 +226,16 @@ const buildProjectFormData = (
     overrides.material_type ?? item.material_type ?? "",
   );
   formData.append(
+    "material_type_ar",
+    overrides.material_type_ar ?? item.material_type_ar ?? "",
+  );
+  formData.append(
     "description",
     overrides.description ?? item.description ?? "",
+  );
+  formData.append(
+    "description_ar",
+    overrides.description_ar ?? item.description_ar ?? "",
   );
   formData.append(
     "sort_order",
