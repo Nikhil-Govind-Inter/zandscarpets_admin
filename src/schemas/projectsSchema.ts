@@ -3,6 +3,7 @@ import { commonValidations } from "@/utils/formUtils";
 
 export const projectsSchema = z.object({
   category_id: z.string().min(1, "Industry is required"),
+  material_id: z.string().min(1, "Material is required"),
   title: commonValidations.requiredString("Title"),
   title_ar: commonValidations.requiredString("Title (Arabic)"),
   location: commonValidations.requiredString("Location"),

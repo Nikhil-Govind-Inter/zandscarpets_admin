@@ -47,6 +47,10 @@ const FaqsForm = React.lazy(() => import("./pages/masters/FaqsForm"));
 const IndustryList = React.lazy(() => import("./pages/masters/IndustryList"));
 const IndustryForm = React.lazy(() => import("./pages/masters/IndustryForm"));
 
+// Masters — Materials
+const MaterialsList = React.lazy(() => import("./pages/masters/MaterialsList"));
+const MaterialsForm = React.lazy(() => import("./pages/masters/MaterialsForm"));
+
 // Services — Service
 const ServiceList = React.lazy(() => import("./pages/services/ServiceList"));
 const ServiceForm = React.lazy(() => import("./pages/services/ServiceForm"));
@@ -271,6 +275,11 @@ const App = () => (
               <Route path="/industry" element={<IndustryList />} />
               <Route path="/industry/new" element={<IndustryForm />} />
               <Route path="/industry/:id/edit" element={<IndustryForm />} />
+
+              {/* Materials Routes */}
+              <Route path="/materials" element={<MaterialsList />} />
+              <Route path="/materials/new" element={<MaterialsForm />} />
+              <Route path="/materials/:id/edit" element={<MaterialsForm />} />
 
               {/* Service Routes */}
               <Route path="/services" element={<ServiceList />} />

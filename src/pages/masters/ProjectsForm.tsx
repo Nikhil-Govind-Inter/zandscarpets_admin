@@ -32,6 +32,7 @@ import {
   ApiError,
 } from "@/services/masters/projectsApi";
 import { fetchActiveIndustries } from "@/services/masters/industryApi";
+import { fetchActiveMaterials } from "@/services/masters/materialsApi";
 import { projectsSchema, ProjectsFormData } from "@/schemas/projectsSchema";
 
 const resolveImageUrl = (path: string) => {
@@ -56,6 +57,7 @@ export default function ProjectsForm() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
   const [categoryOptions, setCategoryOptions] = useState<ComboboxOption[]>([]);
+  const [materialOptions, setMaterialOptions] = useState<ComboboxOption[]>([]);
   const [relatedOptions, setRelatedOptions] = useState<MultiSelectOption[]>([]);
   const [relatedProjectIds, setRelatedProjectIds] = useState<(number | string)[]>([]);
 
@@ -81,6 +83,7 @@ export default function ProjectsForm() {
     resolver: zodResolver(projectsSchema),
     defaultValues: {
       category_id: "",
+      material_id: "",
       title: "",
       title_ar: "",
       location: "",
@@ -100,6 +103,7 @@ export default function ProjectsForm() {
 
   useEffect(() => {
     loadCategoryOptions();
+    loadMaterialOptions();
     loadRelatedOptions(id);
   }, [id]);
 
@@ -117,6 +121,25 @@ export default function ProjectsForm() {
         title: "Error",
         description:
           error instanceof ApiError ? error.message : "Failed to load categories",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const loadMaterialOptions = async () => {
+    try {
+      const response = await fetchActiveMaterials();
+      setMaterialOptions(
+        response.data.map((material) => ({
+          value: material.id.toString(),
+          label: material.title,
+        })),
+      );
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof ApiError ? error.message : "Failed to load materials",
         variant: "destructive",
       });
     }
@@ -152,6 +175,7 @@ export default function ProjectsForm() {
 
       form.reset({
         category_id: data.category_id.toString(),
+        material_id: data.material_id ? data.material_id.toString() : "",
         title: data.title || "",
         title_ar: data.title_ar || "",
         location: data.location || "",
@@ -202,6 +226,7 @@ export default function ProjectsForm() {
 
       const formData = new FormData();
       formData.append("category_id", data.category_id);
+      formData.append("material_id", data.material_id);
       formData.append("title", data.title);
       formData.append("title_ar", data.title_ar);
       formData.append("location", data.location || "");
@@ -296,6 +321,26 @@ export default function ProjectsForm() {
                         onChange={field.onChange}
                         placeholder="Select industry"
                         searchPlaceholder="Search industry..."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="material_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Material</FormLabel>
+                    <FormControl>
+                      <Combobox
+                        options={materialOptions}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select material"
+                        searchPlaceholder="Search material..."
                       />
                     </FormControl>
                     <FormMessage />

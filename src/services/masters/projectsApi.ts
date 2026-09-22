@@ -17,6 +17,7 @@ export interface ProjectRelatedRef {
 export interface ProjectRecord {
   id: number;
   category_id: number;
+  material_id: number | null;
   thumbnail: string | null;
   title: string;
   title_ar: string;
@@ -33,6 +34,7 @@ export interface ProjectRecord {
   is_show_in_home: boolean;
   sort_order: number;
   category?: { id: number; title: string } | null;
+  material?: { id: number; title: string } | null;
   relatedProjects?: ProjectRelatedRef[];
   deleted_at?: string | null;
   createdAt?: string;
@@ -193,6 +195,7 @@ const buildProjectFormData = (
     Pick<
       ProjectRecord,
       | "category_id"
+      | "material_id"
       | "title"
       | "title_ar"
       | "location"
@@ -212,6 +215,10 @@ const buildProjectFormData = (
   formData.append(
     "category_id",
     (overrides.category_id ?? item.category_id).toString(),
+  );
+  formData.append(
+    "material_id",
+    (overrides.material_id ?? item.material_id ?? "").toString(),
   );
   formData.append("title", overrides.title ?? item.title ?? "");
   formData.append("title_ar", overrides.title_ar ?? item.title_ar ?? "");

@@ -27,6 +27,7 @@ import {
   Wrench,
   ListChecks,
   Mail,
+  Package,
 } from "lucide-react";
 
 import {
@@ -97,6 +98,7 @@ const mastersSection = [
   { title: "Pages", url: "/pages", icon: Compass },
   { title: "Faqs", url: "/faqs", icon: HelpCircle },
   { title: "Industry", url: "/industry", icon: MapPin },
+  { title: "Materials", url: "/materials", icon: Package },
   { title: "Our Features", url: "/our-features", icon: TrendingUp },
   { title: "Ads Banner", url: "/ads-banner", icon: Image },
 ];
@@ -160,6 +162,7 @@ export function AppSidebar() {
         "/pages",
         "/faqs",
         "/industry",
+        "/materials",
         "/our-features",
         "/ads-banner",
         "/projects",
