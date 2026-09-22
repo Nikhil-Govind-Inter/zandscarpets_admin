@@ -17,10 +17,13 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
-import { MultiSelect, Option as MultiSelectOption } from "@/components/ui/multi-select";
+import {
+  MultiSelect,
+  Option as MultiSelectOption,
+} from "@/components/ui/multi-select";
 import {
   FormFileUploadField,
-  FormTextareaField,
+  FormRichTextField,
 } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +37,7 @@ import {
 import { fetchActiveIndustries } from "@/services/masters/industryApi";
 import { fetchActiveMaterials } from "@/services/masters/materialsApi";
 import { projectsSchema, ProjectsFormData } from "@/schemas/projectsSchema";
+import { RichTextEditor } from "@/components/common/RichTextEditor";
 
 const resolveImageUrl = (path: string) => {
   if (/^https?:\/\//.test(path)) return path;
@@ -42,11 +46,13 @@ const resolveImageUrl = (path: string) => {
 
 // Gallery accepts the same image + video types the backend's upload
 // middleware allows for project_media (see multerMiddleware.js's fileFilter).
-const GALLERY_ACCEPT = "image/*,video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm";
+const GALLERY_ACCEPT =
+  "image/*,video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm";
 const VIDEO_EXTENSIONS = /\.(mp4|mov|avi|mkv|webm)$/i;
 
 const isVideoPath = (path: string) => VIDEO_EXTENSIONS.test(path);
-const isVideoFile = (file: File) => file.type.startsWith("video/") || isVideoPath(file.name);
+const isVideoFile = (file: File) =>
+  file.type.startsWith("video/") || isVideoPath(file.name);
 
 export default function ProjectsForm() {
   const { toast } = useToast();
@@ -59,7 +65,9 @@ export default function ProjectsForm() {
   const [categoryOptions, setCategoryOptions] = useState<ComboboxOption[]>([]);
   const [materialOptions, setMaterialOptions] = useState<ComboboxOption[]>([]);
   const [relatedOptions, setRelatedOptions] = useState<MultiSelectOption[]>([]);
-  const [relatedProjectIds, setRelatedProjectIds] = useState<(number | string)[]>([]);
+  const [relatedProjectIds, setRelatedProjectIds] = useState<
+    (number | string)[]
+  >([]);
 
   // Gallery (project_media): paths already on the server that should stay,
   // plus files picked in this session not yet uploaded. Kept outside
@@ -120,7 +128,9 @@ export default function ProjectsForm() {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to load categories",
+          error instanceof ApiError
+            ? error.message
+            : "Failed to load categories",
         variant: "destructive",
       });
     }
@@ -139,7 +149,9 @@ export default function ProjectsForm() {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to load materials",
+          error instanceof ApiError
+            ? error.message
+            : "Failed to load materials",
         variant: "destructive",
       });
     }
@@ -147,15 +159,22 @@ export default function ProjectsForm() {
 
   const loadRelatedOptions = async (currentId?: string) => {
     try {
-      const response = await fetchActiveProjects(currentId ? parseInt(currentId) : undefined);
+      const response = await fetchActiveProjects(
+        currentId ? parseInt(currentId) : undefined,
+      );
       setRelatedOptions(
-        response.data.map((project) => ({ id: project.id, name: project.title })),
+        response.data.map((project) => ({
+          id: project.id,
+          name: project.title,
+        })),
       );
     } catch (error) {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to load related projects",
+          error instanceof ApiError
+            ? error.message
+            : "Failed to load related projects",
         variant: "destructive",
       });
     }
@@ -199,7 +218,10 @@ export default function ProjectsForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof ApiError ? error.message : "Failed to load project data",
+        description:
+          error instanceof ApiError
+            ? error.message
+            : "Failed to load project data",
         variant: "destructive",
       });
     } finally {
@@ -238,7 +260,10 @@ export default function ProjectsForm() {
       formData.append("description_ar", data.description_ar || "");
       formData.append("sort_order", (data.sort_order || "0").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
-      formData.append("is_show_in_home", (data.is_show_in_home ?? false).toString());
+      formData.append(
+        "is_show_in_home",
+        (data.is_show_in_home ?? false).toString(),
+      );
 
       if (data.thumbnail instanceof File) {
         formData.append("thumbnail", data.thumbnail);
@@ -259,10 +284,16 @@ export default function ProjectsForm() {
 
       if (isEditing && id) {
         await updateProject(parseInt(id), formData);
-        toast({ title: "Success", description: "Project updated successfully" });
+        toast({
+          title: "Success",
+          description: "Project updated successfully",
+        });
       } else {
         await createProject(formData);
-        toast({ title: "Success", description: "Project created successfully" });
+        toast({
+          title: "Success",
+          description: "Project created successfully",
+        });
       }
 
       navigate("/projects");
@@ -287,11 +318,17 @@ export default function ProjectsForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/projects")}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/projects")}
+        >
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Project</h1>
+          <h1 className="text-2xl font-bold">
+            {isEditing ? "Edit" : "Add"} Project
+          </h1>
           <p className="text-muted-foreground">
             {isEditing ? "Update" : "Create a new"} project
           </p>
@@ -305,76 +342,80 @@ export default function ProjectsForm() {
               <CardTitle>Project Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="category_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Industry</FormLabel>
+                      <FormControl>
+                        <Combobox
+                          options={categoryOptions}
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Select industry"
+                          searchPlaceholder="Search industry..."
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="material_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Material</FormLabel>
+                      <FormControl>
+                        <Combobox
+                          options={materialOptions}
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Select material"
+                          searchPlaceholder="Search material..."
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="category_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Industry</FormLabel>
-                    <FormControl>
-                      <Combobox
-                        options={categoryOptions}
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder="Select industry"
-                        searchPlaceholder="Search industry..."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="material_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Material</FormLabel>
-                    <FormControl>
-                      <Combobox
-                        options={materialOptions}
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder="Select material"
-                        searchPlaceholder="Search material..."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Project title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="title_ar"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title (Arabic)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="عنوان المشروع" dir="rtl" className="text-right" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Project title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="title_ar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title (Arabic)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="عنوان المشروع"
+                          dir="rtl"
+                          className="text-right"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -397,21 +438,12 @@ export default function ProjectsForm() {
                     <FormItem>
                       <FormLabel>Location (Arabic)</FormLabel>
                       <FormControl>
-                        <Input placeholder="مثال: دبي، الإمارات العربية المتحدة" dir="rtl" className="text-right" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="date_of_completion"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Date of Completion</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
+                        <Input
+                          placeholder="مثال: دبي، الإمارات العربية المتحدة"
+                          dir="rtl"
+                          className="text-right"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -421,62 +453,83 @@ export default function ProjectsForm() {
 
               <FormField
                 control={form.control}
-                name="material_type"
+                name="date_of_completion"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Material Type</FormLabel>
+                    <FormLabel>Date of Completion</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Marble, Wool" {...field} />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="material_type_ar"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Material Type (Arabic)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="مثال: رخام، صوف" dir="rtl" className="text-right" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormField
+                  control={form.control}
+                  name="material_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Material Type</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Marble, Wool" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormTextareaField
+                <FormField
+                  control={form.control}
+                  name="material_type_ar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Material Type (Arabic)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="مثال: رخام، صوف"
+                          dir="rtl"
+                          className="text-right"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormRichTextField
                 form={form}
                 name="description"
                 label="Description"
-                placeholder="Describe this project"
-                rows={4}
+                placeholder="Enter project description"
               />
-              <FormTextareaField
+              <FormRichTextField
                 form={form}
                 name="description_ar"
                 label="Description (Arabic)"
                 placeholder="صف هذا المشروع"
-                rows={4}
               />
 
-              <FormFileUploadField
-                form={form}
-                name="thumbnail"
-                label="Thumbnail"
-                placeholder="Upload listing thumbnail"
-                accept="image/*"
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormFileUploadField
+                  form={form}
+                  name="thumbnail"
+                  label="Thumbnail"
+                  placeholder="Upload listing thumbnail"
+                  accept="image/*"
+                />
 
-              <FormFileUploadField
-                form={form}
-                name="media_path"
-                label="Detail Image"
-                placeholder="Upload detail/banner image"
-                accept="image/*"
-              />
+                <FormFileUploadField
+                  form={form}
+                  name="media_path"
+                  label="Detail Image"
+                  placeholder="Upload detail/banner image"
+                  accept="image/*"
+                />
+              </div>
 
               <div className="space-y-2">
                 <Label>Project Gallery</Label>
@@ -555,8 +608,15 @@ export default function ProjectsForm() {
                   placeholder="Select related projects"
                 />
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
                   name="sort_order"
@@ -564,13 +624,17 @@ export default function ProjectsForm() {
                     <FormItem>
                       <FormLabel>Sort Order</FormLabel>
                       <FormControl>
-                        <Input type="number" min={0} placeholder="0" {...field} />
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="1"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="is_active"
@@ -578,15 +642,19 @@ export default function ProjectsForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
-                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
+                        <p className="text-sm text-muted-foreground">
+                          Enable or disable this item.
+                        </p>
                       </div>
                       <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
                       </FormControl>
                     </FormItem>
                   )}
                 />
-              </div>
 
               <FormField
                 control={form.control}
@@ -597,16 +665,25 @@ export default function ProjectsForm() {
                       <FormLabel className="text-base">Show on Home</FormLabel>
                     </div>
                     <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
               />
+              </div>
+            
             </CardContent>
           </Card>
 
           <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => navigate("/projects")}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/projects")}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>

@@ -195,7 +195,7 @@ export default function ProjectsList() {
     },
     {
       id: "category",
-      header: "Category",
+      header: "Industry",
       cell: ({ row }) => (
         <div className="text-sm text-muted-foreground">
           {row.original.category?.title || "-"}
