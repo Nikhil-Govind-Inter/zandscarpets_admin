@@ -23,8 +23,11 @@ export interface Banner {
   desktop_media_path: string;
   mobile_media_path: string;
   media_alt: string;
+  media_alt_ar: string;
   title: string;
+  title_ar: string;
   sub_title: string;
+  sub_title_ar: string;
   deleted_at?: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -129,8 +132,11 @@ export const fetchBannerById = async (
 export interface BannerFormPayload {
   page_id: number;
   title: string;
+  title_ar: string;
   sub_title: string;
+  sub_title_ar: string;
   media_alt: string;
+  media_alt_ar: string;
   desktop_media_path: File | string;
   mobile_media_path: File | string;
 }
@@ -160,8 +166,11 @@ const buildBannerFormData = (data: BannerFormPayload): FormData => {
   const formData = new FormData();
   formData.append("page_id", data.page_id.toString());
   formData.append("title", data.title);
+  formData.append("title_ar", data.title);
   formData.append("sub_title", data.sub_title);
+  formData.append("sub_title_ar", data.sub_title);
   formData.append("media_alt", data.media_alt);
+  formData.append("media_alt_ar", data.media_alt);
   appendMediaPath(formData, "desktop_media_path", data.desktop_media_path);
   appendMediaPath(formData, "mobile_media_path", data.mobile_media_path);
   return formData;

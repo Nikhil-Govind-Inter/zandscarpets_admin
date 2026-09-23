@@ -8,6 +8,7 @@ export interface FooterMedia {
   id?: number;
   media_path: string | null;
   media_alt: string;
+  media_alt_ar?: string;
   sort_order?: number;
   is_active?: boolean;
   deleted_at?: string | null;
@@ -43,6 +44,7 @@ export interface FooterMediaItemResponse {
 export interface CreateFooterMediaData {
   media_path?: File | string;
   media_alt: string;
+  media_alt_ar?: string;
   sort_order?: number;
   is_active?: boolean;
 }

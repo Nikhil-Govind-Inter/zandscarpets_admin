@@ -16,22 +16,20 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  FormFileUploadField,
+  FormTextareaField,
   FormTextField,
 } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
-  fetchFooterMediaById,
-  createFooterMedia,
-  updateFooterMedia,
-} from "@/services/siteSettings/footerMediaApi";
-import {
-  footerMediaSchema,
-  FooterMediaFormData,
-} from "@/schemas/commonSchemas";
+  fetchWorkPlanById,
+  createWorkPlan,
+  updateWorkPlan,
+  ApiError,
+} from "@/services/masters/workPlanApi";
+import { workPlanSchema, WorkPlanFormData } from "@/schemas/workPlanSchema";
 
-export default function FooterMediaForm() {
+export default function WorkPlanForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -40,12 +38,13 @@ export default function FooterMediaForm() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
 
-  const form = useForm<FooterMediaFormData>({
-    resolver: zodResolver(footerMediaSchema),
+  const form = useForm<WorkPlanFormData>({
+    resolver: zodResolver(workPlanSchema),
     defaultValues: {
-      media_path: "",
-      media_alt: "",
-      media_alt_ar: "",
+      title: "",
+      title_ar: "",
+      short_description: "",
+      short_description_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -53,29 +52,32 @@ export default function FooterMediaForm() {
 
   useEffect(() => {
     if (isEditing && id) {
-      loadFooterMediaData(parseInt(id));
+      loadWorkPlanData(parseInt(id));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isEditing]);
 
-  const loadFooterMediaData = async (itemId: number) => {
+  const loadWorkPlanData = async (itemId: number) => {
     try {
       setInitialLoading(true);
-      const response = await fetchFooterMediaById(itemId);
+      const response = await fetchWorkPlanById(itemId);
       const data = response.data;
 
-      if (data) {
-        form.reset({
-          media_path: data.media_path || "",
-          media_alt: data.media_alt || "",
-          media_alt_ar: data.media_alt_ar || "",
-          sort_order: (data.sort_order ?? 1).toString(),
-          is_active: data.is_active ?? true,
-        });
-      }
+      form.reset({
+        title: data.title || "",
+        title_ar: data.title_ar || "",
+        short_description: data.short_description || "",
+        short_description_ar: data.short_description_ar || "",
+        sort_order: (data.sort_order ?? 1).toString(),
+        is_active: data.is_active ?? true,
+      });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to load footer media data",
+        description:
+          error instanceof ApiError
+            ? error.message
+            : "Failed to load work plan data",
         variant: "destructive",
       });
     } finally {
@@ -83,41 +85,41 @@ export default function FooterMediaForm() {
     }
   };
 
-  const onSubmit = async (data: FooterMediaFormData) => {
+  const onSubmit = async (data: WorkPlanFormData) => {
     try {
       setLoading(true);
 
-      const formData = new FormData();
-      formData.append("media_alt", data.media_alt);
-      formData.append("media_alt_ar", data.media_alt_ar);
-      formData.append("sort_order", (data.sort_order || "1").toString());
-      formData.append("is_active", (data.is_active ?? true).toString());
-      // Add file if a new one was chosen, otherwise fall back to the existing path string
-      if (data.media_path instanceof File) {
-        formData.append("media_path", data.media_path);
-      } else if (typeof data.media_path === "string") {
-        formData.append("media_path", data.media_path);
-      }
+      const payload = {
+        title: data.title,
+        title_ar: data.title_ar,
+        short_description: data.short_description,
+        short_description_ar: data.short_description_ar,
+        sort_order: parseInt(data.sort_order || "1"),
+        is_active: data.is_active,
+      };
 
       if (isEditing && id) {
-        await updateFooterMedia(parseInt(id), formData);
+        await updateWorkPlan(parseInt(id), payload);
         toast({
           title: "Success",
-          description: "Footer media item updated successfully",
+          description: "Work plan updated successfully",
         });
       } else {
-        await createFooterMedia(formData);
+        await createWorkPlan(payload);
         toast({
           title: "Success",
-          description: "Footer media item created successfully",
+          description: "Work plan created successfully",
         });
       }
 
-      navigate("/footer-media");
+      navigate("/work-plans");
     } catch (error) {
       toast({
         title: "Error",
-        description: `Failed to ${isEditing ? "update" : "create"} footer media item`,
+        description:
+          error instanceof ApiError
+            ? error.message
+            : `Failed to ${isEditing ? "update" : "create"} work plan`,
         variant: "destructive",
       });
     } finally {
@@ -135,16 +137,16 @@ export default function FooterMediaForm() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate("/footer-media")}
+          onClick={() => navigate("/work-plans")}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
           <h1 className="text-2xl font-bold">
-            {isEditing ? "Edit" : "Add"} Footer Media
+            {isEditing ? "Edit" : "Add"} Work Plan
           </h1>
           <p className="text-muted-foreground">
-            {isEditing ? "Update" : "Create a new"} footer media item
+            {isEditing ? "Update" : "Create a new"} work plan
           </p>
         </div>
       </div>
@@ -153,32 +155,42 @@ export default function FooterMediaForm() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Footer Media Information</CardTitle>
+              <CardTitle>Work Plan Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
                 <FormTextField
                   form={form}
-                  name="media_alt"
-                  label="Media Alt"
-                  placeholder="Enter media alt"
+                  name="title"
+                  label="Title"
+                  placeholder="e.g., Consultation, Design & Planning"
                 />
 
                 <FormTextField
                   form={form}
-                  name="media_alt_ar"
-                  label="Media Alt (Arabic)"
-                  placeholder="Enter media alt (Arabic)"
+                  name="title_ar"
+                  label="Title (Arabic)"
+                  placeholder="مثال: استشارة، تصميم وتخطيط"
                 />
               </div>
 
-              <FormFileUploadField
-                form={form}
-                name="media_path"
-                label="Media"
-                placeholder="Upload footer media"
-                accept="image/*"
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextareaField
+                  form={form}
+                  name="short_description"
+                  label="Short Description"
+                  placeholder="Describe this work plan step"
+                  rows={4}
+                />
+
+                <FormTextareaField
+                  form={form}
+                  name="short_description_ar"
+                  label="Short Description (Arabic)"
+                  placeholder="صف خطوة خطة العمل هذه"
+                  rows={4}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -234,7 +246,7 @@ export default function FooterMediaForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/footer-media")}
+              onClick={() => navigate("/work-plans")}
             >
               Cancel
             </Button>

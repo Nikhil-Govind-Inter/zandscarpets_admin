@@ -48,6 +48,9 @@ const defaultValues: AboutCmsFormData = {
   message_subtitle_ar: "",
   work_title: "",
   work_title_ar: "",
+  work_media_path: "",
+  work_media_alt: "",
+  work_media_alt_ar: "",
   about_core_title: "",
   about_core_title_ar: "",
   about_code_media_path: "",
@@ -119,6 +122,9 @@ export default function AboutCmsForm() {
           message_subtitle_ar: data.message_subtitle_ar || "",
           work_title: data.work_title || "",
           work_title_ar: data.work_title_ar || "",
+          work_media_path: data.work_media_path || "",
+          work_media_alt: data.work_media_alt || "",
+          work_media_alt_ar: data.work_media_alt_ar || "",
           about_core_title: data.about_core_title || "",
           about_core_title_ar: data.about_core_title_ar || "",
           about_code_media_path: data.about_code_media_path || "",
@@ -185,6 +191,8 @@ export default function AboutCmsForm() {
       formData.append("message_subtitle_ar", data.message_subtitle_ar || "");
       formData.append("work_title", data.work_title);
       formData.append("work_title_ar", data.work_title_ar || "");
+      formData.append("work_media_alt", data.work_media_alt || "");
+      formData.append("work_media_alt_ar", data.work_media_alt_ar || "");
       formData.append("about_core_title", data.about_core_title);
       formData.append("about_core_title_ar", data.about_core_title_ar || "");
       formData.append("about_code_media_alt", data.about_code_media_alt || "");
@@ -203,6 +211,7 @@ export default function AboutCmsForm() {
       formData.append("industry_media_alt_ar", data.industry_media_alt_ar || "");
 
       appendFile(formData, "media_path", data.media_path);
+      appendFile(formData, "work_media_path", data.work_media_path);
       appendFile(formData, "about_code_media_path", data.about_code_media_path);
       appendFile(formData, "industry_media_path", data.industry_media_path);
 
@@ -380,13 +389,27 @@ export default function AboutCmsForm() {
               <CardTitle>Work Section</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <FormTextField
-                form={form}
-                name="work_title"
-                label="Work Title"
-                placeholder="Enter work title"
-              />
-              <FormTextField form={form} name="work_title_ar" label="Work Title (Arabic)" placeholder="أدخل عنوان الأعمال" />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextField
+                  form={form}
+                  name="work_title"
+                  label="Work Title"
+                  placeholder="Enter work title"
+                />
+                <FormTextField form={form} name="work_title_ar" label="Work Title (Arabic)" placeholder="أدخل عنوان الأعمال" />
+
+                <FormTextField
+                  form={form}
+                  name="work_media_alt"
+                  label="Image Alt Text"
+                  placeholder="Describe the media"
+                />
+                <FormTextField form={form} name="work_media_alt_ar" label="Image Alt Text (Arabic)" placeholder="وصف الصورة" />
+              </div>
+
+              <div className="md:col-span-2">
+                <FormFileUploadField form={form} name="work_media_path" label="Image" placeholder="Upload image" accept="image/*" />
+              </div>
             </CardContent>
           </Card>
 

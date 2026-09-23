@@ -51,6 +51,10 @@ const IndustryForm = React.lazy(() => import("./pages/masters/IndustryForm"));
 const MaterialsList = React.lazy(() => import("./pages/masters/MaterialsList"));
 const MaterialsForm = React.lazy(() => import("./pages/masters/MaterialsForm"));
 
+// Masters — Work Plans
+const WorkPlanList = React.lazy(() => import("./pages/masters/WorkPlanList"));
+const WorkPlanForm = React.lazy(() => import("./pages/masters/WorkPlanForm"));
+
 // Services — Service
 const ServiceList = React.lazy(() => import("./pages/services/ServiceList"));
 const ServiceForm = React.lazy(() => import("./pages/services/ServiceForm"));
@@ -139,6 +143,10 @@ const HistoryForm = React.lazy(() => import("./pages/about/HistoryForm"));
 // About — Messages
 const MessagesList = React.lazy(() => import("./pages/about/MessagesList"));
 const MessagesForm = React.lazy(() => import("./pages/about/MessagesForm"));
+
+// About — Milestones
+const MilestonesList = React.lazy(() => import("./pages/about/MilestonesList"));
+const MilestonesForm = React.lazy(() => import("./pages/about/MilestonesForm"));
 
 // Contact — CMS
 const ContactCmsForm = React.lazy(() => import("./pages/contact/ContactCmsForm"));
@@ -255,6 +263,11 @@ const App = () => (
               <Route path="/about-messages/new" element={<MessagesForm />} />
               <Route path="/about-messages/:id/edit" element={<MessagesForm />} />
 
+              {/* About Milestones */}
+              <Route path="/about-milestones" element={<MilestonesList />} />
+              <Route path="/about-milestones/new" element={<MilestonesForm />} />
+              <Route path="/about-milestones/:id/edit" element={<MilestonesForm />} />
+
               {/* Contact CMS */}
               <Route path="/contact-cms" element={<ContactCmsForm />} />
 
@@ -280,6 +293,11 @@ const App = () => (
               <Route path="/materials" element={<MaterialsList />} />
               <Route path="/materials/new" element={<MaterialsForm />} />
               <Route path="/materials/:id/edit" element={<MaterialsForm />} />
+
+              {/* Work Plan Routes */}
+              <Route path="/work-plans" element={<WorkPlanList />} />
+              <Route path="/work-plans/new" element={<WorkPlanForm />} />
+              <Route path="/work-plans/:id/edit" element={<WorkPlanForm />} />
 
               {/* Service Routes */}
               <Route path="/services" element={<ServiceList />} />

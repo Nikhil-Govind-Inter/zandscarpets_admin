@@ -28,6 +28,7 @@ import {
   ListChecks,
   Mail,
   Package,
+  ClipboardList,
 } from "lucide-react";
 
 import {
@@ -64,6 +65,7 @@ const aboutSection = [
   { title: "Core Values", url: "/about-core-values", icon: Heart },
   { title: "History", url: "/about-history", icon: Clock },
   { title: "Messages", url: "/about-messages", icon: MessageSquare },
+  { title: "Milestones", url: "/about-milestones", icon: Target },
 ];
 
 const contactSection = [
@@ -99,6 +101,7 @@ const mastersSection = [
   { title: "Faqs", url: "/faqs", icon: HelpCircle },
   { title: "Industry", url: "/industry", icon: MapPin },
   { title: "Materials", url: "/materials", icon: Package },
+  { title: "Work Plans", url: "/work-plans", icon: ClipboardList },
   { title: "Our Features", url: "/our-features", icon: TrendingUp },
   { title: "Ads Banner", url: "/ads-banner", icon: Image },
 ];
@@ -163,6 +166,7 @@ export function AppSidebar() {
         "/faqs",
         "/industry",
         "/materials",
+        "/work-plans",
         "/our-features",
         "/ads-banner",
         "/projects",
