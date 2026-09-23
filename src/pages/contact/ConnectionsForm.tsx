@@ -198,7 +198,7 @@ export default function ConnectionsForm() {
                   form={form}
                   name="title_ar"
                   label="Title (Arabic)"
-                  placeholder="Enter connection title (Arabic)"
+                  placeholder="أدخل عنوان جهة الاتصال"
                 />
               </div>
 
@@ -213,7 +213,7 @@ export default function ConnectionsForm() {
                   form={form}
                   name="content_ar"
                   label="Content (Arabic)"
-                  placeholder="Enter connection content (Arabic)"
+                  placeholder="أدخل محتوى جهة الاتصال"
                 />
               </div>
 
@@ -228,7 +228,7 @@ export default function ConnectionsForm() {
                   form={form}
                   name="description_ar"
                   label="Description (Arabic)"
-                  placeholder="Enter connection description (Arabic)"
+                  placeholder="أدخل وصف جهة الاتصال"
                 />
               </div>
 
@@ -252,7 +252,7 @@ export default function ConnectionsForm() {
                   form={form}
                   name="icon_media_alt_ar"
                   label="Icon Alt Text (Arabic)"
-                  placeholder="Describe the connection icon (Arabic)"
+                  placeholder="صف أيقونة جهة الاتصال"
                 />
               </div>
             </CardContent>

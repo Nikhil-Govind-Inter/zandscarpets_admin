@@ -173,7 +173,7 @@ export default function CoreValuesForm() {
                   <FormItem>
                     <FormLabel>Image Alt Text (Arabic)</FormLabel>
                     <FormControl>
-                      <Input dir="rtl" placeholder="صف الصورة" {...field} />
+                      <Input dir="rtl" className="text-right" placeholder="صف الصورة" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

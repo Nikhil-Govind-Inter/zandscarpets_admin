@@ -17,6 +17,7 @@ import {
   ProjectRecord,
   ApiError,
 } from "@/services/masters/projectsApi";
+import MediaThumbnail from "@/components/common/MediaThumbnail";
 
 const resolveImageUrl = (path: string | null) => {
   if (!path) return null;
@@ -56,7 +57,9 @@ export default function ProjectsList() {
     projectsRef.current = projects;
   }, [projects]);
 
-  const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
+  const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>(
+    {},
+  );
   const sortOrderOriginal = useRef<Record<number, number>>({});
 
   useEffect(() => {
@@ -77,7 +80,9 @@ export default function ProjectsList() {
     }
 
     setProjects((prev) =>
-      prev.map((p) => (p.id === item.id ? { ...p, sort_order: newSortOrder } : p)),
+      prev.map((p) =>
+        p.id === item.id ? { ...p, sort_order: newSortOrder } : p,
+      ),
     );
 
     clearTimeout(sortOrderTimers.current[item.id]);
@@ -99,10 +104,15 @@ export default function ProjectsList() {
 
     try {
       await updateProjectSortOrder(latestItem, finalSortOrder);
-      toast({ title: "Success", description: "Sort order updated successfully" });
+      toast({
+        title: "Success",
+        description: "Sort order updated successfully",
+      });
     } catch (error) {
       setProjects((prev) =>
-        prev.map((p) => (p.id === itemId ? { ...p, sort_order: originalSortOrder } : p)),
+        prev.map((p) =>
+          p.id === itemId ? { ...p, sort_order: originalSortOrder } : p,
+        ),
       );
       toast({
         title: "Error",
@@ -127,7 +137,9 @@ export default function ProjectsList() {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to delete project",
+          error instanceof ApiError
+            ? error.message
+            : "Failed to delete project",
         variant: "destructive",
       });
     } finally {
@@ -143,16 +155,23 @@ export default function ProjectsList() {
       await toggleProjectStatus(item, newStatus);
 
       setProjects((prev) =>
-        prev.map((p) => (p.id === item.id ? { ...p, is_active: newStatus } : p)),
+        prev.map((p) =>
+          p.id === item.id ? { ...p, is_active: newStatus } : p,
+        ),
       );
       refetch();
 
-      toast({ title: "Success", description: "Project status updated successfully" });
+      toast({
+        title: "Success",
+        description: "Project status updated successfully",
+      });
     } catch (error) {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to update project status",
+          error instanceof ApiError
+            ? error.message
+            : "Failed to update project status",
         variant: "destructive",
       });
     } finally {
@@ -173,18 +192,12 @@ export default function ProjectsList() {
     {
       accessorKey: "thumbnail",
       header: "Thumbnail",
-      cell: ({ row }) => {
-        const url = resolveImageUrl(row.original.thumbnail);
-        return url ? (
-          <img
-            src={url}
-            alt={row.original.title}
-            className="h-10 w-10 rounded object-cover border"
-          />
-        ) : (
-          <div className="h-10 w-10 rounded border bg-muted" />
-        );
-      },
+      cell: ({ row }) => (
+        <MediaThumbnail
+          path={row.getValue("thumbnail")}
+          alt={row.original.title}
+        />
+      ),
     },
     {
       accessorKey: "title",

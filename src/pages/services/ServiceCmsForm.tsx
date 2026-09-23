@@ -139,7 +139,7 @@ export default function ServiceCmsForm() {
                   form={form}
                   name="title_ar"
                   label="Title (Arabic)"
-                  placeholder="Enter section title (Arabic)"
+                  placeholder="أدخل عنوان القسم"
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
@@ -154,7 +154,7 @@ export default function ServiceCmsForm() {
                   form={form}
                   name="description_ar"
                   label="Description (Arabic)"
-                  placeholder="Enter section description (Arabic)"
+                  placeholder="أدخل وصف القسم"
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
@@ -169,7 +169,7 @@ export default function ServiceCmsForm() {
                   form={form}
                   name="service_title_ar"
                   label="Services List Title (Arabic)"
-                  placeholder="Enter services list heading (Arabic)"
+                  placeholder="أدخل عنوان قائمة الخدمات"
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
@@ -184,7 +184,7 @@ export default function ServiceCmsForm() {
                   form={form}
                   name="process_steps_title_ar"
                   label="Process Steps Title (Arabic)"
-                  placeholder="Enter process steps heading (Arabic)"
+                  placeholder="أدخل عنوان خطوات العملية"
                 />
               </div>
             </CardContent>

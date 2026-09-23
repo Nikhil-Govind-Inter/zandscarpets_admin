@@ -179,7 +179,7 @@ export default function HistoryForm() {
                   <FormItem>
                     <FormLabel>Title (Arabic)</FormLabel>
                     <FormControl>
-                      <Input dir="rtl" placeholder="عنوان الحدث" {...field} />
+                      <Input dir="rtl" className="text-right" placeholder="عنوان الحدث" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

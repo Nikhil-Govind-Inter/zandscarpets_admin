@@ -39,6 +39,7 @@ export default function SiteSettingsForm() {
     resolver: zodResolver(siteSettingsSchema),
     defaultValues: {
       address: "",
+      address_ar: "",
       email: "",
       phone_number: "",
       whatsapp_number: "",
@@ -143,7 +144,7 @@ export default function SiteSettingsForm() {
                   form={form}
                   name="address_ar"
                   label="Arabic Address"
-                  placeholder="Enter arabic address"
+                  placeholder="أدخل العنوان بالعربية"
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -188,7 +188,7 @@ export default function ProcessStepForm() {
                   form={form}
                   name="title_ar"
                   label="Title (Arabic)"
-                  placeholder="Process step title (Arabic)"
+                  placeholder="عنوان خطوة العملية"
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
@@ -203,7 +203,7 @@ export default function ProcessStepForm() {
                   form={form}
                   name="description_ar"
                   label="Description (Arabic)"
-                  placeholder="Describe this process step (Arabic)"
+                  placeholder="صف خطوة العملية هذه"
                 />
               </div>
               <FormFileUploadField
@@ -226,7 +226,7 @@ export default function ProcessStepForm() {
                   form={form}
                   name="media_alt_ar"
                   label="Image Alt Text (Arabic)"
-                  placeholder="Describe the process step media (Arabic)"
+                  placeholder="صف وسائط خطوة العملية"
                 />
               </div>
             </CardContent>

@@ -173,7 +173,7 @@ export default function SocialMediaForm() {
                   form={form}
                   name="media_alt_ar"
                   label="Arabic Alt Text"
-                  placeholder="e.g., Facebook, Twitter, LinkedIn"
+                  placeholder="مثال: فيسبوك، تويتر، لينكدإن"
                 />
               </div>
 

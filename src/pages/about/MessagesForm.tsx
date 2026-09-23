@@ -187,7 +187,7 @@ export default function MessagesForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Name (Arabic)</FormLabel>
-                      <FormControl><Input dir="rtl" placeholder="الاسم" {...field} /></FormControl>
+                      <FormControl><Input dir="rtl" className="text-right" placeholder="الاسم" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -212,7 +212,7 @@ export default function MessagesForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Designation (Arabic)</FormLabel>
-                      <FormControl><Input dir="rtl" placeholder="المسمى الوظيفي" {...field} /></FormControl>
+                      <FormControl><Input dir="rtl" className="text-right" placeholder="المسمى الوظيفي" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -239,7 +239,7 @@ export default function MessagesForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Organization (Arabic)</FormLabel>
-                    <FormControl><Input dir="rtl" placeholder="اسم المنظمة" {...field} /></FormControl>
+                    <FormControl><Input dir="rtl" className="text-right" placeholder="اسم المنظمة" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -274,7 +274,7 @@ export default function MessagesForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Profile Alt Text (Arabic)</FormLabel>
-                    <FormControl><Input dir="rtl" placeholder="وصف الصورة" {...field} /></FormControl>
+                    <FormControl><Input dir="rtl" className="text-right" placeholder="وصف الصورة" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

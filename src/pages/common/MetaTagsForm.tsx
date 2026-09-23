@@ -161,7 +161,7 @@ export const MetaTagsForm: React.FC<MetaTagsFormProps> = ({
                 form={form}
                 name="meta_title_ar"
                 label="Meta Title (Arabic)"
-                placeholder="Enter meta title (recommended: 50-60 characters)"
+                placeholder="أدخل عنوان الميتا (يفضل 50-60 حرفًا)"
               />
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
@@ -177,7 +177,7 @@ export const MetaTagsForm: React.FC<MetaTagsFormProps> = ({
                 form={form}
                 name="meta_description_ar"
                 label="Meta Description (Arabic)"
-                placeholder="Enter meta description (recommended: 150-160 characters)"
+                placeholder="أدخل وصف الميتا (يفضل 150-160 حرفًا)"
                 rows={3}
               />
             </div>
@@ -193,7 +193,7 @@ export const MetaTagsForm: React.FC<MetaTagsFormProps> = ({
                 form={form}
                 name="meta_keywords_ar"
                 label="Meta Keywords (Arabic)"
-                placeholder="Type a keyword and press Enter"
+                placeholder="اكتب كلمة مفتاحية واضغط"
               />
             </div>
             <div className="flex justify-end space-x-2 pt-4">

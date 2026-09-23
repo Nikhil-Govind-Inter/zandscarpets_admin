@@ -160,7 +160,7 @@ export default function FaqsForm() {
                   form={form}
                   name="question_ar"
                   label="Question (Arabic)"
-                  placeholder="e.g., What services do you offer?"
+                  placeholder="مثال: ما هي الخدمات التي تقدمونها؟"
                 />
               </div>
 
@@ -177,7 +177,7 @@ export default function FaqsForm() {
                   form={form}
                   name="answer_ar"
                   label="Answer (Arabic)"
-                  placeholder="Answer to the question"
+                  placeholder="الإجابة على السؤال"
                   rows={5}
                 />
               </div>

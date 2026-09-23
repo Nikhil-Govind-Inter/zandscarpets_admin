@@ -179,7 +179,7 @@ export default function AdsBannerForm() {
                   form={form}
                   name="media_alt_ar"
                   label="Media Alt Text (Arabic)"
-                  placeholder="Describe the banner media in Arabic"
+                  placeholder="صف وسائط الإعلان"
                 />
               </div>
             </CardContent>

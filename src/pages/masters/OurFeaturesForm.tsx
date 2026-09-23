@@ -186,7 +186,7 @@ export default function OurFeaturesForm() {
                   form={form}
                   name="title_ar"
                   label="Title (Arabic)"
-                  placeholder="e.g., 24/7 Support"
+                  placeholder="مثال: دعم على مدار الساعة"
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
@@ -202,7 +202,7 @@ export default function OurFeaturesForm() {
                   form={form}
                   name="description_ar"
                   label="Description (Arabic)"
-                  placeholder="Describe this feature"
+                  placeholder="صف هذه الميزة"
                   rows={4}
                 />
               </div>
