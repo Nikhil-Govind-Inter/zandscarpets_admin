@@ -146,9 +146,9 @@ const CoreValuesForm = React.lazy(() => import("./pages/about/CoreValuesForm"));
 const HistoryList = React.lazy(() => import("./pages/about/HistoryList"));
 const HistoryForm = React.lazy(() => import("./pages/about/HistoryForm"));
 
-// About — Features
-const AboutFeaturesList = React.lazy(() => import("./pages/about/AboutFeaturesList"));
-const AboutFeaturesForm = React.lazy(() => import("./pages/about/AboutFeaturesForm"));
+// About — Industries
+const AboutIndustriesList = React.lazy(() => import("./pages/about/AboutIndustriesList"));
+const AboutIndustriesForm = React.lazy(() => import("./pages/about/AboutIndustriesForm"));
 
 // About — Messages
 const MessagesList = React.lazy(() => import("./pages/about/MessagesList"));
@@ -268,10 +268,10 @@ const App = () => (
               <Route path="/about-history/new" element={<HistoryForm />} />
               <Route path="/about-history/:id/edit" element={<HistoryForm />} />
 
-              {/* About Features */}
-              <Route path="/about-features" element={<AboutFeaturesList />} />
-              <Route path="/about-features/new" element={<AboutFeaturesForm />} />
-              <Route path="/about-features/:id/edit" element={<AboutFeaturesForm />} />
+              {/* About Industries */}
+              <Route path="/about-industries" element={<AboutIndustriesList />} />
+              <Route path="/about-industries/new" element={<AboutIndustriesForm />} />
+              <Route path="/about-industries/:id/edit" element={<AboutIndustriesForm />} />
 
               {/* About Messages */}
               <Route path="/about-messages" element={<MessagesList />} />

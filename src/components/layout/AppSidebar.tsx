@@ -27,6 +27,7 @@ import {
   Briefcase,
   Wrench,
   ListChecks,
+  Factory,
   Mail,
   Package,
   ClipboardList,
@@ -65,7 +66,7 @@ const aboutSection = [
   { title: "CMS", url: "/about-cms", icon: Info },
   { title: "Core Values", url: "/about-core-values", icon: Heart },
   { title: "History", url: "/about-history", icon: Clock },
-  { title: "Features", url: "/about-features", icon: ListChecks },
+  { title: "Industries", url: "/about-industries", icon: Factory },
   { title: "Messages", url: "/about-messages", icon: MessageSquare },
   { title: "Milestones", url: "/about-milestones", icon: Target },
 ];

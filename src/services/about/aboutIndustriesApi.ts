@@ -1,15 +1,17 @@
 import { apiFetch } from "@/lib/apiClient";
 
-// About > Core Values — backed by `/api/backend/about/core-values`. List resource with a
-// bilingual title plus media; mirrors homeBrandsApi.ts's shape minus `industry_id`.
+// About > Industries — backed by `/api/backend/about/about-industries`. List resource with a
+// bilingual title plus media; separate from Masters > Industry.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const CORE_VALUES_URL = `${API_BASE_URL}/about/core-values`;
+const ABOUT_INDUSTRIES_URL = `${API_BASE_URL}/about/about-industries`;
 
-export interface CoreValuesRecord {
+export interface AboutIndustriesRecord {
   id: number;
   title: string;
   title_ar: string;
+  description: string;
+  description_ar: string;
   media_path: string | null;
   media_alt: string | null;
   media_alt_ar: string | null;
@@ -72,9 +74,9 @@ const parseEnvelope = async <T>(
   return body;
 };
 
-export interface CoreValuesListResponse {
+export interface AboutIndustriesListResponse {
   data: {
-    data: CoreValuesRecord[];
+    data: AboutIndustriesRecord[];
     pagination: {
       totalCount: number;
       totalPages: number;
@@ -86,11 +88,11 @@ export interface CoreValuesListResponse {
 }
 
 // Fetcher shape matches usePaginatedList's `Fetcher<T>` contract.
-export const fetchCoreValuesList = async (
+export const fetchAboutIndustriesList = async (
   page: number,
   limit: number,
   search?: string,
-): Promise<CoreValuesListResponse> => {
+): Promise<AboutIndustriesListResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
@@ -100,42 +102,42 @@ export const fetchCoreValuesList = async (
     params.append("search", search);
   }
 
-  const response = await apiFetch(`${CORE_VALUES_URL}?${params}`);
-  return parseEnvelope<CoreValuesListResponse["data"]>(response);
+  const response = await apiFetch(`${ABOUT_INDUSTRIES_URL}?${params}`);
+  return parseEnvelope<AboutIndustriesListResponse["data"]>(response);
 };
 
-export const fetchCoreValuesById = async (
+export const fetchAboutIndustriesById = async (
   id: number,
-): Promise<{ data: CoreValuesRecord }> => {
-  const response = await apiFetch(`${CORE_VALUES_URL}/${id}`);
-  return parseEnvelope<CoreValuesRecord>(response);
+): Promise<{ data: AboutIndustriesRecord }> => {
+  const response = await apiFetch(`${ABOUT_INDUSTRIES_URL}/${id}`);
+  return parseEnvelope<AboutIndustriesRecord>(response);
 };
 
-export const createCoreValues = async (
+export const createAboutIndustries = async (
   formData: FormData,
-): Promise<{ data: CoreValuesRecord }> => {
-  const response = await apiFetch(CORE_VALUES_URL, {
+): Promise<{ data: AboutIndustriesRecord }> => {
+  const response = await apiFetch(ABOUT_INDUSTRIES_URL, {
     method: "POST",
     body: formData,
   });
-  return parseEnvelope<CoreValuesRecord>(response);
+  return parseEnvelope<AboutIndustriesRecord>(response);
 };
 
-export const updateCoreValues = async (
+export const updateAboutIndustries = async (
   id: number,
   formData: FormData,
-): Promise<{ data: CoreValuesRecord }> => {
-  const response = await apiFetch(`${CORE_VALUES_URL}/${id}`, {
+): Promise<{ data: AboutIndustriesRecord }> => {
+  const response = await apiFetch(`${ABOUT_INDUSTRIES_URL}/${id}`, {
     method: "PUT",
     body: formData,
   });
-  return parseEnvelope<CoreValuesRecord>(response);
+  return parseEnvelope<AboutIndustriesRecord>(response);
 };
 
-export const deleteCoreValues = async (
+export const deleteAboutIndustries = async (
   id: number,
 ): Promise<{ data: { id: number } }> => {
-  const response = await apiFetch(`${CORE_VALUES_URL}/${id}`, {
+  const response = await apiFetch(`${ABOUT_INDUSTRIES_URL}/${id}`, {
     method: "DELETE",
   });
   return parseEnvelope<{ id: number }>(response);
@@ -146,14 +148,16 @@ export const deleteCoreValues = async (
 // freshly uploaded file or an absolute `https?://<host>/uploads/...` URL — a bare relative
 // path (what's actually held in state/returned by the API) matches neither and gets silently
 // dropped.
-const buildCoreValuesFormData = (
-  item: CoreValuesRecord,
-  overrides: Partial<Pick<CoreValuesRecord, "media_alt" | "media_alt_ar" | "sort_order" | "is_active">>,
+const buildAboutIndustriesFormData = (
+  item: AboutIndustriesRecord,
+  overrides: Partial<Pick<AboutIndustriesRecord, "media_alt" | "media_alt_ar" | "sort_order" | "is_active">>,
 ): FormData => {
   const formData = new FormData();
 
   formData.append("title", item.title ?? "");
   formData.append("title_ar", item.title_ar ?? "");
+  formData.append("description", item.description ?? "");
+  formData.append("description_ar", item.description_ar ?? "");
   formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
   formData.append("media_alt_ar", overrides.media_alt_ar ?? item.media_alt_ar ?? "");
   formData.append(
@@ -176,16 +180,16 @@ const buildCoreValuesFormData = (
   return formData;
 };
 
-export const toggleCoreValuesStatus = (
-  item: CoreValuesRecord,
+export const toggleAboutIndustriesStatus = (
+  item: AboutIndustriesRecord,
   isActive: boolean,
-) => updateCoreValues(item.id, buildCoreValuesFormData(item, { is_active: isActive }));
+) => updateAboutIndustries(item.id, buildAboutIndustriesFormData(item, { is_active: isActive }));
 
-export const updateCoreValuesSortOrder = (
-  item: CoreValuesRecord,
+export const updateAboutIndustriesSortOrder = (
+  item: AboutIndustriesRecord,
   sortOrder: number,
 ) =>
-  updateCoreValues(
+  updateAboutIndustries(
     item.id,
-    buildCoreValuesFormData(item, { sort_order: Math.max(1, sortOrder) }),
+    buildAboutIndustriesFormData(item, { sort_order: Math.max(1, sortOrder) }),
   );
