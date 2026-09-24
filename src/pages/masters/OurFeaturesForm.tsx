@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  FormTextareaField,
   FormTextField,
+  FormRichTextField,
 } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -190,20 +190,18 @@ export default function OurFeaturesForm() {
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
-                <FormTextareaField
+                <FormRichTextField
                   form={form}
                   name="description"
                   label="Description"
                   placeholder="Describe this feature"
-                  rows={4}
                 />
 
-                <FormTextareaField
+                <FormRichTextField
                   form={form}
                   name="description_ar"
                   label="Description (Arabic)"
                   placeholder="صف هذه الميزة"
-                  rows={4}
                 />
               </div>
             </CardContent>

@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  FormTextareaField,
   FormTextField,
+  FormRichTextField,
 } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -165,20 +165,18 @@ export default function FaqsForm() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
-                <FormTextareaField
+                <FormRichTextField
                   form={form}
                   name="answer"
                   label="Answer"
                   placeholder="Answer to the question"
-                  rows={5}
                 />
 
-                <FormTextareaField
+                <FormRichTextField
                   form={form}
                   name="answer_ar"
                   label="Answer (Arabic)"
                   placeholder="الإجابة على السؤال"
-                  rows={5}
                 />
               </div>
             </CardContent>

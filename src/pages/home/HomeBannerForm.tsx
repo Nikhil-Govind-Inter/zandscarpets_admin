@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
 import {
   FormFileUploadField,
-  FormTextareaField,
+  FormRichTextField,
 } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -257,13 +257,13 @@ export default function HomeBannerForm() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormTextareaField
+                <FormRichTextField
                   form={form}
                   name="description"
                   label="Description"
                   placeholder="Banner description"
                 />
-                <FormTextareaField
+                <FormRichTextField
                   form={form}
                   name="description_ar"
                   label="Description (Arabic)"

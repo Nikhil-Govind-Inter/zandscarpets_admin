@@ -17,8 +17,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormFileUploadField,
-  FormTextareaField,
   FormTextField,
+  FormRichTextField,
 } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -192,14 +192,14 @@ export default function ProcessStepForm() {
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
-                <FormTextareaField
+                <FormRichTextField
                   form={form}
                   name="description"
                   label="Description"
                   placeholder="Describe this process step"
                 />
 
-                <FormTextareaField
+                <FormRichTextField
                   form={form}
                   name="description_ar"
                   label="Description (Arabic)"

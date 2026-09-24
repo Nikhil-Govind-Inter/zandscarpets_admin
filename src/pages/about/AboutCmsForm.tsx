@@ -7,7 +7,6 @@ import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormTextField,
-  FormTextareaField,
   FormFileUploadField,
   FormRichTextField,
 } from "@/components/forms/FormFieldComponents";
@@ -184,9 +183,15 @@ export default function AboutCmsForm() {
       formData.append("vision_title", data.vision_title);
       formData.append("vision_title_ar", data.vision_title_ar || "");
       formData.append("mission_description", data.mission_description);
-      formData.append("mission_description_ar", data.mission_description_ar || "");
+      formData.append(
+        "mission_description_ar",
+        data.mission_description_ar || "",
+      );
       formData.append("vision_description", data.vision_description);
-      formData.append("vision_description_ar", data.vision_description_ar || "");
+      formData.append(
+        "vision_description_ar",
+        data.vision_description_ar || "",
+      );
       formData.append("history_title", data.history_title);
       formData.append("history_title_ar", data.history_title_ar || "");
       formData.append("message_title", data.message_title);
@@ -200,21 +205,39 @@ export default function AboutCmsForm() {
       formData.append("about_core_title", data.about_core_title);
       formData.append("about_core_title_ar", data.about_core_title_ar || "");
       formData.append("about_core_description", data.about_core_description);
-      formData.append("about_core_description_ar", data.about_core_description_ar || "");
+      formData.append(
+        "about_core_description_ar",
+        data.about_core_description_ar || "",
+      );
       formData.append("about_code_media_alt", data.about_code_media_alt || "");
-      formData.append("about_code_media_alt_ar", data.about_code_media_alt_ar || "");
+      formData.append(
+        "about_code_media_alt_ar",
+        data.about_code_media_alt_ar || "",
+      );
       formData.append("features_title", data.features_title);
       formData.append("features_title_ar", data.features_title_ar || "");
       formData.append("features_sub_title", data.features_sub_title);
-      formData.append("features_sub_title_ar", data.features_sub_title_ar || "");
+      formData.append(
+        "features_sub_title_ar",
+        data.features_sub_title_ar || "",
+      );
       formData.append("features_description", data.features_description);
-      formData.append("features_description_ar", data.features_description_ar || "");
+      formData.append(
+        "features_description_ar",
+        data.features_description_ar || "",
+      );
       formData.append("industry_title", data.industry_title);
       formData.append("industry_title_ar", data.industry_title_ar || "");
       formData.append("industry_description", data.industry_description);
-      formData.append("industry_description_ar", data.industry_description_ar || "");
+      formData.append(
+        "industry_description_ar",
+        data.industry_description_ar || "",
+      );
       formData.append("industry_media_alt", data.industry_media_alt || "");
-      formData.append("industry_media_alt_ar", data.industry_media_alt_ar || "");
+      formData.append(
+        "industry_media_alt_ar",
+        data.industry_media_alt_ar || "",
+      );
 
       appendFile(formData, "media_path", data.media_path);
       appendFile(formData, "work_media_path", data.work_media_path);
@@ -269,20 +292,46 @@ export default function AboutCmsForm() {
                 label="About Title"
                 placeholder="Enter about title"
               />
-              <FormTextField form={form} name="about_title_ar" label="About Title (Arabic)" placeholder="أدخل عنوان نبذة عنا" />
+              <FormTextField
+                form={form}
+                name="about_title_ar"
+                label="About Title (Arabic)"
+                placeholder="أدخل عنوان نبذة عنا"
+              />
               <FormRichTextField
                 form={form}
                 name="about_description"
                 label="About Description"
                 placeholder="Enter about description"
               />
-              <FormRichTextField form={form} name="about_description_ar" label="About Description (Arabic)" placeholder="أدخل وصف نبذة عنا" />
+              <FormRichTextField
+                form={form}
+                name="about_description_ar"
+                label="About Description (Arabic)"
+                placeholder="أدخل وصف نبذة عنا"
+              />
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
                 <div className="md:col-span-2">
-                  <FormFileUploadField form={form} name="media_path" label="Image" placeholder="Upload image" accept="image/*" />
+                  <FormFileUploadField
+                    form={form}
+                    name="media_path"
+                    label="Image"
+                    placeholder="Upload image"
+                    accept="image/*"
+                  />
                 </div>
-                <FormTextField form={form} name="media_alt" label="Image Alt Text" placeholder="Describe the media" />
-                <FormTextField form={form} name="media_alt_ar" label="Image Alt Text (Arabic)" placeholder="وصف الصورة" />
+                <FormTextField
+                  form={form}
+                  name="media_alt"
+                  label="Image Alt Text"
+                  placeholder="Describe the media"
+                />
+                <FormTextField
+                  form={form}
+                  name="media_alt_ar"
+                  label="Image Alt Text (Arabic)"
+                  placeholder="وصف الصورة"
+                />
               </div>
             </CardContent>
           </Card>
@@ -298,15 +347,24 @@ export default function AboutCmsForm() {
                 label="Trust Title"
                 placeholder="Enter trust title"
               />
-              <FormTextField form={form} name="trust_title_ar" label="Trust Title (Arabic)" placeholder="أدخل عنوان الثقة" />
+              <FormTextField
+                form={form}
+                name="trust_title_ar"
+                label="Trust Title (Arabic)"
+                placeholder="أدخل عنوان الثقة"
+              />
               <FormRichTextField
                 form={form}
                 name="trust_description"
                 label="Trust Description"
                 placeholder="Enter trust description"
               />
-              <FormRichTextField form={form} name="trust_description_ar" label="Trust Description (Arabic)" placeholder="أدخل وصف الثقة" />
-            
+              <FormRichTextField
+                form={form}
+                name="trust_description_ar"
+                label="Trust Description (Arabic)"
+                placeholder="أدخل وصف الثقة"
+              />
             </CardContent>
           </Card>
 
@@ -322,31 +380,51 @@ export default function AboutCmsForm() {
                   label="Mission Title"
                   placeholder="Enter mission title"
                 />
-                <FormTextField form={form} name="mission_title_ar" label="Mission Title (Arabic)" placeholder="أدخل عنوان الرسالة" />
+                <FormTextField
+                  form={form}
+                  name="mission_title_ar"
+                  label="Mission Title (Arabic)"
+                  placeholder="أدخل عنوان الرسالة"
+                />
                 <FormTextField
                   form={form}
                   name="vision_title"
                   label="Vision Title"
                   placeholder="Enter vision title"
                 />
-                <FormTextField form={form} name="vision_title_ar" label="Vision Title (Arabic)" placeholder="أدخل عنوان الرؤية" />
+                <FormTextField
+                  form={form}
+                  name="vision_title_ar"
+                  label="Vision Title (Arabic)"
+                  placeholder="أدخل عنوان الرؤية"
+                />
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
-              <FormTextareaField
-                form={form}
-                name="mission_description"
-                label="Mission Description"
-                placeholder="Enter mission description"
-              />
-              <FormTextareaField form={form} name="mission_description_ar" label="Mission Description (Arabic)" placeholder="أدخل وصف الرسالة" />
-              <FormTextareaField
-                form={form}
-                name="vision_description"
-                label="Vision Description"
-                placeholder="Enter vision description"
-              />
-              <FormTextareaField form={form} name="vision_description_ar" label="Vision Description (Arabic)" placeholder="أدخل وصف الرؤية" />
+                <FormRichTextField
+                  form={form}
+                  name="mission_description"
+                  label="Mission Description"
+                  placeholder="Enter mission description"
+                />
+                <FormRichTextField
+                  form={form}
+                  name="mission_description_ar"
+                  label="Mission Description (Arabic)"
+                  placeholder="أدخل وصف الرسالة"
+                />
+                <FormRichTextField
+                  form={form}
+                  name="vision_description"
+                  label="Vision Description"
+                  placeholder="Enter vision description"
+                />
+                <FormRichTextField
+                  form={form}
+                  name="vision_description_ar"
+                  label="Vision Description (Arabic)"
+                  placeholder="أدخل وصف الرؤية"
+                />
               </div>
             </CardContent>
           </Card>
@@ -362,7 +440,12 @@ export default function AboutCmsForm() {
                 label="History Title"
                 placeholder="Enter history title"
               />
-              <FormTextField form={form} name="history_title_ar" label="History Title (Arabic)" placeholder="أدخل عنوان التاريخ" />
+              <FormTextField
+                form={form}
+                name="history_title_ar"
+                label="History Title (Arabic)"
+                placeholder="أدخل عنوان التاريخ"
+              />
             </CardContent>
           </Card>
 
@@ -378,14 +461,24 @@ export default function AboutCmsForm() {
                   label="Message Title"
                   placeholder="Enter message title"
                 />
-                <FormTextField form={form} name="message_title_ar" label="Message Title (Arabic)" placeholder="أدخل عنوان الرسائل" />
+                <FormTextField
+                  form={form}
+                  name="message_title_ar"
+                  label="Message Title (Arabic)"
+                  placeholder="أدخل عنوان الرسائل"
+                />
                 <FormTextField
                   form={form}
                   name="message_subtitle"
                   label="Message Subtitle"
                   placeholder="Enter message subtitle"
                 />
-                <FormTextField form={form} name="message_subtitle_ar" label="Message Subtitle (Arabic)" placeholder="أدخل العنوان الفرعي للرسائل" />
+                <FormTextField
+                  form={form}
+                  name="message_subtitle_ar"
+                  label="Message Subtitle (Arabic)"
+                  placeholder="أدخل العنوان الفرعي للرسائل"
+                />
               </div>
             </CardContent>
           </Card>
@@ -402,7 +495,12 @@ export default function AboutCmsForm() {
                   label="Work Title"
                   placeholder="Enter work title"
                 />
-                <FormTextField form={form} name="work_title_ar" label="Work Title (Arabic)" placeholder="أدخل عنوان الأعمال" />
+                <FormTextField
+                  form={form}
+                  name="work_title_ar"
+                  label="Work Title (Arabic)"
+                  placeholder="أدخل عنوان الأعمال"
+                />
 
                 <FormTextField
                   form={form}
@@ -410,11 +508,22 @@ export default function AboutCmsForm() {
                   label="Image Alt Text"
                   placeholder="Describe the media"
                 />
-                <FormTextField form={form} name="work_media_alt_ar" label="Image Alt Text (Arabic)" placeholder="وصف الصورة" />
+                <FormTextField
+                  form={form}
+                  name="work_media_alt_ar"
+                  label="Image Alt Text (Arabic)"
+                  placeholder="وصف الصورة"
+                />
               </div>
 
               <div className="md:col-span-2">
-                <FormFileUploadField form={form} name="work_media_path" label="Image" placeholder="Upload image" accept="image/*" />
+                <FormFileUploadField
+                  form={form}
+                  name="work_media_path"
+                  label="Image"
+                  placeholder="Upload image"
+                  accept="image/*"
+                />
               </div>
             </CardContent>
           </Card>
@@ -431,7 +540,12 @@ export default function AboutCmsForm() {
                   label="About Core Title"
                   placeholder="Enter core values title"
                 />
-                <FormTextField form={form} name="about_core_title_ar" label="Core Values Title (Arabic)" placeholder="أدخل عنوان القيم الأساسية" />
+                <FormTextField
+                  form={form}
+                  name="about_core_title_ar"
+                  label="Core Values Title (Arabic)"
+                  placeholder="أدخل عنوان القيم الأساسية"
+                />
 
                 <FormRichTextField
                   form={form}
@@ -439,7 +553,12 @@ export default function AboutCmsForm() {
                   label="About Core Description"
                   placeholder="Enter core values description"
                 />
-                <FormRichTextField form={form} name="about_core_description_ar" label="About Core Description (Arabic)" placeholder="أدخل وصف القيم الأساسية" />
+                <FormRichTextField
+                  form={form}
+                  name="about_core_description_ar"
+                  label="About Core Description (Arabic)"
+                  placeholder="أدخل وصف القيم الأساسية"
+                />
 
                 <FormTextField
                   form={form}
@@ -447,11 +566,22 @@ export default function AboutCmsForm() {
                   label="Image Alt Text"
                   placeholder="Describe the media"
                 />
-                <FormTextField form={form} name="about_code_media_alt_ar" label="Image Alt Text (Arabic)" placeholder="وصف الصورة" />
+                <FormTextField
+                  form={form}
+                  name="about_code_media_alt_ar"
+                  label="Image Alt Text (Arabic)"
+                  placeholder="وصف الصورة"
+                />
               </div>
 
               <div className="md:col-span-2">
-                <FormFileUploadField form={form} name="about_code_media_path" label="Image" placeholder="Upload image" accept="image/*" />
+                <FormFileUploadField
+                  form={form}
+                  name="about_code_media_path"
+                  label="Image"
+                  placeholder="Upload image"
+                  accept="image/*"
+                />
               </div>
             </CardContent>
           </Card>
@@ -468,22 +598,37 @@ export default function AboutCmsForm() {
                   label="Features Title"
                   placeholder="Enter features title"
                 />
-                <FormTextField form={form} name="features_title_ar" label="Features Title (Arabic)" placeholder="أدخل عنوان المزايا" />
+                <FormTextField
+                  form={form}
+                  name="features_title_ar"
+                  label="Features Title (Arabic)"
+                  placeholder="أدخل عنوان المزايا"
+                />
                 <FormTextField
                   form={form}
                   name="features_sub_title"
                   label="Features Subtitle"
                   placeholder="Enter features subtitle"
                 />
-                <FormTextField form={form} name="features_sub_title_ar" label="Features Subtitle (Arabic)" placeholder="أدخل العنوان الفرعي للمزايا" />
+                <FormTextField
+                  form={form}
+                  name="features_sub_title_ar"
+                  label="Features Subtitle (Arabic)"
+                  placeholder="أدخل العنوان الفرعي للمزايا"
+                />
               </div>
-              <FormTextareaField
+              <FormRichTextField
                 form={form}
                 name="features_description"
                 label="Features Description"
                 placeholder="Enter features description"
               />
-              <FormTextareaField form={form} name="features_description_ar" label="Features Description (Arabic)" placeholder="أدخل وصف المزايا" />
+              <FormRichTextField
+                form={form}
+                name="features_description_ar"
+                label="Features Description (Arabic)"
+                placeholder="أدخل وصف المزايا"
+              />
             </CardContent>
           </Card>
 
@@ -498,20 +643,46 @@ export default function AboutCmsForm() {
                 label="Industry Title"
                 placeholder="Enter industry title"
               />
-              <FormTextField form={form} name="industry_title_ar" label="Industry Title (Arabic)" placeholder="أدخل عنوان القطاع" />
-              <FormTextareaField
+              <FormTextField
+                form={form}
+                name="industry_title_ar"
+                label="Industry Title (Arabic)"
+                placeholder="أدخل عنوان القطاع"
+              />
+              <FormRichTextField
                 form={form}
                 name="industry_description"
                 label="Industry Description"
                 placeholder="Enter industry description"
               />
-              <FormTextareaField form={form} name="industry_description_ar" label="Industry Description (Arabic)" placeholder="أدخل وصف القطاع" />
+              <FormRichTextField
+                form={form}
+                name="industry_description_ar"
+                label="Industry Description (Arabic)"
+                placeholder="أدخل وصف القطاع"
+              />
               <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <FormFileUploadField form={form} name="industry_media_path" label="Image" placeholder="Upload image" accept="image/*" />
+                  <FormFileUploadField
+                    form={form}
+                    name="industry_media_path"
+                    label="Image"
+                    placeholder="Upload image"
+                    accept="image/*"
+                  />
                 </div>
-                <FormTextField form={form} name="industry_media_alt" label="Image Alt Text" placeholder="Describe the media" />
-                <FormTextField form={form} name="industry_media_alt_ar" label="Image Alt Text (Arabic)" placeholder="وصف الصورة" />
+                <FormTextField
+                  form={form}
+                  name="industry_media_alt"
+                  label="Image Alt Text"
+                  placeholder="Describe the media"
+                />
+                <FormTextField
+                  form={form}
+                  name="industry_media_alt_ar"
+                  label="Image Alt Text (Arabic)"
+                  placeholder="وصف الصورة"
+                />
               </div>
             </CardContent>
           </Card>

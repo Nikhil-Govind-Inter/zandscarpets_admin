@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormTextareaField } from "@/components/forms/FormFieldComponents";
+import { FormRichTextField } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -188,14 +188,14 @@ export default function HistoryForm() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <FormTextareaField
+              <FormRichTextField
                 form={form}
                 name="description"
                 label="Description"
                 placeholder="Describe this milestone"
-                // rows={4}
+                //
               />
-              <FormTextareaField
+              <FormRichTextField
                 form={form}
                 name="description_ar"
                 label="Description (Arabic)"

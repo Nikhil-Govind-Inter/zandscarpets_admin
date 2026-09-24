@@ -37,7 +37,6 @@ import {
 import { fetchActiveIndustries } from "@/services/masters/industryApi";
 import { fetchActiveMaterials } from "@/services/masters/materialsApi";
 import { projectsSchema, ProjectsFormData } from "@/schemas/projectsSchema";
-import { RichTextEditor } from "@/components/common/RichTextEditor";
 
 const resolveImageUrl = (path: string) => {
   if (/^https?:\/\//.test(path)) return path;

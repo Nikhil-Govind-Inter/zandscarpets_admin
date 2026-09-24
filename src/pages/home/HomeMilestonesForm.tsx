@@ -15,7 +15,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Combobox, ComboboxOption } from "@/components/ui/combobox";
 import {
   FormFileUploadField,
   FormTextareaField,
@@ -38,7 +37,6 @@ export default function HomeMilestoneForm() {
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
-  const [industryOptions, setIndustryOptions] = useState<ComboboxOption[]>([]);
 
   const form = useForm<HomeMilestoneFormData>({
     resolver: zodResolver(homeMilestoneSchema),

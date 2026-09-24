@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormFileUploadField, FormTextField, FormTextareaField } from "@/components/forms/FormFieldComponents";
+import { FormFileUploadField, FormTextField, FormRichTextField } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -162,8 +162,8 @@ export default function AboutIndustriesForm() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormTextareaField form={form} name="description" label="Description" placeholder="Describe this industry" rows={4} />
-                <FormTextareaField form={form} name="description_ar" label="Description (Arabic)" placeholder="وصف هذه الصناعة" rows={4} />
+                <FormRichTextField form={form} name="description" label="Description" placeholder="Describe this industry" />
+                <FormRichTextField form={form} name="description_ar" label="Description (Arabic)" placeholder="وصف هذه الصناعة" />
               </div>
 
               <FormFileUploadField

@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   FormTextField,
   FormTextareaField,
+  FormRichTextField,
 } from "@/components/forms/FormFieldComponents";
 import {
   contactCmsSchema,
@@ -146,13 +147,13 @@ export default function ContactCmsForm() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
-                <FormTextareaField
+                <FormRichTextField
                   form={form}
                   name="description"
                   label="Description"
                   placeholder="Enter contact description"
                 />
-                <FormTextareaField
+                <FormRichTextField
                   form={form}
                   name="description_ar"
                   label="Description (Arabic)"
