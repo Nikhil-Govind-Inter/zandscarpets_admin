@@ -1,29 +1,24 @@
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import PageLoader from "@/components/layout/PageLoader";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useParams, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { Save } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { Save, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormTextField,
   FormTextareaField,
   FormKeywordsField,
 } from "@/components/forms/FormFieldComponents";
+import { useToast } from "@/hooks/use-toast";
 import {
+  fetchMetaTagById,
   updateMetaTag,
   MetaTag,
-  UpdateMetaTagRequest,
 } from "@/services/common/metaTagsApi";
-import { toast } from "sonner";
 
 const metaTagSchema = z.object({
   meta_title: z
@@ -59,166 +54,202 @@ const metaTagSchema = z.object({
 
 type MetaTagFormData = z.infer<typeof metaTagSchema>;
 
-interface MetaTagsFormProps {
-  metaTag: MetaTag | null;
-  onClose: () => void;
-  onSuccess: () => void;
-}
+export default function MetaTagsForm() {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { id } = useParams();
 
-export const MetaTagsForm: React.FC<MetaTagsFormProps> = ({
-  metaTag,
-  onClose,
-  onSuccess,
-}) => {
-  // Keep the last non-null meta tag around while the dialog is closing so
-  // its exit transition doesn't flash empty content.
-  const [displayMetaTag, setDisplayMetaTag] = useState(metaTag);
-
-  useEffect(() => {
-    if (metaTag) setDisplayMetaTag(metaTag);
-  }, [metaTag]);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [metaTag, setMetaTag] = useState<MetaTag | null>(null);
 
   const form = useForm<MetaTagFormData>({
     resolver: zodResolver(metaTagSchema),
     defaultValues: {
-      meta_title: displayMetaTag?.meta_title || "",
-      meta_title_ar:  displayMetaTag?.meta_title_ar || "",
-      meta_description: displayMetaTag?.meta_description || "",
-      meta_description_ar: displayMetaTag?.meta_description_ar || "",
-      meta_keywords: displayMetaTag?.meta_keywords || "",
-      meta_keywords_ar: displayMetaTag?.meta_keywords_ar || "",
+      meta_title: "",
+      meta_title_ar: "",
+      meta_description: "",
+      meta_description_ar: "",
+      meta_keywords: "",
+      meta_keywords_ar: "",
     },
   });
 
   useEffect(() => {
-    if (metaTag) {
-      form.reset({
-        meta_title: metaTag.meta_title || "",
-        meta_title_ar: metaTag.meta_title_ar || "",
-        meta_description: metaTag.meta_description || "",
-        meta_description_ar: metaTag.meta_description_ar || "",
-        meta_keywords: metaTag.meta_keywords || "",
-        meta_keywords_ar: metaTag.meta_keywords_ar || "",
-      });
-    }
+    if (id) loadMetaTag(parseInt(id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [metaTag]);
+  }, [id]);
 
-  const updateMutation = useMutation({
-    mutationFn: (data: UpdateMetaTagRequest) =>
-      updateMetaTag(displayMetaTag!.id, data),
-    onSuccess: () => {
-      toast.success("Meta tag updated successfully");
-      onSuccess();
-    },
-    onError: (error: Error) => {
-      toast.error(`Failed to update meta tag: ${error.message}`);
-    },
-  });
+  const loadMetaTag = async (itemId: number) => {
+    try {
+      setInitialLoading(true);
+      const response = await fetchMetaTagById(itemId);
+      const data = response.data;
 
-  const onSubmit = (data: MetaTagFormData) => {
-    if (!displayMetaTag) return;
-
-    const updateData: UpdateMetaTagRequest = {
-      meta_title: data.meta_title,
-      meta_title_ar: data.meta_title_ar,
-      meta_description: data.meta_description,
-      meta_description_ar: data.meta_description_ar,
-      meta_keywords: data.meta_keywords,
-      meta_keywords_ar: data.meta_keywords_ar,
-    };
-
-    updateMutation.mutate(updateData);
+      if (data) {
+        setMetaTag(data);
+        form.reset({
+          meta_title: data.meta_title || "",
+          meta_title_ar: data.meta_title_ar || "",
+          meta_description: data.meta_description || "",
+          meta_description_ar: data.meta_description_ar || "",
+          meta_keywords: data.meta_keywords || "",
+          meta_keywords_ar: data.meta_keywords_ar || "",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load meta tag data",
+        variant: "destructive",
+      });
+    } finally {
+      setInitialLoading(false);
+    }
   };
 
+  const onSubmit = async (data: MetaTagFormData) => {
+    if (!id) return;
+
+    try {
+      setLoading(true);
+      await updateMetaTag(parseInt(id), {
+        meta_title: data.meta_title,
+        meta_title_ar: data.meta_title_ar,
+        meta_description: data.meta_description,
+        meta_description_ar: data.meta_description_ar,
+        meta_keywords: data.meta_keywords,
+        meta_keywords_ar: data.meta_keywords_ar,
+      });
+      toast({
+        title: "Success",
+        description: "Meta tag updated successfully",
+      });
+      navigate("/meta-tags");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update meta tag",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (initialLoading) {
+    return <PageLoader />;
+  }
+
   return (
-    <Dialog
-      open={!!metaTag}
-      onOpenChange={(open) => {
-        if (!open && !updateMutation.isPending) onClose();
-      }}
-    >
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Edit Meta Tags</DialogTitle>
-          <DialogDescription>
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/meta-tags")}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div>
+          <h1 className="text-2xl font-bold">Edit Meta Tags</h1>
+          <p className="text-muted-foreground">
             Page:{" "}
-            <span className="font-medium">{displayMetaTag?.page?.page}</span>
-          </DialogDescription>
-        </DialogHeader>
+            <span className="font-medium capitalize">
+              {metaTag?.page?.page}
+            </span>
+          </p>
+        </div>
+      </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
-              <FormTextField
-                form={form}
-                name="meta_title"
-                label="Meta Title"
-                placeholder="Enter meta title (recommended: 50-60 characters)"
-              />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Meta Title</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormTextField
+                  form={form}
+                  name="meta_title"
+                  label="Meta Title"
+                  placeholder="Enter meta title (recommended: 50-60 characters)"
+                />
 
-              <FormTextField
-                form={form}
-                name="meta_title_ar"
-                label="Meta Title (Arabic)"
-                placeholder="أدخل عنوان الميتا (يفضل 50-60 حرفًا)"
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
-              <FormTextareaField
-                form={form}
-                name="meta_description"
-                label="Meta Description"
-                placeholder="Enter meta description (recommended: 150-160 characters)"
-                rows={3}
-              />
+                <FormTextField
+                  form={form}
+                  name="meta_title_ar"
+                  label="Meta Title (Arabic)"
+                  placeholder="أدخل عنوان الميتا (يفضل 50-60 حرفًا)"
+                />
+              </div>
+            </CardContent>
+          </Card>
 
-              <FormTextareaField
-                form={form}
-                name="meta_description_ar"
-                label="Meta Description (Arabic)"
-                placeholder="أدخل وصف الميتا (يفضل 150-160 حرفًا)"
-                rows={3}
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
-              <FormKeywordsField
-                form={form}
-                name="meta_keywords"
-                label="Meta Keywords"
-                placeholder="Type a keyword and press Enter"
-              />
+          <Card>
+            <CardHeader>
+              <CardTitle>Meta Description</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormTextareaField
+                  form={form}
+                  name="meta_description"
+                  label="Meta Description"
+                  placeholder="Enter meta description (recommended: 150-160 characters)"
+                  rows={3}
+                />
 
-              <FormKeywordsField
-                form={form}
-                name="meta_keywords_ar"
-                label="Meta Keywords (Arabic)"
-                placeholder="اكتب كلمة مفتاحية واضغط"
-              />
-            </div>
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                disabled={updateMutation.isPending}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={updateMutation.isPending}>
-                {updateMutation.isPending ? (
-                  "Updating..."
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-1" />
-                    Update Meta Tags
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+                <FormTextareaField
+                  form={form}
+                  name="meta_description_ar"
+                  label="Meta Description (Arabic)"
+                  placeholder="أدخل وصف الميتا (يفضل 150-160 حرفًا)"
+                  rows={3}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Meta Keywords</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormKeywordsField
+                  form={form}
+                  name="meta_keywords"
+                  label="Meta Keywords"
+                  placeholder="Type a keyword and press Enter"
+                />
+
+                <FormKeywordsField
+                  form={form}
+                  name="meta_keywords_ar"
+                  label="Meta Keywords (Arabic)"
+                  placeholder="اكتب كلمة مفتاحية واضغط"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/meta-tags")}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={loading}>
+              <Save className="h-4 w-4 mr-2" />
+              {loading ? "Saving..." : "Update"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
-};
+}

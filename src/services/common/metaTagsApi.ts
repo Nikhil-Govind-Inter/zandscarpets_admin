@@ -100,3 +100,15 @@ export const updateMetaTag = async (
 
   return response.json();
 };
+
+export const fetchMetaTagById = async (
+  id: number
+): Promise<MetaTagItemResponse> => {
+  const response = await apiFetch(`${API_BASE_URL}/site-settings/meta-data/${id}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch meta tag");
+  }
+
+  return response.json();
+};

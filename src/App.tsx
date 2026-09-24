@@ -30,6 +30,7 @@ const SocialMediaList = React.lazy(
 const SocialMediaForm = React.lazy(
   () => import("./pages/common/SocialMediaForm"),
 );
+const MetaTagsForm = React.lazy(() => import("./pages/common/MetaTagsForm"));
 const FloatingIconList = React.lazy(
   () => import("./pages/siteSettings/FloatingIconList"),
 );
@@ -416,6 +417,7 @@ const App = () => (
 
               {/* Meta Tags Routes */}
               <Route path="/meta-tags" element={<MetaTagsList />} />
+              <Route path="/meta-tags/:id/edit" element={<MetaTagsForm />} />
 
               {/* Users */}
               <Route path="/users" element={<UsersList />} />

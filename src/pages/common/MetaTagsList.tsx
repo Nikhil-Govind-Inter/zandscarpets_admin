@@ -1,14 +1,13 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/common/DataTable";
 import { fetchMetaTagsList, MetaTag } from "@/services/common/metaTagsApi";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
-import { MetaTagsForm } from "./MetaTagsForm";
 
 export const MetaTagsList: React.FC = () => {
-  const [editingMetaTag, setEditingMetaTag] = useState<MetaTag | null>(null);
+  const navigate = useNavigate();
 
   const {
     items: metaTags,
@@ -24,7 +23,6 @@ export const MetaTagsList: React.FC = () => {
     totalPages,
     loading,
     searching,
-    refetch,
   } = usePaginatedList<MetaTag>(fetchMetaTagsList);
 
   const columns: ColumnDef<MetaTag>[] = [
@@ -103,7 +101,7 @@ export const MetaTagsList: React.FC = () => {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setEditingMetaTag(row.original)}
+          onClick={() => navigate(`/meta-tags/${row.original.id}/edit`)}
         >
           <Edit className="h-4 w-4 mr-1" />
           Edit
@@ -111,11 +109,6 @@ export const MetaTagsList: React.FC = () => {
       ),
     },
   ];
-
-  const handleEditComplete = () => {
-    setEditingMetaTag(null);
-    refetch();
-  };
 
   return (
     <div className="">
@@ -139,12 +132,6 @@ export const MetaTagsList: React.FC = () => {
             setPage(1);
           },
         }}
-      />
-
-      <MetaTagsForm
-        metaTag={editingMetaTag}
-        onClose={() => setEditingMetaTag(null)}
-        onSuccess={handleEditComplete}
       />
     </div>
   );
