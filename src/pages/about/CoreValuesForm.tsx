@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormFileUploadField } from "@/components/forms/FormFieldComponents";
+import { FormFileUploadField, FormTextField } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -38,6 +38,8 @@ export default function CoreValuesForm() {
   const form = useForm<CoreValuesFormData>({
     resolver: zodResolver(coreValuesSchema),
     defaultValues: {
+      title: "",
+      title_ar: "",
       media_path: "",
       media_alt: "",
       media_alt_ar: "",
@@ -61,6 +63,8 @@ export default function CoreValuesForm() {
 
       if (data) {
         form.reset({
+          title: data.title || "",
+          title_ar: data.title_ar || "",
           media_path: data.media_path || "",
           media_alt: data.media_alt || "",
           media_alt_ar: data.media_alt_ar || "",
@@ -85,7 +89,9 @@ export default function CoreValuesForm() {
       setLoading(true);
 
       const formData = new FormData();
-      formData.append("media_alt", data.media_alt || "");
+      formData.append("title", data.title);
+      formData.append("title_ar", data.title_ar);
+      formData.append("media_alt",data.media_alt || "");
       formData.append("media_alt_ar", data.media_alt_ar || "");
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
@@ -144,6 +150,11 @@ export default function CoreValuesForm() {
               <CardTitle>Core Value Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormTextField form={form} name="title" label="Title" placeholder="Enter core value title" />
+                <FormTextField form={form} name="title_ar" label="Title (Arabic)" placeholder="أدخل العنوان" />
+              </div>
+
               <FormFileUploadField
                 form={form}
                 name="media_path"

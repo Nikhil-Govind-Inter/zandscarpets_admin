@@ -6,6 +6,7 @@ import {
   ChevronRight,
   HelpCircle,
   Share2,
+  MousePointerClick,
   Home,
   Tags,
   Monitor,
@@ -64,6 +65,7 @@ const aboutSection = [
   { title: "CMS", url: "/about-cms", icon: Info },
   { title: "Core Values", url: "/about-core-values", icon: Heart },
   { title: "History", url: "/about-history", icon: Clock },
+  { title: "Features", url: "/about-features", icon: ListChecks },
   { title: "Messages", url: "/about-messages", icon: MessageSquare },
   { title: "Milestones", url: "/about-milestones", icon: Target },
 ];
@@ -92,6 +94,7 @@ const enquiriesSection = [
 const commonSection = [
   { title: "Site Settings", url: "/site-settings", icon: Settings },
   { title: "Social Media", url: "/social-media", icon: Share2 },
+  { title: "Floating Icons", url: "/floating-icons", icon: MousePointerClick },
   { title: "Meta Tags", url: "/meta-tags", icon: Tags },
   { title: "Banners", url: "/banners", icon: Image },
   { title: "Footer Media", url: "/footer-media", icon: Image },
@@ -147,6 +150,7 @@ export function AppSidebar() {
       [
         "/site-settings",
         "/social-media",
+        "/floating-icons",
         "/meta-tags",
         "/common-faq",
         "/banners",

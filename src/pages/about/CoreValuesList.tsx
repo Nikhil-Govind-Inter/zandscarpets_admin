@@ -179,6 +179,13 @@ export default function CoreValuesList() {
       ),
     },
     {
+      accessorKey: "title",
+      header: "Title",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.getValue("title") || "-"}</div>
+      ),
+    },
+    {
       accessorKey: "media_alt",
       header: "Media Alt",
       cell: ({ row }) => (

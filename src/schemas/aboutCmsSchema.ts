@@ -34,6 +34,8 @@ export const aboutCmsSchema = z.object({
   work_media_alt_ar: commonValidations.requiredString("Work Media Alt text (Arabic)"),
   about_core_title: commonValidations.requiredString("About Core Title"),
   about_core_title_ar: commonValidations.requiredString("About Core Title (Arabic)"),
+  about_core_description: commonValidations.requiredString("About Core Description"),
+  about_core_description_ar: commonValidations.requiredString("About Core Description (Arabic)"),
   about_code_media_path: commonValidations.requiredFile("About Core Media"),
   about_code_media_alt: commonValidations.requiredString("About Core Media Alt text"),
   about_code_media_alt_ar: commonValidations.requiredString("About Core Media Alt text (Arabic)"),

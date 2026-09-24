@@ -53,6 +53,8 @@ const defaultValues: AboutCmsFormData = {
   work_media_alt_ar: "",
   about_core_title: "",
   about_core_title_ar: "",
+  about_core_description: "",
+  about_core_description_ar: "",
   about_code_media_path: "",
   about_code_media_alt: "",
   about_code_media_alt_ar: "",
@@ -127,6 +129,8 @@ export default function AboutCmsForm() {
           work_media_alt_ar: data.work_media_alt_ar || "",
           about_core_title: data.about_core_title || "",
           about_core_title_ar: data.about_core_title_ar || "",
+          about_core_description: data.about_core_description || "",
+          about_core_description_ar: data.about_core_description_ar || "",
           about_code_media_path: data.about_code_media_path || "",
           about_code_media_alt: data.about_code_media_alt || "",
           about_code_media_alt_ar: data.about_code_media_alt_ar || "",
@@ -195,6 +199,8 @@ export default function AboutCmsForm() {
       formData.append("work_media_alt_ar", data.work_media_alt_ar || "");
       formData.append("about_core_title", data.about_core_title);
       formData.append("about_core_title_ar", data.about_core_title_ar || "");
+      formData.append("about_core_description", data.about_core_description);
+      formData.append("about_core_description_ar", data.about_core_description_ar || "");
       formData.append("about_code_media_alt", data.about_code_media_alt || "");
       formData.append("about_code_media_alt_ar", data.about_code_media_alt_ar || "");
       formData.append("features_title", data.features_title);
@@ -426,6 +432,14 @@ export default function AboutCmsForm() {
                   placeholder="Enter core values title"
                 />
                 <FormTextField form={form} name="about_core_title_ar" label="Core Values Title (Arabic)" placeholder="أدخل عنوان القيم الأساسية" />
+
+                <FormRichTextField
+                  form={form}
+                  name="about_core_description"
+                  label="About Core Description"
+                  placeholder="Enter core values description"
+                />
+                <FormRichTextField form={form} name="about_core_description_ar" label="About Core Description (Arabic)" placeholder="أدخل وصف القيم الأساسية" />
 
                 <FormTextField
                   form={form}

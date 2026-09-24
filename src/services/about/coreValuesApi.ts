@@ -1,13 +1,15 @@
 import { apiFetch } from "@/lib/apiClient";
 
-// About > Core Values — backed by `/api/backend/about/core-values`. Media-only list resource
-// (no title/label fields), mirrors homeBrandsApi.ts's shape minus `industry_id`.
+// About > Core Values — backed by `/api/backend/about/core-values`. List resource with a
+// bilingual title plus media; mirrors homeBrandsApi.ts's shape minus `industry_id`.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const CORE_VALUES_URL = `${API_BASE_URL}/about/core-values`;
 
 export interface CoreValuesRecord {
   id: number;
+  title: string;
+  title_ar: string;
   media_path: string | null;
   media_alt: string | null;
   media_alt_ar: string | null;

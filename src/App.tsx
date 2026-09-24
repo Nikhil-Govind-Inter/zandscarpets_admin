@@ -30,6 +30,12 @@ const SocialMediaList = React.lazy(
 const SocialMediaForm = React.lazy(
   () => import("./pages/common/SocialMediaForm"),
 );
+const FloatingIconList = React.lazy(
+  () => import("./pages/siteSettings/FloatingIconList"),
+);
+const FloatingIconForm = React.lazy(
+  () => import("./pages/siteSettings/FloatingIconForm"),
+);
 
 const UsersList = React.lazy(() => import("./pages/users/UsersList"));
 const UsersForm = React.lazy(() => import("./pages/users/UsersForm"));
@@ -139,6 +145,10 @@ const CoreValuesForm = React.lazy(() => import("./pages/about/CoreValuesForm"));
 // About — History
 const HistoryList = React.lazy(() => import("./pages/about/HistoryList"));
 const HistoryForm = React.lazy(() => import("./pages/about/HistoryForm"));
+
+// About — Features
+const AboutFeaturesList = React.lazy(() => import("./pages/about/AboutFeaturesList"));
+const AboutFeaturesForm = React.lazy(() => import("./pages/about/AboutFeaturesForm"));
 
 // About — Messages
 const MessagesList = React.lazy(() => import("./pages/about/MessagesList"));
@@ -258,6 +268,11 @@ const App = () => (
               <Route path="/about-history/new" element={<HistoryForm />} />
               <Route path="/about-history/:id/edit" element={<HistoryForm />} />
 
+              {/* About Features */}
+              <Route path="/about-features" element={<AboutFeaturesList />} />
+              <Route path="/about-features/new" element={<AboutFeaturesForm />} />
+              <Route path="/about-features/:id/edit" element={<AboutFeaturesForm />} />
+
               {/* About Messages */}
               <Route path="/about-messages" element={<MessagesList />} />
               <Route path="/about-messages/new" element={<MessagesForm />} />
@@ -349,6 +364,17 @@ const App = () => (
               <Route
                 path="/social-media/:id/edit"
                 element={<SocialMediaForm />}
+              />
+
+              {/* Floating Icons Routes */}
+              <Route path="/floating-icons" element={<FloatingIconList />} />
+              <Route
+                path="/floating-icons/new"
+                element={<FloatingIconForm />}
+              />
+              <Route
+                path="/floating-icons/:id/edit"
+                element={<FloatingIconForm />}
               />
 
               {/* Pages Routes */}
