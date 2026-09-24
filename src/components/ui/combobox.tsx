@@ -31,6 +31,10 @@ interface ComboboxProps {
   emptyText?: string
   disabled?: boolean
   className?: string
+  /** Cap the list height to this many rows; the rest scrolls. */
+  maxVisibleItems?: number
+  /** Size the trigger to the longest option label instead of full width. */
+  autoWidth?: boolean
 }
 
 export function Combobox({
@@ -42,8 +46,17 @@ export function Combobox({
   emptyText = "No results found.",
   disabled,
   className,
+  maxVisibleItems,
+  autoWidth,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
+  // ch ≈ one character; +6 leaves room for padding, chevron and check icon.
+  const autoWidthStyle = autoWidth
+    ? {
+        width: `${Math.max(...options.map((o) => o.label.length), placeholder.length) + 6}ch`,
+        maxWidth: "24rem",
+      }
+    : undefined
   const selected = options.find((option) => option.value === value)
 
   return (
@@ -55,6 +68,7 @@ export function Combobox({
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
+          style={autoWidthStyle}
           className={cn(
             "w-full justify-between font-normal",
             !selected && "text-muted-foreground",
@@ -68,7 +82,10 @@ export function Combobox({
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
-          <CommandList>
+          {/* row = 32px (py-1.5 + text-sm), group padding = 8px */}
+          <CommandList
+            style={maxVisibleItems ? { maxHeight: maxVisibleItems * 32 + 8 } : undefined}
+          >
             <CommandEmpty>{emptyText}</CommandEmpty>
             <CommandGroup>
               {options.map((option) => (

@@ -92,6 +92,7 @@ interface DataTableProps<TData, TValue> {
   pagination?: PaginationProps;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
+  headerExtra?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -111,6 +112,7 @@ export function DataTable<TData, TValue>({
   pagination,
   searchQuery,
   onSearchChange,
+  headerExtra,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -211,11 +213,14 @@ export function DataTable<TData, TValue>({
             Manage your {title?.toLowerCase() || "items"}
           </p>
         </div>
-        {onAdd && showAddButton && (
-          <Button onClick={onAdd} className="bg-primary hover:bg-primary/90">
-            {addButtonText}
-          </Button>
-        )}
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {headerExtra}
+          {onAdd && showAddButton && (
+            <Button onClick={onAdd} className="bg-primary hover:bg-primary/90">
+              {addButtonText}
+            </Button>
+          )}
+        </div>
       </div>
 
       <Card>

@@ -110,11 +110,17 @@ export interface ProductCategoryListResponse {
   };
 }
 
+export interface ProductCategoryFilters {
+  type?: "category" | "subcategory";
+  parent_id?: number;
+}
+
 // Fetcher shape matches usePaginatedList's `Fetcher<T>` contract.
 export const fetchProductCategoryList = async (
   page: number,
   limit: number,
   search?: string,
+  filters?: ProductCategoryFilters,
 ): Promise<ProductCategoryListResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -124,6 +130,8 @@ export const fetchProductCategoryList = async (
   if (search) {
     params.append("search", search);
   }
+  if (filters?.type) params.append("type", filters.type);
+  if (filters?.parent_id) params.append("parent_id", String(filters.parent_id));
 
   const response = await apiFetch(`${CATEGORIES_URL}?${params}`);
   return parseEnvelope<ProductCategoryListResponse["data"]>(response);

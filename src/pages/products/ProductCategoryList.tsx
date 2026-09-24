@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
@@ -9,25 +9,61 @@ import StatusToggleCell from "@/components/common/StatusToggleCell";
 import SortOrderCell from "@/components/common/SortOrderCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
+import { Combobox } from "@/components/ui/combobox";
 import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
 import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import {
   fetchProductCategoryList,
+  fetchActiveProductCategories,
   deleteProductCategory,
   toggleProductCategoryStatus,
   updateProductCategorySortOrder,
   ProductCategoryRecord,
+  ProductCategoryOption,
+  ProductCategoryFilters,
   ApiError,
 } from "@/services/products/productCategoryApi";
 
+type TypeFilter = "all" | "category" | "subcategory";
+
+const TYPE_OPTIONS = [
+  { value: "all", label: "All levels" },
+  { value: "category", label: "Categories" },
+  { value: "subcategory", label: "Sub-categories" },
+];
 
 
 export default function ProductCategoryList() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  const [parentFilter, setParentFilter] = useState("all");
+  const [parentOptions, setParentOptions] = useState<ProductCategoryOption[]>([]);
+
+  useEffect(() => {
+    fetchActiveProductCategories()
+      .then((res) => setParentOptions(res.data))
+      .catch(() => setParentOptions([]));
+  }, []);
+
+  const parentComboOptions = useMemo(
+    () => [
+      { value: "all", label: "All parents" },
+      ...parentOptions.map((o) => ({ value: String(o.id), label: o.title })),
+    ],
+    [parentOptions],
+  );
+
+  const filters = useMemo<ProductCategoryFilters>(
+    () => ({
+      type: typeFilter === "all" ? undefined : typeFilter,
+      parent_id: parentFilter === "all" ? undefined : Number(parentFilter),
+    }),
+    [typeFilter, parentFilter],
+  );
 
   const {
     items: categories,
@@ -45,7 +81,11 @@ export default function ProductCategoryList() {
     itemsPage,
     itemsLimit,
     refetch,
-  } = usePaginatedList<ProductCategoryRecord>(fetchProductCategoryList);
+  } = usePaginatedList<ProductCategoryRecord, ProductCategoryFilters>(
+    fetchProductCategoryList,
+    10,
+    filters,
+  );
 
 
   const handleSortOrderChange = useSortOrder(categories, setCategories, updateProductCategorySortOrder);
@@ -202,6 +242,32 @@ export default function ProductCategoryList() {
         searching={searching}
         searchQuery={searchInput}
         onSearchChange={setSearchInput}
+        headerExtra={
+          <>
+            <Combobox
+              maxVisibleItems={5}
+              autoWidth
+              value={typeFilter}
+              options={TYPE_OPTIONS}
+              placeholder="All levels"
+              searchPlaceholder="Search level..."
+              onChange={(value) => {
+                setTypeFilter(value as TypeFilter);
+                // A specific parent already implies sub-categories.
+                setParentFilter("all");
+              }}
+            />
+            <Combobox
+              maxVisibleItems={5}
+              autoWidth
+              value={parentFilter}
+              options={parentComboOptions}
+              placeholder="All parents"
+              searchPlaceholder="Search parent..."
+              onChange={setParentFilter}
+            />
+          </>
+        }
         pagination={{
           currentPage: page,
           totalPages,
