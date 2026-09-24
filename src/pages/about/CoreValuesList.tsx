@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
@@ -15,6 +15,8 @@ import {
   ApiError,
 } from "@/services/about/coreValuesApi";
 import { useToast } from "@/hooks/use-toast";
+import { useSortOrder } from "@/hooks/useSortOrder";
+import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
@@ -41,99 +43,15 @@ export default function CoreValuesList() {
   } = usePaginatedList<CoreValuesRecord>(fetchCoreValuesList);
 
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const [statusToggleItem, setStatusToggleItem] = useState<{
-    item: CoreValuesRecord;
-    newStatus: boolean;
-  } | null>(null);
 
-  const coreValuesRef = useRef<CoreValuesRecord[]>(coreValues);
-  useEffect(() => {
-    coreValuesRef.current = coreValues;
-  }, [coreValues]);
 
-  const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
-  const sortOrderOriginal = useRef<Record<number, number>>({});
-
-  useEffect(() => {
-    const timers = sortOrderTimers.current;
-    return () => {
-      Object.values(timers).forEach(clearTimeout);
-    };
-  }, []);
-
-  const confirmStatusToggle = async () => {
-    if (!statusToggleItem) return;
-
-    try {
-      const { item, newStatus } = statusToggleItem;
-      await toggleCoreValuesStatus(item, newStatus);
-
-      setCoreValues((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, is_active: newStatus } : i)),
-      );
-      refetch();
-
-      toast({
-        title: "Success",
-        description: "Core value status updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof ApiError ? error.message : "Failed to update core value status",
-        variant: "destructive",
-      });
-    } finally {
-      setStatusToggleItem(null);
-    }
-  };
-
-  const SORT_ORDER_COMMIT_DELAY = 600;
-
-  const handleSortOrderChange = (item: CoreValuesRecord, delta: number) => {
-    const newSortOrder = Math.max(1, (item.sort_order ?? 1) + delta);
-    if (newSortOrder === item.sort_order) return;
-
-    if (!sortOrderTimers.current[item.id]) {
-      sortOrderOriginal.current[item.id] = item.sort_order ?? 1;
-    }
-
-    setCoreValues((prev) =>
-      prev.map((i) => (i.id === item.id ? { ...i, sort_order: newSortOrder } : i)),
-    );
-
-    clearTimeout(sortOrderTimers.current[item.id]);
-    sortOrderTimers.current[item.id] = setTimeout(() => {
-      delete sortOrderTimers.current[item.id];
-      handleSortOrder(item.id);
-    }, SORT_ORDER_COMMIT_DELAY);
-  };
-
-  const handleSortOrder = async (itemId: number) => {
-    const latestItem = coreValuesRef.current.find((i) => i.id === itemId);
-    if (!latestItem) return;
-
-    const finalSortOrder = latestItem.sort_order ?? 1;
-    const originalSortOrder = sortOrderOriginal.current[itemId];
-    delete sortOrderOriginal.current[itemId];
-
-    if (finalSortOrder === originalSortOrder) return;
-
-    try {
-      await updateCoreValuesSortOrder(latestItem, finalSortOrder);
-      toast({ title: "Success", description: "Sort order updated successfully" });
-    } catch (error) {
-      setCoreValues((prev) =>
-        prev.map((i) => (i.id === itemId ? { ...i, sort_order: originalSortOrder } : i)),
-      );
-      toast({
-        title: "Error",
-        description: "Failed to update sort order",
-        variant: "destructive",
-      });
-    }
-  };
+  const handleSortOrderChange = useSortOrder(coreValues, setCoreValues, updateCoreValuesSortOrder);
+  const { statusToggleItem, setStatusToggleItem, confirmStatusToggle } = useStatusToggle({
+    setItems: setCoreValues,
+    refetch,
+    toggleStatus: toggleCoreValuesStatus,
+    label: "Core value",
+  });
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;

@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 const COMMIT_DELAY_MS = 600;
 
 interface Sortable {
-  id: number;
+  id?: number;
   sort_order?: number | null;
 }
 
@@ -32,7 +32,7 @@ export function useSortOrder<T extends Sortable>(
     return () => Object.values(pending).forEach(clearTimeout);
   }, []);
 
-  const setSortOrder = (id: number, sortOrder: number) =>
+  const setSortOrder = (id: number | undefined, sortOrder: number) =>
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, sort_order: sortOrder } : i)));
 
   const commit = async (id: number) => {
@@ -61,13 +61,14 @@ export function useSortOrder<T extends Sortable>(
     const next = Math.max(1, (item.sort_order ?? 1) + delta);
     if (next === item.sort_order) return;
 
-    if (!timers.current[item.id]) originals.current[item.id] = item.sort_order ?? 1;
-    setSortOrder(item.id, next);
+    const id = item.id!;
+    if (!timers.current[id]) originals.current[id] = item.sort_order ?? 1;
+    setSortOrder(id, next);
 
-    clearTimeout(timers.current[item.id]);
-    timers.current[item.id] = setTimeout(() => {
-      delete timers.current[item.id];
-      commit(item.id);
+    clearTimeout(timers.current[id]);
+    timers.current[id] = setTimeout(() => {
+      delete timers.current[id];
+      commit(id);
     }, COMMIT_DELAY_MS);
   };
 }

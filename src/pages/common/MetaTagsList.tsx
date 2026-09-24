@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Tags, Edit } from "lucide-react";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/common/DataTable";
 import { fetchMetaTagsList, MetaTag } from "@/services/common/metaTagsApi";

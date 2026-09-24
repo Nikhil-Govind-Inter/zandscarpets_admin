@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
@@ -15,6 +15,8 @@ import {
   ApiError,
 } from "@/services/about/aboutIndustriesApi";
 import { useToast } from "@/hooks/use-toast";
+import { useSortOrder } from "@/hooks/useSortOrder";
+import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
@@ -41,99 +43,15 @@ export default function AboutIndustriesList() {
   } = usePaginatedList<AboutIndustriesRecord>(fetchAboutIndustriesList);
 
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const [statusToggleItem, setStatusToggleItem] = useState<{
-    item: AboutIndustriesRecord;
-    newStatus: boolean;
-  } | null>(null);
 
-  const aboutIndustriesRef = useRef<AboutIndustriesRecord[]>(aboutIndustries);
-  useEffect(() => {
-    aboutIndustriesRef.current = aboutIndustries;
-  }, [aboutIndustries]);
 
-  const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
-  const sortOrderOriginal = useRef<Record<number, number>>({});
-
-  useEffect(() => {
-    const timers = sortOrderTimers.current;
-    return () => {
-      Object.values(timers).forEach(clearTimeout);
-    };
-  }, []);
-
-  const confirmStatusToggle = async () => {
-    if (!statusToggleItem) return;
-
-    try {
-      const { item, newStatus } = statusToggleItem;
-      await toggleAboutIndustriesStatus(item, newStatus);
-
-      setAboutIndustries((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, is_active: newStatus } : i)),
-      );
-      refetch();
-
-      toast({
-        title: "Success",
-        description: "Industry status updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof ApiError ? error.message : "Failed to update industry status",
-        variant: "destructive",
-      });
-    } finally {
-      setStatusToggleItem(null);
-    }
-  };
-
-  const SORT_ORDER_COMMIT_DELAY = 600;
-
-  const handleSortOrderChange = (item: AboutIndustriesRecord, delta: number) => {
-    const newSortOrder = Math.max(1, (item.sort_order ?? 1) + delta);
-    if (newSortOrder === item.sort_order) return;
-
-    if (!sortOrderTimers.current[item.id]) {
-      sortOrderOriginal.current[item.id] = item.sort_order ?? 1;
-    }
-
-    setAboutIndustries((prev) =>
-      prev.map((i) => (i.id === item.id ? { ...i, sort_order: newSortOrder } : i)),
-    );
-
-    clearTimeout(sortOrderTimers.current[item.id]);
-    sortOrderTimers.current[item.id] = setTimeout(() => {
-      delete sortOrderTimers.current[item.id];
-      handleSortOrder(item.id);
-    }, SORT_ORDER_COMMIT_DELAY);
-  };
-
-  const handleSortOrder = async (itemId: number) => {
-    const latestItem = aboutIndustriesRef.current.find((i) => i.id === itemId);
-    if (!latestItem) return;
-
-    const finalSortOrder = latestItem.sort_order ?? 1;
-    const originalSortOrder = sortOrderOriginal.current[itemId];
-    delete sortOrderOriginal.current[itemId];
-
-    if (finalSortOrder === originalSortOrder) return;
-
-    try {
-      await updateAboutIndustriesSortOrder(latestItem, finalSortOrder);
-      toast({ title: "Success", description: "Sort order updated successfully" });
-    } catch (error) {
-      setAboutIndustries((prev) =>
-        prev.map((i) => (i.id === itemId ? { ...i, sort_order: originalSortOrder } : i)),
-      );
-      toast({
-        title: "Error",
-        description: "Failed to update sort order",
-        variant: "destructive",
-      });
-    }
-  };
+  const handleSortOrderChange = useSortOrder(aboutIndustries, setAboutIndustries, updateAboutIndustriesSortOrder);
+  const { statusToggleItem, setStatusToggleItem, confirmStatusToggle } = useStatusToggle({
+    setItems: setAboutIndustries,
+    refetch,
+    toggleStatus: toggleAboutIndustriesStatus,
+    label: "Industry",
+  });
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;

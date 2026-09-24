@@ -2,7 +2,7 @@ import { useState, Dispatch, SetStateAction } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Toggleable {
-  id: number;
+  id?: number;
   is_active?: boolean;
 }
 
