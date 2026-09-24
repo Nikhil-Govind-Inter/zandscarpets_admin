@@ -28,7 +28,9 @@ export type CmsResource =
   | "connections"
   | "projects"
   | "services"
-  | "process-steps";
+  | "process-steps"
+  | "product-categories"
+  | "product-highlights";
 
 interface ApiEnvelope<T> {
   success: boolean;

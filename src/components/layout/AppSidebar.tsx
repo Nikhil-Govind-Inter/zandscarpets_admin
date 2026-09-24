@@ -30,6 +30,8 @@ import {
   Factory,
   Mail,
   Package,
+  Boxes,
+  Star,
   ClipboardList,
 } from "lucide-react";
 
@@ -82,6 +84,11 @@ const projectsSection = [
     url: "/projects",
     icon: Briefcase,
   },
+];
+
+const productsSection = [
+  { title: "Categories", url: "/product-categories", icon: Boxes },
+  { title: "Highlights", url: "/product-highlights", icon: Star },
 ];
 
 const enquiriesSection = [
@@ -159,6 +166,12 @@ export function AppSidebar() {
       ].some((route) => path.includes(route))
     ) {
       setOpenSection("common");
+    } else if (
+      ["/product-categories", "/product-highlights"].some((route) =>
+        path.includes(route),
+      )
+    ) {
+      setOpenSection("products");
     } else if (["/projects"].some((route) => path.includes(route))) {
       setOpenSection("projects");
     } else if (["/enquiries"].some((route) => path.includes(route))) {
@@ -281,6 +294,16 @@ export function AppSidebar() {
           onOpenChange={(isOpen) => setOpenSection(isOpen ? "projects" : null)}
           pathname={location.pathname}
           Section={projectsSection}
+        />
+
+        <GetLayout
+          Icon={Package}
+          title="Products"
+          isCollapsed={isCollapsed}
+          open={openSection === "products"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "products" : null)}
+          pathname={location.pathname}
+          Section={productsSection}
         />
 
         {/* Contact Enquiries */}

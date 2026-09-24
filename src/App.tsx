@@ -90,6 +90,12 @@ const OurFeaturesForm = React.lazy(
 const AdsBannerList = React.lazy(() => import("./pages/masters/AdsBannerList"));
 const AdsBannerForm = React.lazy(() => import("./pages/masters/AdsBannerForm"));
 
+// Products
+const ProductCategoryList = React.lazy(() => import("./pages/products/ProductCategoryList"));
+const ProductCategoryForm = React.lazy(() => import("./pages/products/ProductCategoryForm"));
+const ProductHighlightList = React.lazy(() => import("./pages/products/ProductHighlightList"));
+const ProductHighlightForm = React.lazy(() => import("./pages/products/ProductHighlightForm"));
+
 // Masters — Projects
 const ProjectsList = React.lazy(() => import("./pages/masters/ProjectsList"));
 const ProjectsForm = React.lazy(() => import("./pages/masters/ProjectsForm"));
@@ -345,6 +351,16 @@ const App = () => (
                 path="/ads-banner/:id/edit"
                 element={<AdsBannerForm />}
               />
+
+              {/* Product Category Routes */}
+              <Route path="/product-categories" element={<ProductCategoryList />} />
+              <Route path="/product-categories/new" element={<ProductCategoryForm />} />
+              <Route path="/product-categories/:id/edit" element={<ProductCategoryForm />} />
+
+              {/* Product Highlight Routes */}
+              <Route path="/product-highlights" element={<ProductHighlightList />} />
+              <Route path="/product-highlights/new" element={<ProductHighlightForm />} />
+              <Route path="/product-highlights/:id/edit" element={<ProductHighlightForm />} />
 
               {/* Projects Routes */}
               <Route path="/projects" element={<ProjectsList />} />
