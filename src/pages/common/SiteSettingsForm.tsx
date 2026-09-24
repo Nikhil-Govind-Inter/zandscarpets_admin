@@ -46,6 +46,10 @@ export default function SiteSettingsForm() {
       admin_email: "",
       header_logo_media_path: "",
       footer_logo_media_path: "",
+      header_logo_media_alt: "",
+      header_logo_media_alt_ar: "",
+      footer_logo_media_alt: "",
+      footer_logo_media_alt_ar: "",
     },
   });
 
@@ -71,6 +75,10 @@ export default function SiteSettingsForm() {
           whatsapp_number: data.whatsapp_number || "",
           header_logo_media_path: data.header_logo_media_path || "",
           footer_logo_media_path: data.footer_logo_media_path || "",
+          header_logo_media_alt: data.header_logo_media_alt || "",
+          header_logo_media_alt_ar: data.header_logo_media_alt_ar || "",
+          footer_logo_media_alt: data.footer_logo_media_alt || "",
+          footer_logo_media_alt_ar: data.footer_logo_media_alt_ar || "",
         });
       }
     } catch (error) {
@@ -94,6 +102,10 @@ export default function SiteSettingsForm() {
       // Add files if new ones were chosen, otherwise fall back to the existing path string
       formData.append("header_logo_media_path", data.header_logo_media_path);
       formData.append("footer_logo_media_path", data.footer_logo_media_path);
+      formData.append("header_logo_media_alt", data.header_logo_media_alt ?? "");
+      formData.append("header_logo_media_alt_ar", data.header_logo_media_alt_ar ?? "");
+      formData.append("footer_logo_media_alt", data.footer_logo_media_alt ?? "");
+      formData.append("footer_logo_media_alt_ar", data.footer_logo_media_alt_ar ?? "");
 
       await saveSiteSettings(formData);
       toast({
@@ -234,6 +246,34 @@ export default function SiteSettingsForm() {
                   label="Footer Logo"
                   placeholder="Upload footer logo"
                   accept="image/*"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="header_logo_media_alt"
+                  label="Header Logo Alt"
+                  placeholder="Enter alt text"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="header_logo_media_alt_ar"
+                  label="Header Logo Alt (Arabic)"
+                  placeholder="Enter alt text"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="footer_logo_media_alt"
+                  label="Footer Logo Alt"
+                  placeholder="Enter alt text"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="footer_logo_media_alt_ar"
+                  label="Footer Logo Alt (Arabic)"
+                  placeholder="Enter alt text"
                 />
               </div>
             </CardContent>

@@ -28,6 +28,10 @@ export const siteSettingsSchema = z.object({
   whatsapp_number: commonValidations.requiredString("Whatsapp Number"),
   header_logo_media_path: commonValidations.requiredFile("Header logo"),
   footer_logo_media_path: commonValidations.requiredFile("Footer logo"),
+  header_logo_media_alt: commonValidations.optionalString,
+  header_logo_media_alt_ar: commonValidations.optionalString,
+  footer_logo_media_alt: commonValidations.optionalString,
+  footer_logo_media_alt_ar: commonValidations.optionalString,
 });
 
 // Base schemas for common form

@@ -5,6 +5,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export interface SiteSettings {
   header_logo_media_path: string;
   footer_logo_media_path: string;
+  header_logo_media_alt?: string;
+  header_logo_media_alt_ar?: string;
+  footer_logo_media_alt?: string;
+  footer_logo_media_alt_ar?: string;
   address: string;
   address_ar: string;
   email: string;
@@ -26,6 +30,10 @@ export interface SiteSettingsResponse {
 export interface SaveSiteSettingsData {
   header_logo_media_path?: File | string;
   footer_logo_media_path?: File | string;
+  header_logo_media_alt?: string;
+  header_logo_media_alt_ar?: string;
+  footer_logo_media_alt?: string;
+  footer_logo_media_alt_ar?: string;
   address: string;
   address_ar: string;
   email: string;
