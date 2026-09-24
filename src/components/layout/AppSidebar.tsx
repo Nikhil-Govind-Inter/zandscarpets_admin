@@ -33,6 +33,7 @@ import {
   Boxes,
   Star,
   ClipboardList,
+  LayoutTemplate,
 } from "lucide-react";
 
 import {
@@ -123,6 +124,8 @@ const servicesSection = [
 ];
 const adminSection = [{ title: "Users", url: "/users", icon: Users }];
 
+const CMS_SECTIONS = ["home", "about", "contact", "services", "common"];
+
 const isNavActive = (pathname: string, url: string, end = false) =>
   end ? pathname === url : pathname === url || pathname.startsWith(`${url}/`);
 
@@ -133,6 +136,12 @@ export function AppSidebar() {
   const location = useLocation();
   const { role } = useAuth();
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [cmsOpen, setCmsOpen] = useState(false);
+
+  // Keep the CMS group open whenever one of its sub-sections is open.
+  useEffect(() => {
+    if (openSection && CMS_SECTIONS.includes(openSection)) setCmsOpen(true);
+  }, [openSection]);
 
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -253,38 +262,67 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Home Management */}
+        {/* CMS (Home, About, Contact, Services, Settings & Common) */}
         <GetLayout
-          Icon={Home}
-          title="Home"
+          Icon={LayoutTemplate}
+          title="CMS"
           isCollapsed={isCollapsed}
-          open={openSection === "home"}
-          onOpenChange={(isOpen) => setOpenSection(isOpen ? "home" : null)}
+          open={cmsOpen}
+          onOpenChange={setCmsOpen}
           pathname={location.pathname}
-          Section={homeSection}
-        />
-
-        {/* About Management */}
-        <GetLayout
-          Icon={Info}
-          title="About"
-          isCollapsed={isCollapsed}
-          open={openSection === "about"}
-          onOpenChange={(isOpen) => setOpenSection(isOpen ? "about" : null)}
-          pathname={location.pathname}
-          Section={aboutSection}
-        />
-
-        {/* Contact Management */}
-        <GetLayout
-          Icon={Phone}
-          title="Contact"
-          isCollapsed={isCollapsed}
-          open={openSection === "contact"}
-          onOpenChange={(isOpen) => setOpenSection(isOpen ? "contact" : null)}
-          pathname={location.pathname}
-          Section={contactSection}
-        />
+          Section={[]}
+        >
+            <GetLayout
+              nested
+              Icon={Home}
+              title="Home"
+              isCollapsed={isCollapsed}
+              open={openSection === "home"}
+              onOpenChange={(isOpen) => setOpenSection(isOpen ? "home" : null)}
+              pathname={location.pathname}
+              Section={homeSection}
+            />
+            <GetLayout
+              nested
+              Icon={Info}
+              title="About"
+              isCollapsed={isCollapsed}
+              open={openSection === "about"}
+              onOpenChange={(isOpen) => setOpenSection(isOpen ? "about" : null)}
+              pathname={location.pathname}
+              Section={aboutSection}
+            />
+            <GetLayout
+              nested
+              Icon={Phone}
+              title="Contact"
+              isCollapsed={isCollapsed}
+              open={openSection === "contact"}
+              onOpenChange={(isOpen) => setOpenSection(isOpen ? "contact" : null)}
+              pathname={location.pathname}
+              Section={contactSection}
+            />
+            <GetLayout
+              nested
+              Icon={Wrench}
+              title="Services"
+              isCollapsed={isCollapsed}
+              open={openSection === "services"}
+              onOpenChange={(isOpen) => setOpenSection(isOpen ? "services" : null)}
+              pathname={location.pathname}
+              Section={servicesSection}
+            />
+            <GetLayout
+              nested
+              Icon={Settings}
+              title="Settings & Common"
+              isCollapsed={isCollapsed}
+              open={openSection === "common"}
+              onOpenChange={(isOpen) => setOpenSection(isOpen ? "common" : null)}
+              pathname={location.pathname}
+              Section={commonSection}
+            />
+        </GetLayout>
 
         <GetLayout
           Icon={Compass}
@@ -328,28 +366,6 @@ export function AppSidebar() {
           Section={mastersSection}
         />
 
-        {/* Services */}
-        <GetLayout
-          Icon={Wrench}
-          title="Services"
-          isCollapsed={isCollapsed}
-          open={openSection === "services"}
-          onOpenChange={(isOpen) => setOpenSection(isOpen ? "services" : null)}
-          pathname={location.pathname}
-          Section={servicesSection}
-        />
-
-           {/* Common Sections */}
-        <GetLayout
-          Icon={Settings}
-          title="Settings & Common"
-          isCollapsed={isCollapsed}
-          open={openSection === "common"}
-          onOpenChange={(isOpen) => setOpenSection(isOpen ? "common" : null)}
-          pathname={location.pathname}
-          Section={commonSection}
-        />
-
         {role === ROLES.ADMIN && (
           <GetLayout
             Icon={Users}
@@ -374,9 +390,12 @@ function GetLayout({
   isCollapsed,
   title,
   Icon,
+  nested = false,
+  children = null,
 }) {
+  const Wrapper = nested ? "div" : SidebarGroup;
   return (
-    <SidebarGroup>
+    <Wrapper className={nested ? "mt-1" : undefined}>
       <Collapsible open={!isCollapsed && open} onOpenChange={onOpenChange}>
         <CollapsibleTrigger
           className={`flex items-center w-full p-2 text-sm font-medium rounded-md transition-colors ${
@@ -403,6 +422,7 @@ function GetLayout({
               open ? "border-sidebar-primary/40" : "border-sidebar-border"
             }`}
           >
+            {children}
             <SidebarMenu>
               {Section.map((item) => (
                 <SidebarMenuItem key={item.title}>
@@ -422,6 +442,6 @@ function GetLayout({
           </CollapsibleContent>
         )}
       </Collapsible>
-    </SidebarGroup>
+    </Wrapper>
   );
 }
