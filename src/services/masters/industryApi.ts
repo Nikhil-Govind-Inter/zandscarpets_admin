@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Masters > Industry — backed by `/api/backend/masters/industry`. Uses the
@@ -161,27 +162,9 @@ export const deleteIndustry = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full
-// record (see pagesApi.ts's togglePageStatus for the same convention).
-export const toggleIndustryStatus = (item: IndustryRecord, isActive: boolean) =>
-  updateIndustry(item.id, {
-    title: item.title,
-    slug: item.slug,
-    description: item.description,
-    link: item.link ?? undefined,
-    sort_order: item.sort_order,
-    is_active: isActive,
-  });
+// Quick status toggle / sort-order change via the shared single-field CMS endpoints.
+export const toggleIndustryStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("industry", item.id!, isActive);
 
-export const updateIndustrySortOrder = (
-  item: IndustryRecord,
-  sortOrder: number,
-) =>
-  updateIndustry(item.id, {
-    title: item.title,
-    slug: item.slug,
-    description: item.description,
-    link: item.link ?? undefined,
-    sort_order: Math.max(1, sortOrder),
-    is_active: item.is_active,
-  });
+export const updateIndustrySortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("industry", item.id!, sortOrder);

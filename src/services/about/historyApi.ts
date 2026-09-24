@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // About > History — backed by `/api/backend/about/history`. No media fields, so this
@@ -153,25 +154,9 @@ export const deleteHistory = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full record.
-export const toggleHistoryStatus = (item: HistoryRecord, isActive: boolean) =>
-  updateHistory(item.id, {
-    year: item.year,
-    title: item.title,
-    title_ar: item.title_ar,
-    description: item.description,
-    description_ar: item.description_ar,
-    sort_order: item.sort_order,
-    is_active: isActive,
-  });
+// Quick status toggle / sort-order change via the shared single-field CMS endpoints.
+export const toggleHistoryStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("history", item.id!, isActive);
 
-export const updateHistorySortOrder = (item: HistoryRecord, sortOrder: number) =>
-  updateHistory(item.id, {
-    year: item.year,
-    title: item.title,
-    title_ar: item.title_ar,
-    description: item.description,
-    description_ar: item.description_ar,
-    sort_order: Math.max(1, sortOrder),
-    is_active: item.is_active,
-  });
+export const updateHistorySortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("history", item.id!, sortOrder);

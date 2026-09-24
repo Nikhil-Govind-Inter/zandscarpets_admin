@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Masters > Work Plans — backed by `/api/backend/masters/work-plan`. Uses the
@@ -151,27 +152,9 @@ export const deleteWorkPlan = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full
-// record (see industryApi.ts's toggleIndustryStatus for the same convention).
-export const toggleWorkPlanStatus = (item: WorkPlanRecord, isActive: boolean) =>
-  updateWorkPlan(item.id, {
-    title: item.title,
-    title_ar: item.title_ar,
-    short_description: item.short_description,
-    short_description_ar: item.short_description_ar,
-    sort_order: item.sort_order,
-    is_active: isActive,
-  });
+// Quick status toggle / sort-order change via the shared single-field CMS endpoints.
+export const toggleWorkPlanStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("work-plan", item.id!, isActive);
 
-export const updateWorkPlanSortOrder = (
-  item: WorkPlanRecord,
-  sortOrder: number,
-) =>
-  updateWorkPlan(item.id, {
-    title: item.title,
-    title_ar: item.title_ar,
-    short_description: item.short_description,
-    short_description_ar: item.short_description_ar,
-    sort_order: Math.max(1, sortOrder),
-    is_active: item.is_active,
-  });
+export const updateWorkPlanSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("work-plan", item.id!, sortOrder);

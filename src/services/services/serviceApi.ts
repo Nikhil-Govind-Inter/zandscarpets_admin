@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Services > Service — backed by `/api/backend/services/service`. Uses the
@@ -149,23 +150,9 @@ export const deleteService = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full
-// record (see industryApi.ts's toggleIndustryStatus for the same convention).
-export const toggleServiceStatus = (item: ServiceRecord, isActive: boolean) =>
-  updateService(item.id, {
-    title: item.title,
-    description: item.description,
-    sort_order: item.sort_order,
-    is_active: isActive,
-  });
+// Quick status toggle / sort-order change via the shared single-field CMS endpoints.
+export const toggleServiceStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("services", item.id!, isActive);
 
-export const updateServiceSortOrder = (
-  item: ServiceRecord,
-  sortOrder: number,
-) =>
-  updateService(item.id, {
-    title: item.title,
-    description: item.description,
-    sort_order: Math.max(1, sortOrder),
-    is_active: item.is_active,
-  });
+export const updateServiceSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("services", item.id!, sortOrder);

@@ -8,6 +8,8 @@ import SortOrderCell from "@/components/common/SortOrderCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
 import { useToast } from "@/hooks/use-toast";
+import { useSortOrder } from "@/hooks/useSortOrder";
+import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import {
   fetchProjectsList,
@@ -19,20 +21,12 @@ import {
 } from "@/services/masters/projectsApi";
 import MediaThumbnail from "@/components/common/MediaThumbnail";
 
-const resolveImageUrl = (path: string | null) => {
-  if (!path) return null;
-  if (/^https?:\/\//.test(path)) return path;
-  return `${import.meta.env.VITE_IMAGE_URL}/${path}`;
-};
+
 
 export default function ProjectsList() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const [statusToggleItem, setStatusToggleItem] = useState<{
-    item: ProjectRecord;
-    newStatus: boolean;
-  } | null>(null);
 
   const {
     items: projects,
@@ -52,75 +46,14 @@ export default function ProjectsList() {
     refetch,
   } = usePaginatedList<ProjectRecord>(fetchProjectsList);
 
-  const projectsRef = useRef<ProjectRecord[]>(projects);
-  useEffect(() => {
-    projectsRef.current = projects;
-  }, [projects]);
 
-  const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>(
-    {},
-  );
-  const sortOrderOriginal = useRef<Record<number, number>>({});
-
-  useEffect(() => {
-    const timers = sortOrderTimers.current;
-    return () => {
-      Object.values(timers).forEach(clearTimeout);
-    };
-  }, []);
-
-  const SORT_ORDER_COMMIT_DELAY = 600;
-
-  const handleSortOrderChange = (item: ProjectRecord, delta: number) => {
-    const newSortOrder = Math.max(0, (item.sort_order ?? 0) + delta);
-    if (newSortOrder === item.sort_order) return;
-
-    if (!sortOrderTimers.current[item.id]) {
-      sortOrderOriginal.current[item.id] = item.sort_order ?? 0;
-    }
-
-    setProjects((prev) =>
-      prev.map((p) =>
-        p.id === item.id ? { ...p, sort_order: newSortOrder } : p,
-      ),
-    );
-
-    clearTimeout(sortOrderTimers.current[item.id]);
-    sortOrderTimers.current[item.id] = setTimeout(() => {
-      delete sortOrderTimers.current[item.id];
-      handleSortOrder(item.id);
-    }, SORT_ORDER_COMMIT_DELAY);
-  };
-
-  const handleSortOrder = async (itemId: number) => {
-    const latestItem = projectsRef.current.find((p) => p.id === itemId);
-    if (!latestItem) return;
-
-    const finalSortOrder = latestItem.sort_order ?? 0;
-    const originalSortOrder = sortOrderOriginal.current[itemId];
-    delete sortOrderOriginal.current[itemId];
-
-    if (finalSortOrder === originalSortOrder) return;
-
-    try {
-      await updateProjectSortOrder(latestItem, finalSortOrder);
-      toast({
-        title: "Success",
-        description: "Sort order updated successfully",
-      });
-    } catch (error) {
-      setProjects((prev) =>
-        prev.map((p) =>
-          p.id === itemId ? { ...p, sort_order: originalSortOrder } : p,
-        ),
-      );
-      toast({
-        title: "Error",
-        description: "Failed to update sort order",
-        variant: "destructive",
-      });
-    }
-  };
+  const handleSortOrderChange = useSortOrder(projects, setProjects, updateProjectSortOrder);
+  const { statusToggleItem, setStatusToggleItem, confirmStatusToggle } = useStatusToggle({
+    setItems: setProjects,
+    refetch,
+    toggleStatus: toggleProjectStatus,
+    label: "Project",
+  });
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;
@@ -144,38 +77,6 @@ export default function ProjectsList() {
       });
     } finally {
       setDeleteItemId(null);
-    }
-  };
-
-  const confirmStatusToggle = async () => {
-    if (!statusToggleItem) return;
-
-    try {
-      const { item, newStatus } = statusToggleItem;
-      await toggleProjectStatus(item, newStatus);
-
-      setProjects((prev) =>
-        prev.map((p) =>
-          p.id === item.id ? { ...p, is_active: newStatus } : p,
-        ),
-      );
-      refetch();
-
-      toast({
-        title: "Success",
-        description: "Project status updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof ApiError
-            ? error.message
-            : "Failed to update project status",
-        variant: "destructive",
-      });
-    } finally {
-      setStatusToggleItem(null);
     }
   };
 

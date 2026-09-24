@@ -138,23 +138,33 @@ export default function BannersForm() {
     try {
       setLoading(true);
 
-      const payload = {
-        page_id: Number(data.page_id),
-        title: data.title,
-        title_ar: data.title_ar,
-        sub_title: data.sub_title,
-        sub_title_ar: data.sub_title_ar,
-        media_alt: data.media_alt,
-        media_alt_ar: data.media_alt_ar,
-        desktop_media_path: data.desktop_media_path,
-        mobile_media_path: data.mobile_media_path,
+      const formData = new FormData();
+      formData.append("page_id", data.page_id.toString());
+      formData.append("title", data.title);
+      formData.append("title_ar", data.title_ar);
+      formData.append("sub_title", data.sub_title);
+      formData.append("sub_title_ar", data.sub_title_ar);
+      formData.append("media_alt", data.media_alt);
+      formData.append("media_alt_ar", data.media_alt_ar);
+
+      // multerMiddleware only keeps a text media-path value if it's a fresh upload or an
+      // absolute `https?://<host>/uploads/...` URL, so an unchanged existing (relative)
+      // path must be resent as an absolute URL.
+      const appendMediaPath = (key: string, value: File | string) => {
+        if (value instanceof File || /^https?:\/\//.test(value)) {
+          formData.append(key, value);
+        } else {
+          formData.append(key, `${import.meta.env.VITE_IMAGE_URL}/${value}`);
+        }
       };
+      appendMediaPath("desktop_media_path", data.desktop_media_path);
+      appendMediaPath("mobile_media_path", data.mobile_media_path);
 
       if (isEditing && id) {
-        await updateBanner(parseInt(id), payload);
+        await updateBanner(parseInt(id), formData);
         toast({ title: "Success", description: "Banner updated successfully" });
       } else {
-        await createBanner(payload);
+        await createBanner(formData);
         toast({ title: "Success", description: "Banner created successfully" });
       }
 

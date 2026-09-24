@@ -8,6 +8,8 @@ import SortOrderCell from "@/components/common/SortOrderCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
 import { useToast } from "@/hooks/use-toast";
+import { useSortOrder } from "@/hooks/useSortOrder";
+import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import {
   fetchMilestonesList,
@@ -22,10 +24,6 @@ export default function MilestonesList() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const [statusToggleItem, setStatusToggleItem] = useState<{
-    item: MilestonesRecord;
-    newStatus: boolean;
-  } | null>(null);
 
   const {
     items: milestones,
@@ -45,66 +43,14 @@ export default function MilestonesList() {
     refetch,
   } = usePaginatedList<MilestonesRecord>(fetchMilestonesList);
 
-  const milestonesRef = useRef<MilestonesRecord[]>(milestones);
-  useEffect(() => {
-    milestonesRef.current = milestones;
-  }, [milestones]);
 
-  const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
-  const sortOrderOriginal = useRef<Record<number, number>>({});
-
-  useEffect(() => {
-    const timers = sortOrderTimers.current;
-    return () => {
-      Object.values(timers).forEach(clearTimeout);
-    };
-  }, []);
-
-  const SORT_ORDER_COMMIT_DELAY = 600;
-
-  const handleSortOrderChange = (item: MilestonesRecord, delta: number) => {
-    const newSortOrder = Math.max(1, (item.sort_order ?? 1) + delta);
-    if (newSortOrder === item.sort_order) return;
-
-    if (!sortOrderTimers.current[item.id]) {
-      sortOrderOriginal.current[item.id] = item.sort_order ?? 1;
-    }
-
-    setMilestones((prev) =>
-      prev.map((i) => (i.id === item.id ? { ...i, sort_order: newSortOrder } : i)),
-    );
-
-    clearTimeout(sortOrderTimers.current[item.id]);
-    sortOrderTimers.current[item.id] = setTimeout(() => {
-      delete sortOrderTimers.current[item.id];
-      handleSortOrder(item.id);
-    }, SORT_ORDER_COMMIT_DELAY);
-  };
-
-  const handleSortOrder = async (itemId: number) => {
-    const latestItem = milestonesRef.current.find((i) => i.id === itemId);
-    if (!latestItem) return;
-
-    const finalSortOrder = latestItem.sort_order ?? 1;
-    const originalSortOrder = sortOrderOriginal.current[itemId];
-    delete sortOrderOriginal.current[itemId];
-
-    if (finalSortOrder === originalSortOrder) return;
-
-    try {
-      await updateMilestonesSortOrder(latestItem, finalSortOrder);
-      toast({ title: "Success", description: "Sort order updated successfully" });
-    } catch (error) {
-      setMilestones((prev) =>
-        prev.map((i) => (i.id === itemId ? { ...i, sort_order: originalSortOrder } : i)),
-      );
-      toast({
-        title: "Error",
-        description: "Failed to update sort order",
-        variant: "destructive",
-      });
-    }
-  };
+  const handleSortOrderChange = useSortOrder(milestones, setMilestones, updateMilestonesSortOrder);
+  const { statusToggleItem, setStatusToggleItem, confirmStatusToggle } = useStatusToggle({
+    setItems: setMilestones,
+    refetch,
+    toggleStatus: toggleMilestonesStatus,
+    label: "Milestone",
+  });
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;
@@ -126,31 +72,6 @@ export default function MilestonesList() {
       });
     } finally {
       setDeleteItemId(null);
-    }
-  };
-
-  const confirmStatusToggle = async () => {
-    if (!statusToggleItem) return;
-
-    try {
-      const { item, newStatus } = statusToggleItem;
-      await toggleMilestonesStatus(item, newStatus);
-
-      setMilestones((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, is_active: newStatus } : i)),
-      );
-      refetch();
-
-      toast({ title: "Success", description: "Milestone status updated successfully" });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof ApiError ? error.message : "Failed to update status",
-        variant: "destructive",
-      });
-    } finally {
-      setStatusToggleItem(null);
     }
   };
 

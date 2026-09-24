@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Masters > Faqs — backed by `/api/backend/masters/faqs`. Uses the apiFetch
@@ -150,20 +151,9 @@ export const deleteFaq = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full
-// record (see pagesApi.ts's togglePageStatus for the same convention).
-export const toggleFaqStatus = (item: FaqRecord, isActive: boolean) =>
-  updateFaq(item.id, {
-    question: item.question,
-    answer: item.answer,
-    sort_order: item.sort_order,
-    is_active: isActive,
-  });
+// Quick status toggle / sort-order change via the shared single-field CMS endpoints.
+export const toggleFaqStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("faqs", item.id!, isActive);
 
-export const updateFaqSortOrder = (item: FaqRecord, sortOrder: number) =>
-  updateFaq(item.id, {
-    question: item.question,
-    answer: item.answer,
-    sort_order: Math.max(1, sortOrder),
-    is_active: item.is_active,
-  });
+export const updateFaqSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("faqs", item.id!, sortOrder);

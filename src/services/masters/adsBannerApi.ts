@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Masters > Ads Banner — backed by `/api/backend/masters/ads-banner`. File
@@ -141,41 +142,8 @@ export const deleteAdsBanner = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full
-// record (see socialMediaApi.ts's buildSocialMediaFormData for the same
-// convention). media_path needs special handling: multerMiddleware only
-// keeps a text media_path value if it's a freshly uploaded file or an
-// absolute `https?://<host>/uploads/...` URL — a bare relative path (what's
-// actually held in state/returned by the API) matches neither and gets
-// silently dropped.
-const buildAdsBannerFormData = (
-  item: AdsBannerRecord,
-  overrides: Partial<Pick<AdsBannerRecord, "media_alt" | "sort_order" | "is_active">>,
-): FormData => {
-  const formData = new FormData();
-  formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
-  formData.append(
-    "sort_order",
-    (overrides.sort_order ?? item.sort_order ?? 1).toString(),
-  );
-  formData.append(
-    "is_active",
-    (overrides.is_active ?? item.is_active ?? true).toString(),
-  );
+export const toggleAdsBannerStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("ads-banner", item.id!, isActive);
 
-  if (item.media_path) {
-    const isAbsoluteUrl = /^https?:\/\//.test(item.media_path);
-    const mediaPath = isAbsoluteUrl
-      ? item.media_path
-      : `${import.meta.env.VITE_IMAGE_URL}/${item.media_path}`;
-    formData.append("media_path", mediaPath);
-  }
-
-  return formData;
-};
-
-export const toggleAdsBannerStatus = (item: AdsBannerRecord, isActive: boolean) =>
-  updateAdsBanner(item.id, buildAdsBannerFormData(item, { is_active: isActive }));
-
-export const updateAdsBannerSortOrder = (item: AdsBannerRecord, sortOrder: number) =>
-  updateAdsBanner(item.id, buildAdsBannerFormData(item, { sort_order: Math.max(1, sortOrder) }));
+export const updateAdsBannerSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("ads-banner", item.id!, sortOrder);

@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Masters > Projects — backed by `/api/backend/masters/projects`. File upload
@@ -175,105 +176,8 @@ export const deleteProject = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full
-// record (see homeBannerApi.ts's buildHomeBannerFormData for the same
-// convention). thumbnail/media_path need the same absolute-URL round trip so
-// multerMiddleware recognizes the unchanged file instead of dropping it.
-// project_media is resent as-is (already relative `uploads/projects/...`
-// paths, which the controller's own gallery parsing recognizes directly).
-// related_project_ids is deliberately omitted — list rows don't carry
-// relatedProjects, and omitting the field tells the controller to leave the
-// relation untouched rather than wiping it.
-const toAbsoluteMediaUrl = (path: string) => {
-  const isAbsoluteUrl = /^https?:\/\//.test(path);
-  return isAbsoluteUrl ? path : `${import.meta.env.VITE_IMAGE_URL}/${path}`;
-};
+export const toggleProjectStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("projects", item.id!, isActive);
 
-const buildProjectFormData = (
-  item: ProjectRecord,
-  overrides: Partial<
-    Pick<
-      ProjectRecord,
-      | "category_id"
-      | "material_id"
-      | "title"
-      | "title_ar"
-      | "location"
-      | "location_ar"
-      | "date_of_completion"
-      | "material_type"
-      | "material_type_ar"
-      | "description"
-      | "description_ar"
-      | "sort_order"
-      | "is_active"
-      | "is_show_in_home"
-    >
-  >,
-): FormData => {
-  const formData = new FormData();
-  formData.append(
-    "category_id",
-    (overrides.category_id ?? item.category_id).toString(),
-  );
-  formData.append(
-    "material_id",
-    (overrides.material_id ?? item.material_id ?? "").toString(),
-  );
-  formData.append("title", overrides.title ?? item.title ?? "");
-  formData.append("title_ar", overrides.title_ar ?? item.title_ar ?? "");
-  formData.append("location", overrides.location ?? item.location ?? "");
-  formData.append("location_ar", overrides.location_ar ?? item.location_ar ?? "");
-  formData.append(
-    "date_of_completion",
-    overrides.date_of_completion ?? item.date_of_completion ?? "",
-  );
-  formData.append(
-    "material_type",
-    overrides.material_type ?? item.material_type ?? "",
-  );
-  formData.append(
-    "material_type_ar",
-    overrides.material_type_ar ?? item.material_type_ar ?? "",
-  );
-  formData.append(
-    "description",
-    overrides.description ?? item.description ?? "",
-  );
-  formData.append(
-    "description_ar",
-    overrides.description_ar ?? item.description_ar ?? "",
-  );
-  formData.append(
-    "sort_order",
-    (overrides.sort_order ?? item.sort_order ?? 0).toString(),
-  );
-  formData.append(
-    "is_active",
-    (overrides.is_active ?? item.is_active ?? true).toString(),
-  );
-  formData.append(
-    "is_show_in_home",
-    (overrides.is_show_in_home ?? item.is_show_in_home ?? false).toString(),
-  );
-
-  if (item.thumbnail)
-    formData.append("thumbnail", toAbsoluteMediaUrl(item.thumbnail));
-  if (item.media_path)
-    formData.append("media_path", toAbsoluteMediaUrl(item.media_path));
-  formData.append("project_media", JSON.stringify(item.project_media || []));
-
-  return formData;
-};
-
-export const toggleProjectStatus = (item: ProjectRecord, isActive: boolean) =>
-  updateProject(item.id, buildProjectFormData(item, { is_active: isActive }));
-
-export const updateProjectSortOrder = (
-  item: ProjectRecord,
-  sortOrder: number,
-) =>
-  updateProject(
-    item.id,
-    buildProjectFormData(item, { sort_order: Math.max(0, sortOrder) }),
-  );
+export const updateProjectSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("projects", item.id!, sortOrder);

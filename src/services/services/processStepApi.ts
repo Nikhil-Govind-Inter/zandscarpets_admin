@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Services > Process Steps — backed by `/api/backend/services/process-steps`. File
@@ -142,64 +143,8 @@ export const deleteProcessStep = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full
-// record (see homeMilestonesApi.ts's buildHomeMilestonesFormData for the same
-// convention). media_path needs special handling: multerMiddleware only
-// keeps a text media_path value if it's a freshly uploaded file or an
-// absolute `https?://<host>/uploads/...` URL — a bare relative path (what's
-// actually held in state/returned by the API) matches neither and gets
-// silently dropped.
-const buildProcessStepFormData = (
-  item: ProcessStepRecord,
-  overrides: Partial<
-    Pick<
-      ProcessStepRecord,
-      "title" | "description" | "media_alt" | "sort_order" | "is_active"
-    >
-  >,
-): FormData => {
-  const formData = new FormData();
+export const toggleProcessStepStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("process-steps", item.id!, isActive);
 
-  formData.append("title", overrides.title ?? item.title ?? "");
-  formData.append(
-    "description",
-    overrides.description ?? item.description ?? "",
-  );
-  formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
-  formData.append(
-    "sort_order",
-    (overrides.sort_order ?? item.sort_order ?? 1).toString(),
-  );
-  formData.append(
-    "is_active",
-    (overrides.is_active ?? item.is_active ?? true).toString(),
-  );
-
-  if (item.media_path) {
-    const isAbsoluteUrl = /^https?:\/\//.test(item.media_path);
-    const mediaPath = isAbsoluteUrl
-      ? item.media_path
-      : `${import.meta.env.VITE_IMAGE_URL}/${item.media_path}`;
-    formData.append("media_path", mediaPath);
-  }
-
-  return formData;
-};
-
-export const toggleProcessStepStatus = (
-  item: ProcessStepRecord,
-  isActive: boolean,
-) =>
-  updateProcessStep(
-    item.id,
-    buildProcessStepFormData(item, { is_active: isActive }),
-  );
-
-export const updateProcessStepSortOrder = (
-  item: ProcessStepRecord,
-  sortOrder: number,
-) =>
-  updateProcessStep(
-    item.id,
-    buildProcessStepFormData(item, { sort_order: Math.max(1, sortOrder) }),
-  );
+export const updateProcessStepSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("process-steps", item.id!, sortOrder);

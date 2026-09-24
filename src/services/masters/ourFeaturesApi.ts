@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Masters > Our Features — backed by `/api/backend/masters/our-features`.
@@ -151,26 +152,9 @@ export const deleteOurFeature = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full
-// record (see pagesApi.ts's togglePageStatus for the same convention).
-export const toggleOurFeatureStatus = (
-  item: OurFeatureRecord,
-  isActive: boolean,
-) =>
-  updateOurFeature(item.id, {
-    title: item.title,
-    description: item.description,
-    sort_order: item.sort_order,
-    is_active: isActive,
-  });
+// Quick status toggle / sort-order change via the shared single-field CMS endpoints.
+export const toggleOurFeatureStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("our-features", item.id!, isActive);
 
-export const updateOurFeatureSortOrder = (
-  item: OurFeatureRecord,
-  sortOrder: number,
-) =>
-  updateOurFeature(item.id, {
-    title: item.title,
-    description: item.description,
-    sort_order: Math.max(1, sortOrder),
-    is_active: item.is_active,
-  });
+export const updateOurFeatureSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("our-features", item.id!, sortOrder);

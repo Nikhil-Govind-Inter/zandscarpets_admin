@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // About > Industries — backed by `/api/backend/about/about-industries`. List resource with a
@@ -143,53 +144,8 @@ export const deleteAboutIndustries = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full record. media_path
-// needs special handling: multerMiddleware only keeps a text media_path value if it's a
-// freshly uploaded file or an absolute `https?://<host>/uploads/...` URL — a bare relative
-// path (what's actually held in state/returned by the API) matches neither and gets silently
-// dropped.
-const buildAboutIndustriesFormData = (
-  item: AboutIndustriesRecord,
-  overrides: Partial<Pick<AboutIndustriesRecord, "media_alt" | "media_alt_ar" | "sort_order" | "is_active">>,
-): FormData => {
-  const formData = new FormData();
+export const toggleAboutIndustriesStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("about-industries", item.id!, isActive);
 
-  formData.append("title", item.title ?? "");
-  formData.append("title_ar", item.title_ar ?? "");
-  formData.append("description", item.description ?? "");
-  formData.append("description_ar", item.description_ar ?? "");
-  formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
-  formData.append("media_alt_ar", overrides.media_alt_ar ?? item.media_alt_ar ?? "");
-  formData.append(
-    "sort_order",
-    (overrides.sort_order ?? item.sort_order ?? 1).toString(),
-  );
-  formData.append(
-    "is_active",
-    (overrides.is_active ?? item.is_active ?? true).toString(),
-  );
-
-  if (item.media_path) {
-    const isAbsoluteUrl = /^https?:\/\//.test(item.media_path);
-    const mediaPath = isAbsoluteUrl
-      ? item.media_path
-      : `${import.meta.env.VITE_IMAGE_URL}/${item.media_path}`;
-    formData.append("media_path", mediaPath);
-  }
-
-  return formData;
-};
-
-export const toggleAboutIndustriesStatus = (
-  item: AboutIndustriesRecord,
-  isActive: boolean,
-) => updateAboutIndustries(item.id, buildAboutIndustriesFormData(item, { is_active: isActive }));
-
-export const updateAboutIndustriesSortOrder = (
-  item: AboutIndustriesRecord,
-  sortOrder: number,
-) =>
-  updateAboutIndustries(
-    item.id,
-    buildAboutIndustriesFormData(item, { sort_order: Math.max(1, sortOrder) }),
-  );
+export const updateAboutIndustriesSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("about-industries", item.id!, sortOrder);

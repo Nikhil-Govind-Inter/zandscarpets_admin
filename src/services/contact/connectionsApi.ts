@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Contact > Connections — backed by `/api/backend/contact/connections`. List resource with an
@@ -145,59 +146,8 @@ export const deleteConnections = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full record. icon_media_path
-// needs special handling: multerMiddleware only keeps a text icon_media_path value if it's a
-// freshly uploaded file or an absolute `https?://<host>/uploads/...` URL — a bare relative
-// path (what's actually held in state/returned by the API) matches neither and gets silently
-// dropped.
-const buildConnectionsFormData = (
-  item: ConnectionsRecord,
-  overrides: Partial<Pick<ConnectionsRecord, "sort_order" | "is_active">>,
-): FormData => {
-  const formData = new FormData();
+export const toggleConnectionsStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("connections", item.id!, isActive);
 
-  formData.append("title", item.title);
-  formData.append("title_ar", item.title_ar);
-  formData.append("description", item.description);
-  formData.append("description_ar", item.description_ar);
-  formData.append("content", item.content);
-  formData.append("content_ar", item.content_ar);
-  formData.append("icon_media_alt", item.icon_media_alt ?? "");
-  formData.append("icon_media_alt_ar", item.icon_media_alt_ar ?? "");
-  formData.append(
-    "sort_order",
-    (overrides.sort_order ?? item.sort_order ?? 1).toString(),
-  );
-  formData.append(
-    "is_active",
-    (overrides.is_active ?? item.is_active ?? true).toString(),
-  );
-
-  if (item.icon_media_path) {
-    const isAbsoluteUrl = /^https?:\/\//.test(item.icon_media_path);
-    const iconMediaPath = isAbsoluteUrl
-      ? item.icon_media_path
-      : `${import.meta.env.VITE_IMAGE_URL}/${item.icon_media_path}`;
-    formData.append("icon_media_path", iconMediaPath);
-  }
-
-  return formData;
-};
-
-export const toggleConnectionsStatus = (
-  item: ConnectionsRecord,
-  isActive: boolean,
-) =>
-  updateConnections(
-    item.id,
-    buildConnectionsFormData(item, { is_active: isActive }),
-  );
-
-export const updateConnectionsSortOrder = (
-  item: ConnectionsRecord,
-  sortOrder: number,
-) =>
-  updateConnections(
-    item.id,
-    buildConnectionsFormData(item, { sort_order: Math.max(1, sortOrder) }),
-  );
+export const updateConnectionsSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("connections", item.id!, sortOrder);

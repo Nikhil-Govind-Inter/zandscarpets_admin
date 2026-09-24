@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Masters > Pages — backed by `/api/backend/masters/pages` (authMiddleware-gated,
@@ -163,9 +164,5 @@ export const deletePage = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-export const togglePageStatus = (item: PageRecord, isActive: boolean) =>
-  updatePage(item.id, {
-    page: item.page,
-    page_slug: item.page_slug,
-    is_active: isActive,
-  });
+export const togglePageStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("pages", item.id!, isActive);

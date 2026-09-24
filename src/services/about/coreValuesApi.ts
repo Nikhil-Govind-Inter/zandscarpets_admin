@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // About > Core Values — backed by `/api/backend/about/core-values`. List resource with a
@@ -141,51 +142,8 @@ export const deleteCoreValues = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full record. media_path
-// needs special handling: multerMiddleware only keeps a text media_path value if it's a
-// freshly uploaded file or an absolute `https?://<host>/uploads/...` URL — a bare relative
-// path (what's actually held in state/returned by the API) matches neither and gets silently
-// dropped.
-const buildCoreValuesFormData = (
-  item: CoreValuesRecord,
-  overrides: Partial<Pick<CoreValuesRecord, "media_alt" | "media_alt_ar" | "sort_order" | "is_active">>,
-): FormData => {
-  const formData = new FormData();
+export const toggleCoreValuesStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("core-values", item.id!, isActive);
 
-  formData.append("title", item.title ?? "");
-  formData.append("title_ar", item.title_ar ?? "");
-  formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
-  formData.append("media_alt_ar", overrides.media_alt_ar ?? item.media_alt_ar ?? "");
-  formData.append(
-    "sort_order",
-    (overrides.sort_order ?? item.sort_order ?? 1).toString(),
-  );
-  formData.append(
-    "is_active",
-    (overrides.is_active ?? item.is_active ?? true).toString(),
-  );
-
-  if (item.media_path) {
-    const isAbsoluteUrl = /^https?:\/\//.test(item.media_path);
-    const mediaPath = isAbsoluteUrl
-      ? item.media_path
-      : `${import.meta.env.VITE_IMAGE_URL}/${item.media_path}`;
-    formData.append("media_path", mediaPath);
-  }
-
-  return formData;
-};
-
-export const toggleCoreValuesStatus = (
-  item: CoreValuesRecord,
-  isActive: boolean,
-) => updateCoreValues(item.id, buildCoreValuesFormData(item, { is_active: isActive }));
-
-export const updateCoreValuesSortOrder = (
-  item: CoreValuesRecord,
-  sortOrder: number,
-) =>
-  updateCoreValues(
-    item.id,
-    buildCoreValuesFormData(item, { sort_order: Math.max(1, sortOrder) }),
-  );
+export const updateCoreValuesSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("core-values", item.id!, sortOrder);

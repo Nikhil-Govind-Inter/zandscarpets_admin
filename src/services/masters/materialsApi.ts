@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Masters > Materials — backed by `/api/backend/masters/materials`. Uses the
@@ -156,28 +157,9 @@ export const deleteMaterial = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full
-// record (see industryApi.ts's toggleIndustryStatus for the same convention).
-export const toggleMaterialStatus = (
-  item: MaterialRecord,
-  isActive: boolean,
-) =>
-  updateMaterial(item.id, {
-    title: item.title,
-    title_ar: item.title_ar,
-    slug: item.slug,
-    sort_order: item.sort_order,
-    is_active: isActive,
-  });
+// Quick status toggle / sort-order change via the shared single-field CMS endpoints.
+export const toggleMaterialStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("materials", item.id!, isActive);
 
-export const updateMaterialSortOrder = (
-  item: MaterialRecord,
-  sortOrder: number,
-) =>
-  updateMaterial(item.id, {
-    title: item.title,
-    title_ar: item.title_ar,
-    slug: item.slug,
-    sort_order: Math.max(1, sortOrder),
-    is_active: item.is_active,
-  });
+export const updateMaterialSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("materials", item.id!, sortOrder);

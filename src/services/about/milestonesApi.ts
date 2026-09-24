@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // About > Milestones — backed by `/api/backend/about/milestones`. No media fields, so this
@@ -151,23 +152,9 @@ export const deleteMilestones = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full record.
-export const toggleMilestonesStatus = (item: MilestonesRecord, isActive: boolean) =>
-  updateMilestones(item.id, {
-    label: item.label,
-    label_ar: item.label_ar,
-    value: item.value,
-    value_ar: item.value_ar,
-    sort_order: item.sort_order,
-    is_active: isActive,
-  });
+// Quick status toggle / sort-order change via the shared single-field CMS endpoints.
+export const toggleMilestonesStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("milestones", item.id!, isActive);
 
-export const updateMilestonesSortOrder = (item: MilestonesRecord, sortOrder: number) =>
-  updateMilestones(item.id, {
-    label: item.label,
-    label_ar: item.label_ar,
-    value: item.value,
-    value_ar: item.value_ar,
-    sort_order: Math.max(1, sortOrder),
-    is_active: item.is_active,
-  });
+export const updateMilestonesSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("milestones", item.id!, sortOrder);
