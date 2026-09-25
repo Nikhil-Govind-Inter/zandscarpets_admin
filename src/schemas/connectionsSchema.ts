@@ -4,8 +4,8 @@ import { commonValidations } from "@/utils/formUtils";
 export const connectionsSchema = z.object({
   title: commonValidations.requiredString("Title"),
   title_ar: commonValidations.requiredString("Title (Arabic)"),
-  description: commonValidations.requiredText("Description"),
-  description_ar: commonValidations.requiredText("Description (Arabic)"),
+  description: commonValidations.optionalString,
+  description_ar: commonValidations.optionalString,
   content: commonValidations.requiredText("Content"),
   content_ar: commonValidations.requiredText("Content (Arabic)"),
   icon_media_path: commonValidations.requiredFile("Icon"),

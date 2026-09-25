@@ -12,8 +12,8 @@ export interface ConnectionsRecord {
   id: number;
   title: string;
   title_ar: string;
-  description: string;
-  description_ar: string;
+  description?: string | null;
+  description_ar?: string | null;
   content: string;
   content_ar: string;
   icon_media_path: string | null;
