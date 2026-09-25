@@ -505,14 +505,14 @@ export default function AboutCmsForm() {
                 <FormTextField
                   form={form}
                   name="work_media_alt"
-                  label="Image Alt Text"
+                  label="Video Alt Text"
                   placeholder="Describe the media"
                 />
                 <FormTextField
                   form={form}
                   name="work_media_alt_ar"
-                  label="Image Alt Text (Arabic)"
-                  placeholder="وصف الصورة"
+                  label="Video Alt Text (Arabic)"
+                  placeholder="وصف الفيديو"
                 />
               </div>
 
@@ -520,9 +520,9 @@ export default function AboutCmsForm() {
                 <FormFileUploadField
                   form={form}
                   name="work_media_path"
-                  label="Image"
-                  placeholder="Upload image"
-                  accept="image/*"
+                  label="Video"
+                  placeholder="Upload video"
+                  accept="video/*"
                 />
               </div>
             </CardContent>

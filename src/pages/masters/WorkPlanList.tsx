@@ -7,6 +7,7 @@ import StatusToggleCell from "@/components/common/StatusToggleCell";
 import SortOrderCell from "@/components/common/SortOrderCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
+import { renderHtml } from "@/lib/renderHtml";
 import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
 import { useStatusToggle } from "@/hooks/useStatusToggle";
@@ -96,9 +97,12 @@ export default function WorkPlanList() {
       accessorKey: "short_description",
       header: "Short Description",
       cell: ({ row }) => (
-        <div className="max-w-xs truncate text-sm text-muted-foreground">
-          {row.getValue("short_description")}
-        </div>
+        <>
+          {renderHtml(
+            row.getValue("short_description"),
+            "max-w-xs line-clamp-2 text-sm text-muted-foreground [&_p]:m-0",
+          )}
+        </>
       ),
     },
     {

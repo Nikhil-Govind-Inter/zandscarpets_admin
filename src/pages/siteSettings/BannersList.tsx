@@ -73,11 +73,11 @@ export default function BannersList() {
       ),
     },
     {
-      accessorKey: "desktop_media_path",
+      accessorKey: "media_path",
       header: "Media",
       cell: ({ row }) => (
         <MediaThumbnail
-          path={row.original.desktop_media_path}
+          path={row.original.media_path}
           alt={row.original.media_alt}
         />
       ),

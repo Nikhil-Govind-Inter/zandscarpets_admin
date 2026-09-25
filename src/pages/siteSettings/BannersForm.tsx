@@ -51,8 +51,7 @@ export default function BannersForm() {
       sub_title_ar: "",
       media_alt: "",
       media_alt_ar: "",
-      desktop_media_path: "",
-      mobile_media_path: "",
+      media_path: "",
     },
   });
 
@@ -110,8 +109,7 @@ export default function BannersForm() {
         sub_title_ar: data.sub_title_ar || "",
         media_alt: data.media_alt || "",
         media_alt_ar: data.media_alt_ar || "",
-        desktop_media_path: data.desktop_media_path || "",
-        mobile_media_path: data.mobile_media_path || "",
+        media_path: data.media_path || "",
       });
     } catch (error) {
       toast({
@@ -156,9 +154,7 @@ export default function BannersForm() {
           formData.append(key, `${import.meta.env.VITE_IMAGE_URL}/${value}`);
         }
       };
-      appendMediaPath("desktop_media_path", data.desktop_media_path);
-      appendMediaPath("mobile_media_path", data.mobile_media_path);
-
+      appendMediaPath("media_path", data.media_path);
       if (isEditing && id) {
         await updateBanner(parseInt(id), formData);
         toast({ title: "Success", description: "Banner updated successfully" });
@@ -280,23 +276,13 @@ export default function BannersForm() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormFileUploadField
-                  form={form}
-                  name="desktop_media_path"
-                  label="Desktop Image"
-                  placeholder="Upload desktop banner image"
-                  accept="image/*"
-                />
-
-                <FormFileUploadField
-                  form={form}
-                  name="mobile_media_path"
-                  label="Mobile Image"
-                  placeholder="Upload mobile banner image"
-                  accept="image/*"
-                />
-              </div>
+              <FormFileUploadField
+                form={form}
+                name="media_path"
+                label="Image"
+                placeholder="Upload banner image"
+                accept="image/*"
+              />
             </CardContent>
           </Card>
 

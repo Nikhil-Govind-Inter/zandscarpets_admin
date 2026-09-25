@@ -19,8 +19,7 @@ export interface Banner {
   id: number;
   page_id: number;
   page?: BannerPage;
-  desktop_media_path: string;
-  mobile_media_path: string;
+  media_path: string;
   media_alt: string;
   media_alt_ar: string;
   title: string;

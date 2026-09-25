@@ -10,8 +10,7 @@ export const bannerSchema = z.object({
   sub_title_ar: commonValidations.requiredString("Sub title (Arabic)"),
   media_alt: commonValidations.requiredString("Media alt text"),
   media_alt_ar: commonValidations.requiredString("Media alt text (Arabic)"),
-  desktop_media_path: commonValidations.requiredFile("Desktop media"),
-  mobile_media_path: commonValidations.requiredFile("Mobile media"),
+  media_path: commonValidations.requiredFile("Media"),
 });
 
 export type BannerFormData = z.infer<typeof bannerSchema>;
