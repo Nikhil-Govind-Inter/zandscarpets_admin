@@ -17,6 +17,8 @@ import {
   Bold,
   Italic,
   Strikethrough,
+  Underline as UnderlineIcon,
+  RemoveFormatting,
   List,
   ListOrdered,
   Quote,
@@ -103,11 +105,12 @@ export function RichTextEditor({
       attributes: {
         dir,
         class: cn(
-          "prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl mx-auto focus:outline-none p-3",
+          "prose prose-sm max-w-none focus:outline-none p-3",
+          "[&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ps-5 [&_ol]:ps-5 [&_blockquote]:border-s-4 [&_blockquote]:ps-4 [&_blockquote]:italic",
           "prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground",
           "prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground",
           "prose-blockquote:text-muted-foreground prose-blockquote:border-border",
-          "prose-a:text-primary prose-a:no-underline hover:prose-a:underline",
+          "prose-a:text-primary prose-a:underline",
           "prose-img:rounded-md prose-img:border"
           , dir === "rtl" && "text-right"
         ),
@@ -235,6 +238,21 @@ export function RichTextEditor({
               isActive={editor.isActive("strike")}
             >
               <Strikethrough className="h-4 w-4" />
+            </ToolbarButton>
+
+            <ToolbarButton
+              onClick={() => editor.chain().focus().toggleUnderline().run()}
+              isActive={editor.isActive("underline")}
+            >
+              <UnderlineIcon className="h-4 w-4" />
+            </ToolbarButton>
+
+            <ToolbarButton
+              onClick={() =>
+                editor.chain().focus().unsetAllMarks().clearNodes().run()
+              }
+            >
+              <RemoveFormatting className="h-4 w-4" />
             </ToolbarButton>
 
             {/* Text Color */}
