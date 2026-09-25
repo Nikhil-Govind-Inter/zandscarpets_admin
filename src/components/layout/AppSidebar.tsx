@@ -34,6 +34,7 @@ import {
   Star,
   ClipboardList,
   LayoutTemplate,
+  ShieldCheck,
 } from "lucide-react";
 
 import {
@@ -108,6 +109,9 @@ const commonSection = [
   { title: "Banners", url: "/banners", icon: Image },
   { title: "Footer Media", url: "/footer-media", icon: Image },
 ];
+const policiesSection = [
+  { title: "Privacy Policy", url: "/privacy-policy", icon: ShieldCheck },
+];
 const mastersSection = [
   { title: "Pages", url: "/pages", icon: Compass },
   { title: "Faqs", url: "/faqs", icon: HelpCircle },
@@ -138,9 +142,11 @@ export function AppSidebar() {
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [cmsOpen, setCmsOpen] = useState(false);
 
-  // Keep the CMS group open whenever one of its sub-sections is open.
+  // CMS is open only while one of its sub-sections is open; opening any
+  // other group closes it.
   useEffect(() => {
-    if (openSection && CMS_SECTIONS.includes(openSection)) setCmsOpen(true);
+    if (openSection === null) return;
+    setCmsOpen(CMS_SECTIONS.includes(openSection));
   }, [openSection]);
 
   const { state } = useSidebar();
@@ -185,6 +191,8 @@ export function AppSidebar() {
       setOpenSection("projects");
     } else if (["/enquiries"].some((route) => path.includes(route))) {
       setOpenSection("enquiries");
+    } else if (["/privacy-policy"].some((route) => path.includes(route))) {
+      setOpenSection("policies");
     }
     // Masters section
     else if (
@@ -268,7 +276,10 @@ export function AppSidebar() {
           title="CMS"
           isCollapsed={isCollapsed}
           open={cmsOpen}
-          onOpenChange={setCmsOpen}
+          onOpenChange={(isOpen) => {
+            setCmsOpen(isOpen);
+            if (isOpen) setOpenSection(null);
+          }}
           pathname={location.pathname}
           Section={[]}
         >
@@ -364,6 +375,17 @@ export function AppSidebar() {
           onOpenChange={(isOpen) => setOpenSection(isOpen ? "masters" : null)}
           pathname={location.pathname}
           Section={mastersSection}
+        />
+
+        {/* Policies */}
+        <GetLayout
+          Icon={ShieldCheck}
+          title="Policies"
+          isCollapsed={isCollapsed}
+          open={openSection === "policies"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "policies" : null)}
+          pathname={location.pathname}
+          Section={policiesSection}
         />
 
         {role === ROLES.ADMIN && (

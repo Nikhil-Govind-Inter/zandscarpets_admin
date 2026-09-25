@@ -168,6 +168,9 @@ const MilestonesForm = React.lazy(() => import("./pages/about/MilestonesForm"));
 // Contact — CMS
 const ContactCmsForm = React.lazy(() => import("./pages/contact/ContactCmsForm"));
 
+// Policies — Privacy Policy CMS
+const PrivacyPolicyForm = React.lazy(() => import("./pages/policies/PrivacyPolicyForm"));
+
 // Contact — Connections
 const ConnectionsList = React.lazy(() => import("./pages/contact/ConnectionsList"));
 const ConnectionsForm = React.lazy(() => import("./pages/contact/ConnectionsForm"));
@@ -292,6 +295,9 @@ const App = () => (
 
               {/* Contact CMS */}
               <Route path="/contact-cms" element={<ContactCmsForm />} />
+
+              {/* Privacy Policy CMS */}
+              <Route path="/privacy-policy" element={<PrivacyPolicyForm />} />
 
               {/* Contact Connections */}
               <Route path="/contact-connections" element={<ConnectionsList />} />
