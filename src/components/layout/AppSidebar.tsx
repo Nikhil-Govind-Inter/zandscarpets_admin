@@ -89,8 +89,8 @@ const projectsSection = [
 ];
 
 const productsSection = [
+  { title: "Category Highlights", url: "/product-highlights", icon: Star },
   { title: "Categories", url: "/product-categories", icon: Boxes },
-  { title: "Highlights", url: "/product-highlights", icon: Star },
 ];
 
 const enquiriesSection = [
