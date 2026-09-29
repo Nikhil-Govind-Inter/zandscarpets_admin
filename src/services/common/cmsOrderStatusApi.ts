@@ -30,7 +30,14 @@ export type CmsResource =
   | "services"
   | "process-steps"
   | "product-categories"
-  | "product-highlights";
+  | "product-highlights"
+  | "sizes"
+  | "colors"
+  | "tags"
+  | "product-tags"
+  | "products"
+  | "product-faq"
+  | "product-media";
 
 interface ApiEnvelope<T> {
   success: boolean;

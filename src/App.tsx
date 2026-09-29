@@ -96,6 +96,20 @@ const ProductCategoryList = React.lazy(() => import("./pages/products/ProductCat
 const ProductCategoryForm = React.lazy(() => import("./pages/products/ProductCategoryForm"));
 const ProductHighlightList = React.lazy(() => import("./pages/products/ProductHighlightList"));
 const ProductHighlightForm = React.lazy(() => import("./pages/products/ProductHighlightForm"));
+const ProductsList = React.lazy(() => import("./pages/products/ProductsList"));
+const ProductForm = React.lazy(() => import("./pages/products/ProductForm"));
+const ProductFaqList = React.lazy(() => import("./pages/products/ProductFaqList"));
+const ProductFaqForm = React.lazy(() => import("./pages/products/ProductFaqForm"));
+const ProductMediaList = React.lazy(() => import("./pages/products/ProductMediaList"));
+const ProductMediaForm = React.lazy(() => import("./pages/products/ProductMediaForm"));
+const ColorsList = React.lazy(() => import("./pages/products/ColorsList"));
+const ColorForm = React.lazy(() => import("./pages/products/ColorForm"));
+const SizesList = React.lazy(() => import("./pages/products/SizesList"));
+const SizeForm = React.lazy(() => import("./pages/products/SizeForm"));
+const TagsList = React.lazy(() => import("./pages/products/TagsList"));
+const TagForm = React.lazy(() => import("./pages/products/TagForm"));
+const ProductTagsList = React.lazy(() => import("./pages/products/ProductTagsList"));
+const ProductTagForm = React.lazy(() => import("./pages/products/ProductTagForm"));
 
 // Masters — Projects
 const ProjectsList = React.lazy(() => import("./pages/masters/ProjectsList"));
@@ -368,6 +382,37 @@ const App = () => (
               <Route path="/product-highlights" element={<ProductHighlightList />} />
               <Route path="/product-highlights/new" element={<ProductHighlightForm />} />
               <Route path="/product-highlights/:id/edit" element={<ProductHighlightForm />} />
+
+              {/* Products Routes */}
+              <Route path="/products" element={<ProductsList />} />
+              <Route path="/products/new" element={<ProductForm />} />
+              <Route path="/products/:id/edit" element={<ProductForm />} />
+              <Route path="/products/:productId/faqs" element={<ProductFaqList />} />
+              <Route path="/products/:productId/faqs/new" element={<ProductFaqForm />} />
+              <Route path="/products/:productId/faqs/:id/edit" element={<ProductFaqForm />} />
+              <Route path="/products/:productId/media" element={<ProductMediaList />} />
+              <Route path="/products/:productId/media/new" element={<ProductMediaForm />} />
+              <Route path="/products/:productId/media/:id/edit" element={<ProductMediaForm />} />
+
+              {/* Color Routes */}
+              <Route path="/colors" element={<ColorsList />} />
+              <Route path="/colors/new" element={<ColorForm />} />
+              <Route path="/colors/:id/edit" element={<ColorForm />} />
+
+              {/* Size Routes */}
+              <Route path="/sizes" element={<SizesList />} />
+              <Route path="/sizes/new" element={<SizeForm />} />
+              <Route path="/sizes/:id/edit" element={<SizeForm />} />
+
+              {/* Tag Routes */}
+              <Route path="/tags" element={<TagsList />} />
+              <Route path="/tags/new" element={<TagForm />} />
+              <Route path="/tags/:id/edit" element={<TagForm />} />
+
+              {/* Product Tag Routes */}
+              <Route path="/product-tags" element={<ProductTagsList />} />
+              <Route path="/product-tags/new" element={<ProductTagForm />} />
+              <Route path="/product-tags/:id/edit" element={<ProductTagForm />} />
 
               {/* Projects Routes */}
               <Route path="/projects" element={<ProjectsList />} />

@@ -35,6 +35,11 @@ import {
   ClipboardList,
   LayoutTemplate,
   ShieldCheck,
+  Ruler,
+  Palette,
+  Tag,
+  Hash,
+  ShoppingBag,
 } from "lucide-react";
 
 import {
@@ -89,8 +94,13 @@ const projectsSection = [
 ];
 
 const productsSection = [
-  { title: "Category Highlights", url: "/product-highlights", icon: Star },
+  { title: "Products", url: "/products", icon: ShoppingBag },
   { title: "Categories", url: "/product-categories", icon: Boxes },
+  { title: "Category Highlights", url: "/product-highlights", icon: Star },
+  { title: "Colors", url: "/colors", icon: Palette },
+  { title: "Sizes", url: "/sizes", icon: Ruler },
+  { title: "Tags", url: "/tags", icon: Tag },
+  { title: "Product Tags", url: "/product-tags", icon: Hash },
 ];
 
 const enquiriesSection = [
@@ -182,7 +192,15 @@ export function AppSidebar() {
     ) {
       setOpenSection("common");
     } else if (
-      ["/product-categories", "/product-highlights"].some((route) =>
+      [
+        "/products",
+        "/product-categories",
+        "/product-highlights",
+        "/product-tags",
+        "/colors",
+        "/sizes",
+        "/tags",
+      ].some((route) =>
         path.includes(route),
       )
     ) {
