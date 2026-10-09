@@ -9,8 +9,11 @@ export interface MetaTag {
     is_active?: boolean;
   };
   meta_title: string;
+  meta_title_ar?: string;
   meta_description: string;
+  meta_description_ar?: string;
   meta_keywords: string;
+  meta_keywords_ar?: string;
   deleted_at?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -43,8 +46,11 @@ export interface MetaTagItemResponse {
 
 export interface UpdateMetaTagRequest {
   meta_title: string;
+  meta_title_ar?: string;
   meta_description: string;
+  meta_description_ar?: string;
   meta_keywords: string;
+  meta_keywords_ar?: string;
 }
 
 const API_BASE_URL =
@@ -90,6 +96,18 @@ export const updateMetaTag = async (
 
   if (!response.ok) {
     throw new Error("Failed to update meta tag");
+  }
+
+  return response.json();
+};
+
+export const fetchMetaTagById = async (
+  id: number
+): Promise<MetaTagItemResponse> => {
+  const response = await apiFetch(`${API_BASE_URL}/site-settings/meta-data/${id}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch meta tag");
   }
 
   return response.json();

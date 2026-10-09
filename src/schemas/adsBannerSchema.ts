@@ -4,6 +4,7 @@ import { commonValidations } from "@/utils/formUtils";
 export const adsBannerSchema = z.object({
   media_path: commonValidations.requiredFile("Banner Image"),
   media_alt: commonValidations.requiredString("Alt text"),
+  media_alt_ar: commonValidations.requiredString("Alt text (Arabic)"),
   sort_order: commonValidations.sortOrder,
   is_active: commonValidations.booleanStatus,
 });

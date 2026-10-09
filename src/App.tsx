@@ -30,6 +30,13 @@ const SocialMediaList = React.lazy(
 const SocialMediaForm = React.lazy(
   () => import("./pages/common/SocialMediaForm"),
 );
+const MetaTagsForm = React.lazy(() => import("./pages/common/MetaTagsForm"));
+const FloatingIconList = React.lazy(
+  () => import("./pages/siteSettings/FloatingIconList"),
+);
+const FloatingIconForm = React.lazy(
+  () => import("./pages/siteSettings/FloatingIconForm"),
+);
 
 const UsersList = React.lazy(() => import("./pages/users/UsersList"));
 const UsersForm = React.lazy(() => import("./pages/users/UsersForm"));
@@ -46,6 +53,14 @@ const FaqsForm = React.lazy(() => import("./pages/masters/FaqsForm"));
 // Masters — Industry
 const IndustryList = React.lazy(() => import("./pages/masters/IndustryList"));
 const IndustryForm = React.lazy(() => import("./pages/masters/IndustryForm"));
+
+// Masters — Materials
+const MaterialsList = React.lazy(() => import("./pages/masters/MaterialsList"));
+const MaterialsForm = React.lazy(() => import("./pages/masters/MaterialsForm"));
+
+// Masters — Work Plans
+const WorkPlanList = React.lazy(() => import("./pages/masters/WorkPlanList"));
+const WorkPlanForm = React.lazy(() => import("./pages/masters/WorkPlanForm"));
 
 // Services — Service
 const ServiceList = React.lazy(() => import("./pages/services/ServiceList"));
@@ -75,6 +90,26 @@ const OurFeaturesForm = React.lazy(
 // Masters — Ads Banner
 const AdsBannerList = React.lazy(() => import("./pages/masters/AdsBannerList"));
 const AdsBannerForm = React.lazy(() => import("./pages/masters/AdsBannerForm"));
+
+// Products
+const ProductCategoryList = React.lazy(() => import("./pages/products/ProductCategoryList"));
+const ProductCategoryForm = React.lazy(() => import("./pages/products/ProductCategoryForm"));
+const ProductHighlightList = React.lazy(() => import("./pages/products/ProductHighlightList"));
+const ProductHighlightForm = React.lazy(() => import("./pages/products/ProductHighlightForm"));
+const ProductsList = React.lazy(() => import("./pages/products/ProductsList"));
+const ProductForm = React.lazy(() => import("./pages/products/ProductForm"));
+const ProductFaqList = React.lazy(() => import("./pages/products/ProductFaqList"));
+const ProductFaqForm = React.lazy(() => import("./pages/products/ProductFaqForm"));
+const ProductMediaList = React.lazy(() => import("./pages/products/ProductMediaList"));
+const ProductMediaForm = React.lazy(() => import("./pages/products/ProductMediaForm"));
+const ColorsList = React.lazy(() => import("./pages/products/ColorsList"));
+const ColorForm = React.lazy(() => import("./pages/products/ColorForm"));
+const SizesList = React.lazy(() => import("./pages/products/SizesList"));
+const SizeForm = React.lazy(() => import("./pages/products/SizeForm"));
+const TagsList = React.lazy(() => import("./pages/products/TagsList"));
+const TagForm = React.lazy(() => import("./pages/products/TagForm"));
+const ProductTagsList = React.lazy(() => import("./pages/products/ProductTagsList"));
+const ProductTagForm = React.lazy(() => import("./pages/products/ProductTagForm"));
 
 // Masters — Projects
 const ProjectsList = React.lazy(() => import("./pages/masters/ProjectsList"));
@@ -132,16 +167,31 @@ const CoreValuesForm = React.lazy(() => import("./pages/about/CoreValuesForm"));
 const HistoryList = React.lazy(() => import("./pages/about/HistoryList"));
 const HistoryForm = React.lazy(() => import("./pages/about/HistoryForm"));
 
+// About — Industries
+const AboutIndustriesList = React.lazy(() => import("./pages/about/AboutIndustriesList"));
+const AboutIndustriesForm = React.lazy(() => import("./pages/about/AboutIndustriesForm"));
+
 // About — Messages
 const MessagesList = React.lazy(() => import("./pages/about/MessagesList"));
 const MessagesForm = React.lazy(() => import("./pages/about/MessagesForm"));
 
+// About — Milestones
+const MilestonesList = React.lazy(() => import("./pages/about/MilestonesList"));
+const MilestonesForm = React.lazy(() => import("./pages/about/MilestonesForm"));
+
 // Contact — CMS
 const ContactCmsForm = React.lazy(() => import("./pages/contact/ContactCmsForm"));
+
+// Policies — Privacy Policy CMS
+const PrivacyPolicyForm = React.lazy(() => import("./pages/policies/PrivacyPolicyForm"));
 
 // Contact — Connections
 const ConnectionsList = React.lazy(() => import("./pages/contact/ConnectionsList"));
 const ConnectionsForm = React.lazy(() => import("./pages/contact/ConnectionsForm"));
+
+// Contact Enquiries — read-only, no create/edit (submissions come from the public site)
+const ContactEnquiryList = React.lazy(() => import("./pages/enquiries/ContactEnquiryList"));
+const ContactEnquiryView = React.lazy(() => import("./pages/enquiries/ContactEnquiryView"));
 
 const queryClient = new QueryClient();
 // Protected Route Component
@@ -242,13 +292,26 @@ const App = () => (
               <Route path="/about-history/new" element={<HistoryForm />} />
               <Route path="/about-history/:id/edit" element={<HistoryForm />} />
 
+              {/* About Industries */}
+              <Route path="/about-industries" element={<AboutIndustriesList />} />
+              <Route path="/about-industries/new" element={<AboutIndustriesForm />} />
+              <Route path="/about-industries/:id/edit" element={<AboutIndustriesForm />} />
+
               {/* About Messages */}
               <Route path="/about-messages" element={<MessagesList />} />
               <Route path="/about-messages/new" element={<MessagesForm />} />
               <Route path="/about-messages/:id/edit" element={<MessagesForm />} />
 
+              {/* About Milestones */}
+              <Route path="/about-milestones" element={<MilestonesList />} />
+              <Route path="/about-milestones/new" element={<MilestonesForm />} />
+              <Route path="/about-milestones/:id/edit" element={<MilestonesForm />} />
+
               {/* Contact CMS */}
               <Route path="/contact-cms" element={<ContactCmsForm />} />
+
+              {/* Privacy Policy CMS */}
+              <Route path="/privacy-policy" element={<PrivacyPolicyForm />} />
 
               {/* Contact Connections */}
               <Route path="/contact-connections" element={<ConnectionsList />} />
@@ -267,6 +330,16 @@ const App = () => (
               <Route path="/industry" element={<IndustryList />} />
               <Route path="/industry/new" element={<IndustryForm />} />
               <Route path="/industry/:id/edit" element={<IndustryForm />} />
+
+              {/* Materials Routes */}
+              <Route path="/materials" element={<MaterialsList />} />
+              <Route path="/materials/new" element={<MaterialsForm />} />
+              <Route path="/materials/:id/edit" element={<MaterialsForm />} />
+
+              {/* Work Plan Routes */}
+              <Route path="/work-plans" element={<WorkPlanList />} />
+              <Route path="/work-plans/new" element={<WorkPlanForm />} />
+              <Route path="/work-plans/:id/edit" element={<WorkPlanForm />} />
 
               {/* Service Routes */}
               <Route path="/services" element={<ServiceList />} />
@@ -300,10 +373,55 @@ const App = () => (
                 element={<AdsBannerForm />}
               />
 
+              {/* Product Category Routes */}
+              <Route path="/product-categories" element={<ProductCategoryList />} />
+              <Route path="/product-categories/new" element={<ProductCategoryForm />} />
+              <Route path="/product-categories/:id/edit" element={<ProductCategoryForm />} />
+
+              {/* Product Highlight Routes */}
+              <Route path="/product-highlights" element={<ProductHighlightList />} />
+              <Route path="/product-highlights/new" element={<ProductHighlightForm />} />
+              <Route path="/product-highlights/:id/edit" element={<ProductHighlightForm />} />
+
+              {/* Products Routes */}
+              <Route path="/products" element={<ProductsList />} />
+              <Route path="/products/new" element={<ProductForm />} />
+              <Route path="/products/:id/edit" element={<ProductForm />} />
+              <Route path="/products/:productId/faqs" element={<ProductFaqList />} />
+              <Route path="/products/:productId/faqs/new" element={<ProductFaqForm />} />
+              <Route path="/products/:productId/faqs/:id/edit" element={<ProductFaqForm />} />
+              <Route path="/products/:productId/media" element={<ProductMediaList />} />
+              <Route path="/products/:productId/media/new" element={<ProductMediaForm />} />
+              <Route path="/products/:productId/media/:id/edit" element={<ProductMediaForm />} />
+
+              {/* Color Routes */}
+              <Route path="/colors" element={<ColorsList />} />
+              <Route path="/colors/new" element={<ColorForm />} />
+              <Route path="/colors/:id/edit" element={<ColorForm />} />
+
+              {/* Size Routes */}
+              <Route path="/sizes" element={<SizesList />} />
+              <Route path="/sizes/new" element={<SizeForm />} />
+              <Route path="/sizes/:id/edit" element={<SizeForm />} />
+
+              {/* Tag Routes */}
+              <Route path="/tags" element={<TagsList />} />
+              <Route path="/tags/new" element={<TagForm />} />
+              <Route path="/tags/:id/edit" element={<TagForm />} />
+
+              {/* Product Tag Routes */}
+              <Route path="/product-tags" element={<ProductTagsList />} />
+              <Route path="/product-tags/new" element={<ProductTagForm />} />
+              <Route path="/product-tags/:id/edit" element={<ProductTagForm />} />
+
               {/* Projects Routes */}
               <Route path="/projects" element={<ProjectsList />} />
               <Route path="/projects/new" element={<ProjectsForm />} />
               <Route path="/projects/:id/edit" element={<ProjectsForm />} />
+
+              {/* Contact Enquiries Routes — list + view only, no new/edit */}
+              <Route path="/enquiries" element={<ContactEnquiryList />} />
+              <Route path="/enquiries/:id" element={<ContactEnquiryView />} />
 
               {/* Site Settings Route */}
               <Route path="/site-settings" element={<SiteSettingsForm />} />
@@ -314,6 +432,17 @@ const App = () => (
               <Route
                 path="/social-media/:id/edit"
                 element={<SocialMediaForm />}
+              />
+
+              {/* Floating Icons Routes */}
+              <Route path="/floating-icons" element={<FloatingIconList />} />
+              <Route
+                path="/floating-icons/new"
+                element={<FloatingIconForm />}
+              />
+              <Route
+                path="/floating-icons/:id/edit"
+                element={<FloatingIconForm />}
               />
 
               {/* Pages Routes */}
@@ -339,6 +468,7 @@ const App = () => (
 
               {/* Meta Tags Routes */}
               <Route path="/meta-tags" element={<MetaTagsList />} />
+              <Route path="/meta-tags/:id/edit" element={<MetaTagsForm />} />
 
               {/* Users */}
               <Route path="/users" element={<UsersList />} />

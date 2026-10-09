@@ -368,6 +368,7 @@ export function FormKeywordsField<T extends FieldValues>({
   placeholder,
 }: BaseFormFieldProps<T>) {
   const [inputValue, setInputValue] = React.useState("");
+  const isArabic = name.endsWith("_ar");
 
   return (
     <FormField
@@ -435,6 +436,8 @@ export function FormKeywordsField<T extends FieldValues>({
                     field.onBlur();
                   }}
                   placeholder={placeholder}
+                  dir={isArabic ? "rtl" : undefined}
+                  className={isArabic ? "text-right" : undefined}
                 />
               </div>
             </FormControl>

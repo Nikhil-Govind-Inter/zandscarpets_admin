@@ -7,7 +7,7 @@ import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { FormTextField, FormTextareaField } from "@/components/forms/FormFieldComponents";
+import { FormTextField, FormRichTextField } from "@/components/forms/FormFieldComponents";
 import { homeCmsSchema, HomeCmsFormData } from "@/schemas/homeCmsSchema";
 import { fetchHomeCms, saveHomeCms } from "@/services/home/homeCmsApi";
 
@@ -297,8 +297,8 @@ export default function HomeCmsForm() {
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormTextareaField form={form} name="features_description" label="Features Description" placeholder="Enter features description" />
-                <FormTextareaField form={form} name="features_description_ar" label="Features Description (Arabic)" placeholder="أدخل وصف المميزات" />
+                <FormRichTextField form={form} name="features_description" label="Features Description" placeholder="Enter features description" />
+                <FormRichTextField form={form} name="features_description_ar" label="Features Description (Arabic)" placeholder="أدخل وصف المميزات" />
               </div>
             </CardContent>
           </Card>
@@ -389,8 +389,8 @@ export default function HomeCmsForm() {
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormTextareaField form={form} name="cta_description" label="CTA Description" placeholder="Enter CTA description" />
-                <FormTextareaField form={form} name="cta_description_ar" label="CTA Description (Arabic)" placeholder="أدخل وصف CTA" />
+                <FormRichTextField form={form} name="cta_description" label="CTA Description" placeholder="Enter CTA description" />
+                <FormRichTextField form={form} name="cta_description_ar" label="CTA Description (Arabic)" placeholder="أدخل وصف CTA" />
               </div>
             </CardContent>
           </Card>
@@ -437,8 +437,8 @@ export default function HomeCmsForm() {
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormTextareaField form={form} name="premium_description" label="Premium Description" placeholder="Enter premium description" />
-                <FormTextareaField form={form} name="premium_description_ar" label="Premium Description (Arabic)" placeholder="أدخل وصف البريميوم" />
+                <FormRichTextField form={form} name="premium_description" label="Premium Description" placeholder="Enter premium description" />
+                <FormRichTextField form={form} name="premium_description_ar" label="Premium Description (Arabic)" placeholder="أدخل وصف البريميوم" />
               </div>
             </CardContent>
           </Card>

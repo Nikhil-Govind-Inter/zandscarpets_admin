@@ -4,10 +4,6 @@ import { QuickActions } from "@/components/dashboard/QuickActions";
 import {
   FileText,
   Briefcase,
-  Users,
-  TrendingUp,
-  Eye,
-  MessageSquare,
   UserCheck,
   MapPin,
 } from "lucide-react";

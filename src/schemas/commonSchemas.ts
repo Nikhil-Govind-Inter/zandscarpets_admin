@@ -4,7 +4,9 @@ import { commonValidations } from "@/utils/formUtils";
 
 export const socialMediaSchema = z.object({
   media_path: commonValidations.requiredFile("Icon"),
+  footer_media_path: z.custom<File | string>().optional(),
   media_alt: commonValidations.requiredString("Alt text"),
+  media_alt_ar: commonValidations.requiredString("Alt text (Arabic)"),
   link: commonValidations.requiredString("Link"),
   sort_order: commonValidations.sortOrder,
   is_active: commonValidations.booleanStatus,
@@ -13,18 +15,24 @@ export const socialMediaSchema = z.object({
 export const footerMediaSchema = z.object({
   media_path: commonValidations.requiredFile("Media"),
   media_alt: commonValidations.requiredString("Alt text"),
+  media_alt_ar: commonValidations.requiredString("Alt text (Arabic)"),
   sort_order: commonValidations.sortOrder,
   is_active: commonValidations.booleanStatus,
 });
 
 export const siteSettingsSchema = z.object({
   address: commonValidations.requiredText("Address"),
+  address_ar: commonValidations.requiredText("Address (Arabic)"),
   email: commonValidations.requiredEmail,
   admin_email: commonValidations.requiredEmail,
   phone_number: commonValidations.requiredString("Phone Number"),
   whatsapp_number: commonValidations.requiredString("Whatsapp Number"),
   header_logo_media_path: commonValidations.requiredFile("Header logo"),
   footer_logo_media_path: commonValidations.requiredFile("Footer logo"),
+  header_logo_media_alt: commonValidations.optionalString,
+  header_logo_media_alt_ar: commonValidations.optionalString,
+  footer_logo_media_alt: commonValidations.optionalString,
+  footer_logo_media_alt_ar: commonValidations.optionalString,
 });
 
 // Base schemas for common form

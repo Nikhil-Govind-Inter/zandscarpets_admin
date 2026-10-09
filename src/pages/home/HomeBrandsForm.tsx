@@ -15,13 +15,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Combobox, ComboboxOption } from "@/components/ui/combobox";
 import { FormFileUploadField } from "@/components/forms/FormFieldComponents";
-import { Save, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   fetchHomeBrandsById,
-  fetchHomeBrandsList,
   createHomeBrands,
   updateHomeBrands,
   ApiError,
@@ -37,7 +35,6 @@ export default function HomeBrandsForm() {
   const { id } = useParams();
   const isEditing = Boolean(id);
 
-  const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
 
   const form = useForm<HomeBrandsFormData>({
@@ -87,7 +84,6 @@ export default function HomeBrandsForm() {
 
   const onSubmit = async (data: HomeBrandsFormData) => {
     try {
-      setLoading(true);
 
       const formData = new FormData();
 
@@ -126,8 +122,6 @@ export default function HomeBrandsForm() {
             : `Failed to ${isEditing ? "update" : "create"} home brand`,
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 

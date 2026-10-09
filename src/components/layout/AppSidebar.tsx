@@ -6,6 +6,7 @@ import {
   ChevronRight,
   HelpCircle,
   Share2,
+  MousePointerClick,
   Home,
   Tags,
   Monitor,
@@ -26,6 +27,19 @@ import {
   Briefcase,
   Wrench,
   ListChecks,
+  Factory,
+  Mail,
+  Package,
+  Boxes,
+  Star,
+  ClipboardList,
+  LayoutTemplate,
+  ShieldCheck,
+  Ruler,
+  Palette,
+  Tag,
+  Hash,
+  ShoppingBag,
 } from "lucide-react";
 
 import {
@@ -61,7 +75,9 @@ const aboutSection = [
   { title: "CMS", url: "/about-cms", icon: Info },
   { title: "Core Values", url: "/about-core-values", icon: Heart },
   { title: "History", url: "/about-history", icon: Clock },
+  { title: "Industries", url: "/about-industries", icon: Factory },
   { title: "Messages", url: "/about-messages", icon: MessageSquare },
+  { title: "Milestones", url: "/about-milestones", icon: Target },
 ];
 
 const contactSection = [
@@ -77,20 +93,43 @@ const projectsSection = [
   },
 ];
 
+const productsSection = [
+  { title: "Products", url: "/products", icon: ShoppingBag },
+  { title: "Categories", url: "/product-categories", icon: Boxes },
+  { title: "Category Highlights", url: "/product-highlights", icon: Star },
+  { title: "Colors", url: "/colors", icon: Palette },
+  { title: "Sizes", url: "/sizes", icon: Ruler },
+  { title: "Tags", url: "/tags", icon: Tag },
+  { title: "Product Tags", url: "/product-tags", icon: Hash },
+];
+
+const enquiriesSection = [
+  {
+    title: "Contact Enquiries",
+    url: "/enquiries",
+    icon: Mail,
+  },
+];
+
 const commonSection = [
   { title: "Site Settings", url: "/site-settings", icon: Settings },
   { title: "Social Media", url: "/social-media", icon: Share2 },
+  { title: "Floating Icons", url: "/floating-icons", icon: MousePointerClick },
   { title: "Meta Tags", url: "/meta-tags", icon: Tags },
   { title: "Banners", url: "/banners", icon: Image },
   { title: "Footer Media", url: "/footer-media", icon: Image },
+];
+const policiesSection = [
+  { title: "Privacy Policy", url: "/privacy-policy", icon: ShieldCheck },
 ];
 const mastersSection = [
   { title: "Pages", url: "/pages", icon: Compass },
   { title: "Faqs", url: "/faqs", icon: HelpCircle },
   { title: "Industry", url: "/industry", icon: MapPin },
+  { title: "Materials", url: "/materials", icon: Package },
+  { title: "Work Plans", url: "/work-plans", icon: ClipboardList },
   { title: "Our Features", url: "/our-features", icon: TrendingUp },
   { title: "Ads Banner", url: "/ads-banner", icon: Image },
-  { title: "Projects", url: "/projects", icon: Briefcase },
 ];
 const servicesSection = [
   { title: "Services", url: "/services", icon: Wrench },
@@ -98,6 +137,8 @@ const servicesSection = [
   { title: "Process Steps", url: "/process-steps", icon: ListChecks },
 ];
 const adminSection = [{ title: "Users", url: "/users", icon: Users }];
+
+const CMS_SECTIONS = ["home", "about", "contact", "services", "common"];
 
 const isNavActive = (pathname: string, url: string, end = false) =>
   end ? pathname === url : pathname === url || pathname.startsWith(`${url}/`);
@@ -109,6 +150,14 @@ export function AppSidebar() {
   const location = useLocation();
   const { role } = useAuth();
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [cmsOpen, setCmsOpen] = useState(false);
+
+  // CMS is open only while one of its sub-sections is open; opening any
+  // other group closes it.
+  useEffect(() => {
+    if (openSection === null) return;
+    setCmsOpen(CMS_SECTIONS.includes(openSection));
+  }, [openSection]);
 
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -134,6 +183,7 @@ export function AppSidebar() {
       [
         "/site-settings",
         "/social-media",
+        "/floating-icons",
         "/meta-tags",
         "/common-faq",
         "/banners",
@@ -141,8 +191,26 @@ export function AppSidebar() {
       ].some((route) => path.includes(route))
     ) {
       setOpenSection("common");
+    } else if (
+      [
+        "/products",
+        "/product-categories",
+        "/product-highlights",
+        "/product-tags",
+        "/colors",
+        "/sizes",
+        "/tags",
+      ].some((route) =>
+        path.includes(route),
+      )
+    ) {
+      setOpenSection("products");
     } else if (["/projects"].some((route) => path.includes(route))) {
       setOpenSection("projects");
+    } else if (["/enquiries"].some((route) => path.includes(route))) {
+      setOpenSection("enquiries");
+    } else if (["/privacy-policy"].some((route) => path.includes(route))) {
+      setOpenSection("policies");
     }
     // Masters section
     else if (
@@ -150,6 +218,8 @@ export function AppSidebar() {
         "/pages",
         "/faqs",
         "/industry",
+        "/materials",
+        "/work-plans",
         "/our-features",
         "/ads-banner",
         "/projects",
@@ -218,38 +288,70 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Home Management */}
+        {/* CMS (Home, About, Contact, Services, Settings & Common) */}
         <GetLayout
-          Icon={Home}
-          title="Home"
+          Icon={LayoutTemplate}
+          title="CMS"
           isCollapsed={isCollapsed}
-          open={openSection === "home"}
-          onOpenChange={(isOpen) => setOpenSection(isOpen ? "home" : null)}
+          open={cmsOpen}
+          onOpenChange={(isOpen) => {
+            setCmsOpen(isOpen);
+            if (isOpen) setOpenSection(null);
+          }}
           pathname={location.pathname}
-          Section={homeSection}
-        />
-
-        {/* About Management */}
-        <GetLayout
-          Icon={Info}
-          title="About"
-          isCollapsed={isCollapsed}
-          open={openSection === "about"}
-          onOpenChange={(isOpen) => setOpenSection(isOpen ? "about" : null)}
-          pathname={location.pathname}
-          Section={aboutSection}
-        />
-
-        {/* Contact Management */}
-        <GetLayout
-          Icon={Phone}
-          title="Contact"
-          isCollapsed={isCollapsed}
-          open={openSection === "contact"}
-          onOpenChange={(isOpen) => setOpenSection(isOpen ? "contact" : null)}
-          pathname={location.pathname}
-          Section={contactSection}
-        />
+          Section={[]}
+        >
+            <GetLayout
+              nested
+              Icon={Home}
+              title="Home"
+              isCollapsed={isCollapsed}
+              open={openSection === "home"}
+              onOpenChange={(isOpen) => setOpenSection(isOpen ? "home" : null)}
+              pathname={location.pathname}
+              Section={homeSection}
+            />
+            <GetLayout
+              nested
+              Icon={Info}
+              title="About"
+              isCollapsed={isCollapsed}
+              open={openSection === "about"}
+              onOpenChange={(isOpen) => setOpenSection(isOpen ? "about" : null)}
+              pathname={location.pathname}
+              Section={aboutSection}
+            />
+            <GetLayout
+              nested
+              Icon={Phone}
+              title="Contact"
+              isCollapsed={isCollapsed}
+              open={openSection === "contact"}
+              onOpenChange={(isOpen) => setOpenSection(isOpen ? "contact" : null)}
+              pathname={location.pathname}
+              Section={contactSection}
+            />
+            <GetLayout
+              nested
+              Icon={Wrench}
+              title="Services"
+              isCollapsed={isCollapsed}
+              open={openSection === "services"}
+              onOpenChange={(isOpen) => setOpenSection(isOpen ? "services" : null)}
+              pathname={location.pathname}
+              Section={servicesSection}
+            />
+            <GetLayout
+              nested
+              Icon={Settings}
+              title="Settings & Common"
+              isCollapsed={isCollapsed}
+              open={openSection === "common"}
+              onOpenChange={(isOpen) => setOpenSection(isOpen ? "common" : null)}
+              pathname={location.pathname}
+              Section={commonSection}
+            />
+        </GetLayout>
 
         <GetLayout
           Icon={Compass}
@@ -261,7 +363,26 @@ export function AppSidebar() {
           Section={projectsSection}
         />
 
-     
+        <GetLayout
+          Icon={Package}
+          title="Products"
+          isCollapsed={isCollapsed}
+          open={openSection === "products"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "products" : null)}
+          pathname={location.pathname}
+          Section={productsSection}
+        />
+
+        {/* Contact Enquiries */}
+        <GetLayout
+          Icon={Mail}
+          title="Enquiries"
+          isCollapsed={isCollapsed}
+          open={openSection === "enquiries"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "enquiries" : null)}
+          pathname={location.pathname}
+          Section={enquiriesSection}
+        />
 
         {/* Masters */}
         <GetLayout
@@ -274,26 +395,15 @@ export function AppSidebar() {
           Section={mastersSection}
         />
 
-        {/* Services */}
+        {/* Policies */}
         <GetLayout
-          Icon={Wrench}
-          title="Services"
+          Icon={ShieldCheck}
+          title="Policies"
           isCollapsed={isCollapsed}
-          open={openSection === "services"}
-          onOpenChange={(isOpen) => setOpenSection(isOpen ? "services" : null)}
+          open={openSection === "policies"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "policies" : null)}
           pathname={location.pathname}
-          Section={servicesSection}
-        />
-
-           {/* Common Sections */}
-        <GetLayout
-          Icon={Settings}
-          title="Settings & Common"
-          isCollapsed={isCollapsed}
-          open={openSection === "common"}
-          onOpenChange={(isOpen) => setOpenSection(isOpen ? "common" : null)}
-          pathname={location.pathname}
-          Section={commonSection}
+          Section={policiesSection}
         />
 
         {role === ROLES.ADMIN && (
@@ -320,9 +430,12 @@ function GetLayout({
   isCollapsed,
   title,
   Icon,
+  nested = false,
+  children = null,
 }) {
+  const Wrapper = nested ? "div" : SidebarGroup;
   return (
-    <SidebarGroup>
+    <Wrapper className={nested ? "mt-1" : undefined}>
       <Collapsible open={!isCollapsed && open} onOpenChange={onOpenChange}>
         <CollapsibleTrigger
           className={`flex items-center w-full p-2 text-sm font-medium rounded-md transition-colors ${
@@ -349,6 +462,7 @@ function GetLayout({
               open ? "border-sidebar-primary/40" : "border-sidebar-border"
             }`}
           >
+            {children}
             <SidebarMenu>
               {Section.map((item) => (
                 <SidebarMenuItem key={item.title}>
@@ -368,6 +482,6 @@ function GetLayout({
           </CollapsibleContent>
         )}
       </Collapsible>
-    </SidebarGroup>
+    </Wrapper>
   );
 }

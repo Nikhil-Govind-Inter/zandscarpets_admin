@@ -12,14 +12,19 @@ interface PaginatedResponse<T> {
   };
 }
 
-type Fetcher<T> = (
+type Fetcher<T, F> = (
   page: number,
   limit: number,
-  search?: string
+  search?: string,
+  filters?: F
 ) => Promise<PaginatedResponse<T>>;
 
 const SEARCH_DEBOUNCE_MS = 600;
-export function usePaginatedList<T>(fetcher: Fetcher<T>, initialLimit = 10) {
+export function usePaginatedList<T, F = undefined>(
+  fetcher: Fetcher<T, F>,
+  initialLimit = 10,
+  filters?: F
+) {
   const [items, setItems] = useState<T[]>([]);
   const [page, setPage] = useState(1);
   const [itemsPage, setItemsPage] = useState(1);
@@ -50,10 +55,30 @@ export function usePaginatedList<T>(fetcher: Fetcher<T>, initialLimit = 10) {
     setPage(1);
   }, [debouncedSearch]);
 
+  // Filters are usually an inline object; compare by value so a new reference
+  // with the same contents doesn't refetch.
+  const filtersKey = JSON.stringify(filters ?? null);
+  const filtersRef = useRef(filters);
+  filtersRef.current = filters;
+
+  const isFirstFilters = useRef(true);
+  useEffect(() => {
+    if (isFirstFilters.current) {
+      isFirstFilters.current = false;
+      return;
+    }
+    setPage(1);
+  }, [filtersKey]);
+
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetcher(page, limit, debouncedSearch || undefined);
+      const response = await fetcher(
+        page,
+        limit,
+        debouncedSearch || undefined,
+        filtersRef.current
+      );
       setItems(response.data.data);
       setItemsPage(page);
       setItemsLimit(limit);
@@ -63,7 +88,9 @@ export function usePaginatedList<T>(fetcher: Fetcher<T>, initialLimit = 10) {
       setLoading(false);
       setSearching(false);
     }
-  }, [fetcher, page, limit, debouncedSearch]);
+    // filtersKey (not the filters object) drives refetches; the value is read via ref.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher, page, limit, debouncedSearch, filtersKey]);
 
   useEffect(() => {
     load();

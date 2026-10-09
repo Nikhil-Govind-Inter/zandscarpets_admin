@@ -36,8 +36,13 @@ export interface AboutCms {
   message_subtitle_ar: string;
   work_title: string;
   work_title_ar: string;
+  work_media_path: string | null;
+  work_media_alt: string | null;
+  work_media_alt_ar: string;
   about_core_title: string;
   about_core_title_ar: string;
+  about_core_description: string;
+  about_core_description_ar: string;
   about_code_media_path: string | null;
   about_code_media_alt: string | null;
   about_code_media_alt_ar: string;

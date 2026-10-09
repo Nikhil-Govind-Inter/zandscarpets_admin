@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -14,14 +13,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormFileUploadField } from "@/components/forms/FormFieldComponents";
+import {
+  FormFileUploadField,
+  FormTextareaField,
+  FormTextField,
+} from "@/components/forms/FormFieldComponents";
 import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   fetchSiteSettings,
   saveSiteSettings,
 } from "@/services/common/siteSettingsApi";
-import { siteSettingsSchema, SiteSettingsFormData } from "@/schemas/commonSchemas";
+import {
+  siteSettingsSchema,
+  SiteSettingsFormData,
+} from "@/schemas/commonSchemas";
 
 export default function SiteSettingsForm() {
   const { toast } = useToast();
@@ -32,12 +38,17 @@ export default function SiteSettingsForm() {
     resolver: zodResolver(siteSettingsSchema),
     defaultValues: {
       address: "",
+      address_ar: "",
       email: "",
       phone_number: "",
       whatsapp_number: "",
       admin_email: "",
       header_logo_media_path: "",
       footer_logo_media_path: "",
+      header_logo_media_alt: "",
+      header_logo_media_alt_ar: "",
+      footer_logo_media_alt: "",
+      footer_logo_media_alt_ar: "",
     },
   });
 
@@ -52,17 +63,21 @@ export default function SiteSettingsForm() {
       const data = response.data;
 
       if (data) {
-
         // Set existing file paths for preview if they exist — FileUpload itself
         // resolves relative paths against VITE_IMAGE_URL, so pass the raw path.
         form.reset({
           email: data.email || "",
           address: data.address || "",
+          address_ar: data.address_ar || "",
           admin_email: data.admin_email || "",
           phone_number: data.phone_number || "",
           whatsapp_number: data.whatsapp_number || "",
           header_logo_media_path: data.header_logo_media_path || "",
           footer_logo_media_path: data.footer_logo_media_path || "",
+          header_logo_media_alt: data.header_logo_media_alt || "",
+          header_logo_media_alt_ar: data.header_logo_media_alt_ar || "",
+          footer_logo_media_alt: data.footer_logo_media_alt || "",
+          footer_logo_media_alt_ar: data.footer_logo_media_alt_ar || "",
         });
       }
     } catch (error) {
@@ -78,6 +93,7 @@ export default function SiteSettingsForm() {
 
       const formData = new FormData();
       formData.append("address", data.address);
+      formData.append("address_ar", data.address_ar);
       formData.append("email", data.email);
       formData.append("phone_number", data.phone_number);
       formData.append("whatsapp_number", data.whatsapp_number);
@@ -85,6 +101,10 @@ export default function SiteSettingsForm() {
       // Add files if new ones were chosen, otherwise fall back to the existing path string
       formData.append("header_logo_media_path", data.header_logo_media_path);
       formData.append("footer_logo_media_path", data.footer_logo_media_path);
+      formData.append("header_logo_media_alt", data.header_logo_media_alt ?? "");
+      formData.append("header_logo_media_alt_ar", data.header_logo_media_alt_ar ?? "");
+      formData.append("footer_logo_media_alt", data.footer_logo_media_alt ?? "");
+      formData.append("footer_logo_media_alt_ar", data.footer_logo_media_alt_ar ?? "");
 
       await saveSiteSettings(formData);
       toast({
@@ -123,20 +143,21 @@ export default function SiteSettingsForm() {
               <CardTitle>Contact Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="address"  
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Enter address" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormTextareaField
+                  form={form}
+                  name="address"
+                  label="Address"
+                  placeholder="Enter address"
+                />
 
+                <FormTextareaField
+                  form={form}
+                  name="address_ar"
+                  label="Arabic Address"
+                  placeholder="أدخل العنوان بالعربية"
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -145,7 +166,11 @@ export default function SiteSettingsForm() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter email" type="email" {...field} />
+                        <Input
+                          placeholder="Enter email"
+                          type="email"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -167,33 +192,35 @@ export default function SiteSettingsForm() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="whatsapp_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Whatsapp Number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter whatsapp number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="whatsapp_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Whatsapp Number</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter whatsapp number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="admin_email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Admin Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter admin email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="admin_email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Admin Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter admin email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -218,6 +245,34 @@ export default function SiteSettingsForm() {
                   label="Footer Logo"
                   placeholder="Upload footer logo"
                   accept="image/*"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="header_logo_media_alt"
+                  label="Header Logo Alt"
+                  placeholder="Enter alt text"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="header_logo_media_alt_ar"
+                  label="Header Logo Alt (Arabic)"
+                  placeholder="Enter alt text"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="footer_logo_media_alt"
+                  label="Footer Logo Alt"
+                  placeholder="Enter alt text"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="footer_logo_media_alt_ar"
+                  label="Footer Logo Alt (Arabic)"
+                  placeholder="Enter alt text"
                 />
               </div>
             </CardContent>

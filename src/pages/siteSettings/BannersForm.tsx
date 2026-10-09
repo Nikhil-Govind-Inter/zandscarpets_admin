@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
 import {
   Form,
@@ -15,7 +14,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormFileUploadField } from "@/components/forms/FormFieldComponents";
+import {
+  FormFileUploadField,
+  FormTextField,
+} from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -44,10 +46,12 @@ export default function BannersForm() {
     defaultValues: {
       page_id: "",
       title: "",
+      title_ar: "",
       sub_title: "",
+      sub_title_ar: "",
       media_alt: "",
-      desktop_media_path: "",
-      mobile_media_path: "",
+      media_alt_ar: "",
+      media_path: "",
     },
   });
 
@@ -77,7 +81,8 @@ export default function BannersForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof ApiError ? error?.message : "Failed to load pages",
+        description:
+          error instanceof ApiError ? error?.message : "Failed to load pages",
         variant: "destructive",
       });
     }
@@ -99,15 +104,20 @@ export default function BannersForm() {
       form.reset({
         page_id: data.page_id ? String(data.page_id) : "",
         title: data.title || "",
+        title_ar: data.title_ar || "",
         sub_title: data.sub_title || "",
+        sub_title_ar: data.sub_title_ar || "",
         media_alt: data.media_alt || "",
-        desktop_media_path: data.desktop_media_path || "",
-        mobile_media_path: data.mobile_media_path || "",
+        media_alt_ar: data.media_alt_ar || "",
+        media_path: data.media_path || "",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof ApiError ? error.message : "Failed to load banner data",
+        description:
+          error instanceof ApiError
+            ? error.message
+            : "Failed to load banner data",
         variant: "destructive",
       });
     } finally {
@@ -125,20 +135,31 @@ export default function BannersForm() {
     try {
       setLoading(true);
 
-      const payload = {
-        page_id: Number(data.page_id),
-        title: data.title,
-        sub_title: data.sub_title,
-        media_alt: data.media_alt,
-        desktop_media_path: data.desktop_media_path,
-        mobile_media_path: data.mobile_media_path,
-      };
+      const formData = new FormData();
+      formData.append("page_id", data.page_id.toString());
+      formData.append("title", data.title);
+      formData.append("title_ar", data.title_ar);
+      formData.append("sub_title", data.sub_title);
+      formData.append("sub_title_ar", data.sub_title_ar);
+      formData.append("media_alt", data.media_alt);
+      formData.append("media_alt_ar", data.media_alt_ar);
 
+      // multerMiddleware only keeps a text media-path value if it's a fresh upload or an
+      // absolute `https?://<host>/uploads/...` URL, so an unchanged existing (relative)
+      // path must be resent as an absolute URL.
+      const appendMediaPath = (key: string, value: File | string) => {
+        if (value instanceof File || /^https?:\/\//.test(value)) {
+          formData.append(key, value);
+        } else {
+          formData.append(key, `${import.meta.env.VITE_IMAGE_URL}/${value}`);
+        }
+      };
+      appendMediaPath("media_path", data.media_path);
       if (isEditing && id) {
-        await updateBanner(parseInt(id), payload);
+        await updateBanner(parseInt(id), formData);
         toast({ title: "Success", description: "Banner updated successfully" });
       } else {
-        await createBanner(payload);
+        await createBanner(formData);
         toast({ title: "Success", description: "Banner created successfully" });
       }
 
@@ -146,7 +167,9 @@ export default function BannersForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description: error ? error.message : `Failed to ${isEditing ? "update" : "create"} banner`,
+        description: error
+          ? error.message
+          : `Failed to ${isEditing ? "update" : "create"} banner`,
         variant: "destructive",
       });
     } finally {
@@ -161,11 +184,17 @@ export default function BannersForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/banners")}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/banners")}
+        >
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Banner</h1>
+          <h1 className="text-2xl font-bold">
+            {isEditing ? "Edit" : "Add"} Banner
+          </h1>
           <p className="text-muted-foreground">
             {isEditing ? "Update" : "Create a new"} banner
           </p>
@@ -200,71 +229,69 @@ export default function BannersForm() {
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
+                <FormTextField
+                  form={form}
                   name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Banner title" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Title"
+                  placeholder="Banner title"
                 />
 
-                <FormField
-                  control={form.control}
-                  name="sub_title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sub Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Banner sub title" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <FormTextField
+                  form={form}
+                  name="title_ar"
+                  label="Title (Arabic)"
+                  placeholder="عنوان البانر"
                 />
               </div>
-
-              <FormField
-                control={form.control}
-                name="media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Describe the banner image" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormFileUploadField
+                <FormTextField
                   form={form}
-                  name="desktop_media_path"
-                  label="Desktop Image"
-                  placeholder="Upload desktop banner image"
-                  accept="image/*"
+                  name="sub_title"
+                  label="Sub Title"
+                  placeholder="Banner sub title"
                 />
 
-                <FormFileUploadField
+                <FormTextField
                   form={form}
-                  name="mobile_media_path"
-                  label="Mobile Image"
-                  placeholder="Upload mobile banner image"
-                  accept="image/*"
+                  name="sub_title_ar"
+                  label="Sub Title (Arabic)"
+                  placeholder="العنوان الفرعي للبانر"
                 />
               </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormTextField
+                  form={form}
+                  name="media_alt"
+                  label="Image Alt Text"
+                  placeholder="Image alt text"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="media_alt_ar"
+                  label="Image Alt Text (Arabic)"
+                  placeholder="النص البديل للصورة"
+                />
+              </div>
+
+              <FormFileUploadField
+                form={form}
+                name="media_path"
+                label="Image"
+                placeholder="Upload banner image"
+                accept="image/*"
+              />
             </CardContent>
           </Card>
 
           <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => navigate("/banners")}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/banners")}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>

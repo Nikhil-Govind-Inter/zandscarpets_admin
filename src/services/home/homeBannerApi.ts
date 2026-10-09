@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Home > Banner — backed by `/api/backend/home/home-banner`. File upload via
@@ -152,55 +153,8 @@ export const deleteHomeBanner = async (
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Server has no partial-patch route, so quick actions must resend the full
-// record (see adsBannerApi.ts's buildAdsBannerFormData for the same
-// convention). media_path needs special handling: multerMiddleware only
-// keeps a text media_path value if it's a freshly uploaded file or an
-// absolute `https?://<host>/uploads/...` URL — a bare relative path (what's
-// actually held in state/returned by the API) matches neither and gets
-// silently dropped.
-const buildHomeBannerFormData = (
-  item: HomeBannerRecord,
-  overrides: Partial<
-    Pick<
-      HomeBannerRecord,
-      "industry_id" | "title" | "title_ar" | "description" | "description_ar" | "media_alt" | "media_alt_ar" | "sort_order" | "is_active"
-    >
-  >,
-): FormData => {
-  const formData = new FormData();
-  formData.append(
-    "industry_id",
-    (overrides.industry_id ?? item.industry_id).toString(),
-  );
-  formData.append("title", overrides.title ?? item.title ?? "");
-  formData.append("title_ar", overrides.title_ar ?? item.title_ar ?? "");
-  formData.append("description", overrides.description ?? item.description ?? "");
-  formData.append("description_ar", overrides.description_ar ?? item.description_ar ?? "");
-  formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
-  formData.append("media_alt_ar", overrides.media_alt_ar ?? item.media_alt_ar ?? "");
-  formData.append(
-    "sort_order",
-    (overrides.sort_order ?? item.sort_order ?? 1).toString(),
-  );
-  formData.append(
-    "is_active",
-    (overrides.is_active ?? item.is_active ?? true).toString(),
-  );
+export const toggleHomeBannerStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("home-banner", item.id!, isActive);
 
-  if (item.media_path) {
-    const isAbsoluteUrl = /^https?:\/\//.test(item.media_path);
-    const mediaPath = isAbsoluteUrl
-      ? item.media_path
-      : `${import.meta.env.VITE_IMAGE_URL}/${item.media_path}`;
-    formData.append("media_path", mediaPath);
-  }
-
-  return formData;
-};
-
-export const toggleHomeBannerStatus = (item: HomeBannerRecord, isActive: boolean) =>
-  updateHomeBanner(item.id, buildHomeBannerFormData(item, { is_active: isActive }));
-
-export const updateHomeBannerSortOrder = (item: HomeBannerRecord, sortOrder: number) =>
-  updateHomeBanner(item.id, buildHomeBannerFormData(item, { sort_order: Math.max(1, sortOrder) }));
+export const updateHomeBannerSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("home-banner", item.id!, sortOrder);

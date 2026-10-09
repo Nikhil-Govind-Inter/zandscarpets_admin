@@ -15,7 +15,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormFileUploadField } from "@/components/forms/FormFieldComponents";
+import {
+  FormFileUploadField,
+  FormTextField,
+} from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -23,7 +26,10 @@ import {
   createFooterMedia,
   updateFooterMedia,
 } from "@/services/siteSettings/footerMediaApi";
-import { footerMediaSchema, FooterMediaFormData } from "@/schemas/commonSchemas";
+import {
+  footerMediaSchema,
+  FooterMediaFormData,
+} from "@/schemas/commonSchemas";
 
 export default function FooterMediaForm() {
   const { toast } = useToast();
@@ -39,6 +45,7 @@ export default function FooterMediaForm() {
     defaultValues: {
       media_path: "",
       media_alt: "",
+      media_alt_ar: "",
       sort_order: "1",
       is_active: true,
     },
@@ -60,6 +67,7 @@ export default function FooterMediaForm() {
         form.reset({
           media_path: data.media_path || "",
           media_alt: data.media_alt || "",
+          media_alt_ar: data.media_alt_ar || "",
           sort_order: (data.sort_order ?? 1).toString(),
           is_active: data.is_active ?? true,
         });
@@ -81,9 +89,9 @@ export default function FooterMediaForm() {
 
       const formData = new FormData();
       formData.append("media_alt", data.media_alt);
+      formData.append("media_alt_ar", data.media_alt_ar);
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
-
       // Add file if a new one was chosen, otherwise fall back to the existing path string
       if (data.media_path instanceof File) {
         formData.append("media_path", data.media_path);
@@ -148,19 +156,21 @@ export default function FooterMediaForm() {
               <CardTitle>Footer Media Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="media_alt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Alt Text</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Describe the media" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormTextField
+                  form={form}
+                  name="media_alt"
+                  label="Media Alt"
+                  placeholder="Enter media alt"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="media_alt_ar"
+                  label="Media Alt (Arabic)"
+                  placeholder="Enter media alt (Arabic)"
+                />
+              </div>
 
               <FormFileUploadField
                 form={form}
@@ -169,7 +179,14 @@ export default function FooterMediaForm() {
                 placeholder="Upload footer media"
                 accept="image/*"
               />
+            </CardContent>
+          </Card>
 
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -178,13 +195,17 @@ export default function FooterMediaForm() {
                     <FormItem>
                       <FormLabel>Sort Order</FormLabel>
                       <FormControl>
-                        <Input type="number" min={1} placeholder="1" {...field} />
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="1"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="is_active"
@@ -192,7 +213,9 @@ export default function FooterMediaForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
-                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
+                        <p className="text-sm text-muted-foreground">
+                          Enable or disable this item.
+                        </p>
                       </div>
                       <FormControl>
                         <Switch

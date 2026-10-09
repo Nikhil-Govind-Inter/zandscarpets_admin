@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
@@ -16,6 +16,8 @@ import {
   SocialMedia,
 } from "@/services/common/socialMediaApi";
 import { useToast } from "@/hooks/use-toast";
+import { useSortOrder } from "@/hooks/useSortOrder";
+import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
@@ -41,123 +43,21 @@ export default function SocialMediaList() {
     refetch,
   } = usePaginatedList<SocialMedia>(fetchSocialMediaList);
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const [statusToggleItem, setStatusToggleItem] = useState<{
-    item: SocialMedia;
-    newStatus: boolean;
-  } | null>(null);
 
   // Mirrors socialMediaItems so the debounced sort-order commit (below) can
   // read the latest optimistic value at fire time, instead of a stale one
   // captured when the timer was first scheduled.
-  const socialMediaItemsRef = useRef<SocialMedia[]>(socialMediaItems);
-  useEffect(() => {
-    socialMediaItemsRef.current = socialMediaItems;
-  }, [socialMediaItems]);
 
   // Per-item debounce state for sort-order changes: the pending commit timer,
   // and the last server-confirmed value to revert to if the eventual commit
   // fails.
-  const sortOrderTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
-  const sortOrderOriginal = useRef<Record<number, number>>({});
-
-  // Clear any pending debounce timers on unmount so they don't fire (and try
-  // to setState) after the component is gone.
-  useEffect(() => {
-    const timers = sortOrderTimers.current;
-    return () => {
-      Object.values(timers).forEach(clearTimeout);
-    };
-  }, []);
-
-  const confirmStatusToggle = async () => {
-    if (!statusToggleItem) return;
-
-    try {
-      const { item, newStatus } = statusToggleItem;
-      await toggleSocialMediaStatus(item, newStatus);
-
-      // Optimistic update for instant feedback...
-      setSocialMediaItems((prev) =>
-        prev.map((i) =>
-          i.id === item.id ? { ...i, is_active: newStatus } : i
-        )
-      );
-      // ...then resync with the server so the row can't drift from the
-      // current page/search results.
-      refetch();
-
-      toast({
-        title: "Success",
-        description: "Social media status updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update social media status",
-        variant: "destructive",
-      });
-    } finally {
-      setStatusToggleItem(null);
-    }
-  };
-
-  const SORT_ORDER_COMMIT_DELAY = 1000;
-
-  // Every click updates the visible value immediately, but the API call is
-  // debounced per item: rapid clicks just reschedule the same timer, so only
-  // the final value is sent once the user stops clicking.
-  const handleSortOrderChange = (item: SocialMedia, delta: number) => {
-    const newSortOrder = Math.max(1, (item.sort_order ?? 1) + delta);
-    if (newSortOrder === item.sort_order) return;
-
-    // First change in this burst — remember the server-confirmed value in
-    // case the eventual commit fails and we need to revert.
-    if (!sortOrderTimers.current[item.id!]) {
-      sortOrderOriginal.current[item.id!] = item.sort_order ?? 1;
-    }
-
-    // Optimistic update
-    setSocialMediaItems((prev) =>
-      prev.map((i) => (i.id === item.id ? { ...i, sort_order: newSortOrder } : i))
-    );
-
-    clearTimeout(sortOrderTimers.current[item.id!]);
-    sortOrderTimers.current[item.id!] = setTimeout(() => {
-      delete sortOrderTimers.current[item.id!];
-      handleSortOrder(item.id!);
-    }, SORT_ORDER_COMMIT_DELAY);
-  };
-
-  const handleSortOrder = async (itemId: number) => {
-    // Read the latest optimistic value, not whatever was captured when the
-    // first click in this burst scheduled the timer.
-    const latestItem = socialMediaItemsRef.current.find((i) => i.id === itemId);
-    if (!latestItem) return;
-
-    const finalSortOrder = latestItem.sort_order ?? 1;
-    const originalSortOrder = sortOrderOriginal.current[itemId];
-    delete sortOrderOriginal.current[itemId];
-
-    if (finalSortOrder === originalSortOrder) return;
-
-    try {
-      await updateSocialMediaSortOrder(latestItem, finalSortOrder);
-      toast({
-        title: "Success",
-        description: "Sort order updated successfully",
-      });
-    } catch (error) {
-      // Revert to the last server-confirmed value
-      setSocialMediaItems((prev) =>
-        prev.map((i) => (i.id === itemId ? { ...i, sort_order: originalSortOrder } : i))
-      );
-      toast({
-        title: "Error",
-        description: "Failed to update sort order",
-        variant: "destructive",
-      });
-    }
-  };
+  const handleSortOrderChange = useSortOrder(socialMediaItems, setSocialMediaItems, updateSocialMediaSortOrder);
+  const { statusToggleItem, setStatusToggleItem, confirmStatusToggle } = useStatusToggle({
+    setItems: setSocialMediaItems,
+    refetch,
+    toggleStatus: toggleSocialMediaStatus,
+    label: "Social media",
+  });
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;

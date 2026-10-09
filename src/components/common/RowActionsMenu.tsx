@@ -5,23 +5,31 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { ReactNode } from "react";
+import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 
 interface RowActionsMenuProps {
+  onView?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  viewLabel?: string;
   editLabel?: string;
   deleteLabel?: string;
+  // Extra menu items rendered before Edit (e.g. "Add sub-category").
+  extraItems?: ReactNode;
 }
 
-// Shared "⋮" row-actions dropdown (Edit/Delete) used across list table
-// "actions" columns. Callers own what edit/delete actually do (navigate,
+// Shared "⋮" row-actions dropdown (View/Edit/Delete) used across list table
+// "actions" columns. Callers own what each action actually does (navigate,
 // open a dialog, etc.) — this component is presentational only.
 export default function RowActionsMenu({
+  onView,
   onEdit,
   onDelete,
+  viewLabel = "View",
   editLabel = "Edit",
   deleteLabel = "Delete",
+  extraItems,
 }: RowActionsMenuProps) {
   return (
     <DropdownMenu>
@@ -32,6 +40,13 @@ export default function RowActionsMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        {onView && (
+          <DropdownMenuItem onClick={onView}>
+            <Eye className="mr-2 h-4 w-4" />
+            {viewLabel}
+          </DropdownMenuItem>
+        )}
+        {extraItems}
         {onEdit && (
           <DropdownMenuItem onClick={onEdit}>
             <Edit className="mr-2 h-4 w-4" />

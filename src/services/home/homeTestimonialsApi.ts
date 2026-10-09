@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -94,33 +95,10 @@ export const deleteHomeTestimonials = async (id: number): Promise<{ data: { id: 
   return parseEnvelope<{ id: number }>(response);
 };
 
-const buildHomeTestimonialsFormData = (
-  item: HomeTestimonialsRecord,
-  overrides: Partial<Pick<HomeTestimonialsRecord, "name" | "name_ar" | "designation" | "designation_ar" | "message" | "message_ar" | "sort_order" | "is_active">>,
-): FormData => {
-  const formData = new FormData();
-  formData.append("name", overrides.name ?? item.name ?? "");
-  formData.append("name_ar", overrides.name_ar ?? item.name_ar ?? "");
-  formData.append("designation", overrides.designation ?? item.designation ?? "");
-  formData.append("designation_ar", overrides.designation_ar ?? item.designation_ar ?? "");
-  formData.append("message", overrides.message ?? item.message ?? "");
-  formData.append("message_ar", overrides.message_ar ?? item.message_ar ?? "");
-  formData.append("sort_order", (overrides.sort_order ?? item.sort_order ?? 1).toString());
-  formData.append("is_active", (overrides.is_active ?? item.is_active ?? true).toString());
+export const toggleHomeTestimonialsStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("home-testimonials", item.id!, isActive);
 
-  if (item.profile_media_path) {
-    const isAbsolute = /^https?:\/\//.test(item.profile_media_path);
-    const mediaPath = isAbsolute ? item.profile_media_path : `${import.meta.env.VITE_IMAGE_URL}/${item.profile_media_path}`;
-    formData.append("profile_media_path", mediaPath);
-  }
-
-  return formData;
-};
-
-export const toggleHomeTestimonialsStatus = (item: HomeTestimonialsRecord, isActive: boolean) =>
-  updateHomeTestimonials(item.id, buildHomeTestimonialsFormData(item, { is_active: isActive }));
-
-export const updateHomeTestimonialsSortOrder = (item: HomeTestimonialsRecord, sortOrder: number) =>
-  updateHomeTestimonials(item.id, buildHomeTestimonialsFormData(item, { sort_order: Math.max(1, sortOrder) }));
+export const updateHomeTestimonialsSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("home-testimonials", item.id!, sortOrder);
 
 export { ApiError };

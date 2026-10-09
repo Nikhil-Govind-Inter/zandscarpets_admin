@@ -1,3 +1,4 @@
+import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -95,28 +96,8 @@ export const deleteHomeBrands = async (id: number): Promise<{ data: { id: number
   return parseEnvelope<{ id: number }>(response);
 };
 
-const buildHomeBrandsFormData = (
-  item: HomeBrandsRecord,
-  overrides: Partial<Pick<HomeBrandsRecord, "industry_id" | "media_alt" | "media_alt_ar" | "sort_order" | "is_active">>,
-): FormData => {
-  const formData = new FormData();
-  if (overrides.industry_id ?? item.industry_id) formData.append("industry_id", (overrides.industry_id ?? item.industry_id ?? "").toString());
-  formData.append("media_alt", overrides.media_alt ?? item.media_alt ?? "");
-  formData.append("media_alt_ar", overrides.media_alt_ar ?? item.media_alt_ar ?? "");
-  formData.append("sort_order", (overrides.sort_order ?? item.sort_order ?? 1).toString());
-  formData.append("is_active", (overrides.is_active ?? item.is_active ?? true).toString());
+export const toggleHomeBrandsStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("home-brands", item.id!, isActive);
 
-  if (item.media_path) {
-    const isAbsoluteUrl = /^https?:\/\//.test(item.media_path);
-    const mediaPath = isAbsoluteUrl ? item.media_path : `${import.meta.env.VITE_IMAGE_URL}/${item.media_path}`;
-    formData.append("media_path", mediaPath);
-  }
-
-  return formData;
-};
-
-export const toggleHomeBrandsStatus = (item: HomeBrandsRecord, isActive: boolean) =>
-  updateHomeBrands(item.id, buildHomeBrandsFormData(item, { is_active: isActive }));
-
-export const updateHomeBrandsSortOrder = (item: HomeBrandsRecord, sortOrder: number) =>
-  updateHomeBrands(item.id, buildHomeBrandsFormData(item, { sort_order: Math.max(1, sortOrder) }));
+export const updateHomeBrandsSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("home-brands", item.id!, sortOrder);

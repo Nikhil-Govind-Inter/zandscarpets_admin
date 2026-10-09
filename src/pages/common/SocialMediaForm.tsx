@@ -16,7 +16,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormFileUploadField } from "@/components/forms/FormFieldComponents";
+import {
+  FormFileUploadField,
+  FormTextField,
+} from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -24,7 +27,10 @@ import {
   createSocialMedia,
   updateSocialMedia,
 } from "@/services/common/socialMediaApi";
-import { socialMediaSchema, SocialMediaFormData } from "@/schemas/commonSchemas";
+import {
+  socialMediaSchema,
+  SocialMediaFormData,
+} from "@/schemas/commonSchemas";
 
 export default function SocialMediaForm() {
   const { toast } = useToast();
@@ -39,7 +45,9 @@ export default function SocialMediaForm() {
     resolver: zodResolver(socialMediaSchema),
     defaultValues: {
       media_path: "",
+      footer_media_path: "",
       media_alt: "",
+      media_alt_ar: "",
       link: "",
       sort_order: "1",
       is_active: true,
@@ -61,7 +69,9 @@ export default function SocialMediaForm() {
       if (data) {
         form.reset({
           media_path: data.media_path || "",
+          footer_media_path: data.footer_media_path || "",
           media_alt: data.media_alt || "",
+          media_alt_ar: data.media_alt_ar || "",
           link: data.link || "",
           sort_order: (data.sort_order ?? 1).toString(),
           is_active: data.is_active ?? true,
@@ -84,15 +94,21 @@ export default function SocialMediaForm() {
 
       const formData = new FormData();
       formData.append("media_alt", data.media_alt);
+      formData.append("media_alt_ar", data.media_alt_ar);
       formData.append("link", data.link);
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
 
-      // Add icon file if a new one was chosen, otherwise fall back to the existing path string
-      if (data.media_path instanceof File) {
-        formData.append("media_path", data.media_path);
-      } else if (typeof data.media_path === "string") {
-        formData.append("media_path", data.media_path);
+      // Add each icon file if a new one was chosen, otherwise fall back to the existing path string
+      const fileKeys = [
+        "media_path",
+        "footer_media_path",
+      ] as const;
+      for (const key of fileKeys) {
+        const value = data[key];
+        if (value instanceof File || typeof value === "string") {
+          formData.append(key, value);
+        }
       }
 
       if (isEditing && id) {
@@ -108,7 +124,7 @@ export default function SocialMediaForm() {
           description: "Social media item created successfully",
         });
       }
-      
+
       navigate("/social-media");
     } catch (error) {
       toast({
@@ -153,43 +169,52 @@ export default function SocialMediaForm() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
+                <FormTextField
+                  form={form}
                   name="media_alt"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Alt Text</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Facebook, Twitter, LinkedIn" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Alt Text"
+                  placeholder="e.g., Facebook, Twitter, LinkedIn"
                 />
 
-                <FormField
-                  control={form.control}
-                  name="link"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Link</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <FormTextField
+                  form={form}
+                  name="media_alt_ar"
+                  label="Arabic Alt Text"
+                  placeholder="مثال: فيسبوك، تويتر، لينكدإن"
                 />
               </div>
 
-              <FormFileUploadField
+              <FormTextField
                 form={form}
-                name="media_path"
-                label="Icon"
-                placeholder="Upload social media icon"
-                accept="image/*"
+                name="link"
+                label="Link"
+                placeholder="https://..."
               />
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormFileUploadField
+                  form={form}
+                  name="media_path"
+                  label="Icon"
+                  placeholder="Upload social media icon"
+                  accept="image/*"
+                />
+                <FormFileUploadField
+                  form={form}
+                  name="footer_media_path"
+                  label="Footer Icon"
+                  placeholder="Upload footer social media icon"
+                  accept="image/*"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Publishing Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -198,13 +223,17 @@ export default function SocialMediaForm() {
                     <FormItem>
                       <FormLabel>Sort Order</FormLabel>
                       <FormControl>
-                        <Input type="number" min={1} placeholder="1" {...field} />
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="1"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="is_active"
@@ -212,11 +241,13 @@ export default function SocialMediaForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
-                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
+                        <p className="text-sm text-muted-foreground">
+                          Enable or disable this item.
+                        </p>
                       </div>
                       <FormControl>
                         <Switch
-                 ww         checked={field.value}
+                          checked={field.value}
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
