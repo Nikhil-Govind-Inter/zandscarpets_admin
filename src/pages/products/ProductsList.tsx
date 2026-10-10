@@ -26,7 +26,6 @@ import {
   ApiError,
 } from "@/services/products/productsApi";
 import { fetchActiveProductCategories } from "@/services/products/productCategoryApi";
-import { fetchActiveTags } from "@/services/products/tagsApi";
 
 const ALL = "all";
 
@@ -35,9 +34,7 @@ export default function ProductsList() {
   const { toast } = useToast();
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
   const [categoryFilter, setCategoryFilter] = useState(ALL);
-  const [tagFilter, setTagFilter] = useState(ALL);
   const [categoryOptions, setCategoryOptions] = useState<ComboboxOption[]>([]);
-  const [tagOptions, setTagOptions] = useState<ComboboxOption[]>([]);
 
   useEffect(() => {
     fetchActiveProductCategories()
@@ -45,17 +42,13 @@ export default function ProductsList() {
         setCategoryOptions(res.data.map((c) => ({ value: String(c.id), label: c.title }))),
       )
       .catch(() => setCategoryOptions([]));
-    fetchActiveTags()
-      .then((res) => setTagOptions(res.data.map((t) => ({ value: String(t.id), label: t.title }))))
-      .catch(() => setTagOptions([]));
   }, []);
 
   const filters = useMemo<ProductFilters>(
     () => ({
       product_category_id: categoryFilter === ALL ? undefined : Number(categoryFilter),
-      tag_id: tagFilter === ALL ? undefined : Number(tagFilter),
     }),
-    [categoryFilter, tagFilter],
+    [categoryFilter],
   );
 
   const {
@@ -118,11 +111,11 @@ export default function ProductsList() {
       ),
     },
     {
-      accessorKey: "media_path",
+      accessorKey: "main_media_path",
       header: "Image",
       cell: ({ row }) => (
         <MediaThumbnail
-          path={row.original.media_path}
+          path={row.original.main_media_path}
           alt={row.original.media_alt || row.original.title}
         />
       ),
@@ -144,16 +137,30 @@ export default function ProductsList() {
       ),
     },
     {
-      id: "tag",
-      header: "Tag",
-      cell: ({ row }) =>
-        row.original.tag ? <Badge variant="secondary">{row.original.tag.title}</Badge> : "-",
+      id: "labels",
+      header: "Tags",
+      cell: ({ row }) => {
+        const tags = (row.original.labels || []).filter((l) => l.type === "tag");
+        if (!tags.length) return "-";
+        return (
+          <div className="flex flex-wrap gap-1">
+            {tags.slice(0, 3).map((l) => (
+              <Badge key={l.id} variant="secondary">
+                {l.title}
+              </Badge>
+            ))}
+            {tags.length > 3 && <Badge variant="outline">+{tags.length - 3}</Badge>}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "price",
       header: "Price",
       cell: ({ row }) => (
-        <div className="font-mono text-sm">{Number(row.original.price).toFixed(2)}</div>
+        <div className="font-mono text-sm">
+          {row.original.price != null ? Number(row.original.price).toFixed(2) : "-"}
+        </div>
       ),
     },
     {
@@ -238,26 +245,15 @@ export default function ProductsList() {
         searchQuery={searchInput}
         onSearchChange={setSearchInput}
         headerExtra={
-          <>
-            <Combobox
-              maxVisibleItems={5}
-              autoWidth
-              value={categoryFilter}
-              options={[{ value: ALL, label: "All categories" }, ...categoryOptions]}
-              placeholder="All categories"
-              searchPlaceholder="Search category..."
-              onChange={(v) => setCategoryFilter(v || ALL)}
-            />
-            <Combobox
-              maxVisibleItems={5}
-              autoWidth
-              value={tagFilter}
-              options={[{ value: ALL, label: "All tags" }, ...tagOptions]}
-              placeholder="All tags"
-              searchPlaceholder="Search tag..."
-              onChange={(v) => setTagFilter(v || ALL)}
-            />
-          </>
+          <Combobox
+            maxVisibleItems={5}
+            autoWidth
+            value={categoryFilter}
+            options={[{ value: ALL, label: "All categories" }, ...categoryOptions]}
+            placeholder="All categories"
+            searchPlaceholder="Search category..."
+            onChange={(v) => setCategoryFilter(v || ALL)}
+          />
         }
         pagination={{
           currentPage: page,

@@ -1,60 +1,97 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import PageLoader from "@/components/layout/PageLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormTextField, FormSwitchField } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { fetchProductTagById, createProductTag, updateProductTag, ApiError } from "@/services/products/productTagsApi";
-import { productTagSchema, ProductTagFormData } from "@/schemas/productTagSchema";
+import {
+  fetchProductLabelById,
+  createProductLabel,
+  updateProductLabel,
+  LABEL_TYPES,
+  LabelType,
+  ApiError,
+} from "@/services/products/productLabelsApi";
+import { productLabelSchema, ProductLabelFormData } from "@/schemas/productLabelSchema";
 
-export default function ProductTagForm() {
+const TYPE_OPTIONS: { value: LabelType; label: string }[] = [
+  { value: "feature", label: "Feature" },
+  { value: "tag", label: "Tag" },
+  { value: "specification", label: "Specification" },
+];
+
+const isLabelType = (value: string | null): value is LabelType =>
+  !!value && (LABEL_TYPES as readonly string[]).includes(value);
+
+export default function ProductLabelForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const isEditing = Boolean(id);
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
 
-  const form = useForm<ProductTagFormData>({
-    resolver: zodResolver(productTagSchema),
+  const typeParam = searchParams.get("type");
+  const defaultType: LabelType = isLabelType(typeParam) ? typeParam : "feature";
+
+  const form = useForm<ProductLabelFormData>({
+    resolver: zodResolver(productLabelSchema),
     defaultValues: {
+      type: defaultType,
       title: "",
       title_ar: "",
-      is_global: false,
       is_product_badge: false,
       sort_order: "1",
       is_active: true,
     },
   });
 
+  const selectedType = form.watch("type");
+
   useEffect(() => {
-    if (isEditing && id) loadProductTagData(parseInt(id));
+    if (isEditing && id) loadProductLabelData(parseInt(id));
   }, [id, isEditing]);
 
-  const loadProductTagData = async (itemId: number) => {
+  // A badge must be one of the product's own tags, so the flag is only
+  // meaningful for `tag` labels; clear it whenever the type moves elsewhere.
+  useEffect(() => {
+    if (selectedType !== "tag" && form.getValues("is_product_badge")) {
+      form.setValue("is_product_badge", false);
+    }
+  }, [selectedType, form]);
+
+  const loadProductLabelData = async (itemId: number) => {
     try {
       setInitialLoading(true);
-      const { data } = await fetchProductTagById(itemId);
+      const { data } = await fetchProductLabelById(itemId);
       form.reset({
+        type: data.type,
         title: data.title || "",
         title_ar: data.title_ar || "",
         is_product_badge: data.is_product_badge ?? false,
-        is_global: data.is_global ?? false,
         sort_order: (data.sort_order ?? 1).toString(),
         is_active: data.is_active ?? true,
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof ApiError ? error.message : "Failed to load Product Tag data",
+        description: error instanceof ApiError ? error.message : "Failed to load product label data",
         variant: "destructive",
       });
     } finally {
@@ -62,32 +99,33 @@ export default function ProductTagForm() {
     }
   };
 
-  const onSubmit = async (data: ProductTagFormData) => {
+  const onSubmit = async (data: ProductLabelFormData) => {
     try {
       setLoading(true);
 
       const payload = {
+        type: data.type,
         title: data.title,
         title_ar: data.title_ar,
-        is_global: data.is_global,
         is_product_badge: data.is_product_badge,
         sort_order: parseInt(data.sort_order || "1"),
         is_active: data.is_active,
       };
 
       if (isEditing && id) {
-        await updateProductTag(parseInt(id), payload);
-        toast({ title: "Success", description: "Product Tag updated successfully" });
+        await updateProductLabel(parseInt(id), payload);
+        toast({ title: "Success", description: "Product label updated successfully" });
       } else {
-        await createProductTag(payload);
-        toast({ title: "Success", description: "Product Tag created successfully" });
+        await createProductLabel(payload);
+        toast({ title: "Success", description: "Product label created successfully" });
       }
 
-      navigate("/product-tags");
+      navigate("/product-labels");
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof ApiError ? error.message : `Failed to ${isEditing ? "update" : "create"} Product Tag`,
+        description:
+          error instanceof ApiError ? error.message : `Failed to ${isEditing ? "update" : "create"} product label`,
         variant: "destructive",
       });
     } finally {
@@ -100,12 +138,14 @@ export default function ProductTagForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/product-tags")}>
+        <Button variant="outline" size="icon" onClick={() => navigate("/product-labels")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Product Tag</h1>
-          <p className="text-muted-foreground">Hash tags attached to products, such as "#wool" or "#outdoor"</p>
+          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Product Label</h1>
+          <p className="text-muted-foreground">
+            Reusable features, tags and specifications attached to products
+          </p>
         </div>
       </div>
 
@@ -113,25 +153,47 @@ export default function ProductTagForm() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Product Tag Information</CardTitle>
+              <CardTitle>Label Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormTextField form={form} name="title" label="Title" placeholder="e.g., Outdoor" />
-                <FormTextField form={form} name="title_ar" label="Title (Arabic)" placeholder="مثال: خارجي" />
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {TYPE_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {selectedType === "tag" && (
+                  <FormSwitchField
+                    form={form}
+                    name="is_product_badge"
+                    label="Product Badge"
+                    description="Only one tag per product can be the badge."
+                  />
+                )}
               </div>
-              <FormSwitchField
-                form={form}
-                name="is_global"
-                label="Global"
-                description="Global tags apply across all products rather than being product-specific."
-              />
-              <FormSwitchField
-                form={form}
-                name="is_product_badge"
-                label="Product Badge"
-                description="If enabled, this tag will be displayed as a badge on the product."
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormTextField form={form} name="title" label="Title" placeholder="e.g., Ergonomic" />
+                <FormTextField form={form} name="title_ar" label="Title (Arabic)" placeholder="مثال: إرجونوميك" />
+              </div>
             </CardContent>
           </Card>
 
@@ -174,7 +236,7 @@ export default function ProductTagForm() {
           </Card>
 
           <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => navigate("/product-tags")}>
+            <Button type="button" variant="outline" onClick={() => navigate("/product-labels")}>
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>

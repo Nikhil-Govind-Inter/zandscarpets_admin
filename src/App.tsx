@@ -102,14 +102,12 @@ const ProductFaqList = React.lazy(() => import("./pages/products/ProductFaqList"
 const ProductFaqForm = React.lazy(() => import("./pages/products/ProductFaqForm"));
 const ProductMediaList = React.lazy(() => import("./pages/products/ProductMediaList"));
 const ProductMediaForm = React.lazy(() => import("./pages/products/ProductMediaForm"));
-const TagsList = React.lazy(() => import("./pages/products/TagsList"));
-const TagForm = React.lazy(() => import("./pages/products/TagForm"));
 const AttributesList = React.lazy(() => import("./pages/products/AttributesList"));
 const AttributeForm = React.lazy(() => import("./pages/products/AttributeForm"));
 const AttributeValuesList = React.lazy(() => import("./pages/products/AttributeValuesList"));
 const AttributeValueForm = React.lazy(() => import("./pages/products/AttributeValueForm"));
-const ProductTagsList = React.lazy(() => import("./pages/products/ProductTagsList"));
-const ProductTagForm = React.lazy(() => import("./pages/products/ProductTagForm"));
+const ProductLabelsList = React.lazy(() => import("./pages/products/ProductLabelsList"));
+const ProductLabelForm = React.lazy(() => import("./pages/products/ProductLabelForm"));
 
 // Masters — Projects
 const ProjectsList = React.lazy(() => import("./pages/masters/ProjectsList"));
@@ -404,15 +402,10 @@ const App = () => (
               <Route path="/attribute-values/new" element={<AttributeValueForm />} />
               <Route path="/attribute-values/:id/edit" element={<AttributeValueForm />} />
 
-              {/* Tag Routes */}
-              <Route path="/tags" element={<TagsList />} />
-              <Route path="/tags/new" element={<TagForm />} />
-              <Route path="/tags/:id/edit" element={<TagForm />} />
-
-              {/* Product Tag Routes */}
-              <Route path="/product-tags" element={<ProductTagsList />} />
-              <Route path="/product-tags/new" element={<ProductTagForm />} />
-              <Route path="/product-tags/:id/edit" element={<ProductTagForm />} />
+              {/* Product Label Routes (features / tags / specifications) */}
+              <Route path="/product-labels" element={<ProductLabelsList />} />
+              <Route path="/product-labels/new" element={<ProductLabelForm />} />
+              <Route path="/product-labels/:id/edit" element={<ProductLabelForm />} />
 
               {/* Projects Routes */}
               <Route path="/projects" element={<ProjectsList />} />

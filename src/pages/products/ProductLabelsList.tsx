@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
@@ -7,23 +7,59 @@ import StatusToggleCell from "@/components/common/StatusToggleCell";
 import SortOrderCell from "@/components/common/SortOrderCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
+import { Badge } from "@/components/ui/badge";
+import { Combobox } from "@/components/ui/combobox";
 import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
 import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import {
-  fetchSizeList,
-  deleteSize,
-  toggleSizeStatus,
-  updateSizeSortOrder,
-  SizeRecord,
+  fetchProductLabelList,
+  deleteProductLabel,
+  toggleProductLabelStatus,
+  updateProductLabelSortOrder,
+  ProductLabelRecord,
+  LabelType,
+  LABEL_TYPES,
   ApiError,
-} from "@/services/products/sizesApi";
+} from "@/services/products/productLabelsApi";
 
-export default function SizesList() {
+const TYPE_LABELS: Record<LabelType, string> = {
+  feature: "Feature",
+  tag: "Tag",
+  specification: "Specification",
+};
+
+const ALL = "all";
+type TypeFilter = LabelType | typeof ALL;
+
+const isLabelType = (value: string | null): value is LabelType =>
+  !!value && (LABEL_TYPES as readonly string[]).includes(value);
+
+export default function ProductLabelsList() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
+
+  // The URL (`?type=…`) is the single source of truth, so the sidebar menu
+  // entries (/product-labels?type=tag) apply the filter on load and update it
+  // while the page is already mounted.
+  const typeParam = searchParams.get("type");
+  const typeFilter: TypeFilter = isLabelType(typeParam) ? typeParam : ALL;
+
+  const handleTypeChange = (value: string) => {
+    if (value === ALL) {
+      setSearchParams({});
+    } else {
+      setSearchParams({ type: value });
+    }
+  };
+
+  const filters = useMemo(
+    () => (typeFilter === ALL ? undefined : { type: typeFilter }),
+    [typeFilter],
+  );
 
   const {
     items,
@@ -41,32 +77,36 @@ export default function SizesList() {
     itemsPage,
     itemsLimit,
     refetch,
-  } = usePaginatedList<SizeRecord>(fetchSizeList);
+  } = usePaginatedList<ProductLabelRecord, { type?: LabelType }>(
+    fetchProductLabelList,
+    10,
+    filters,
+  );
 
-  const handleSortOrderChange = useSortOrder(items, setItems, updateSizeSortOrder);
+  const handleSortOrderChange = useSortOrder(items, setItems, updateProductLabelSortOrder);
   const { statusToggleItem, setStatusToggleItem, confirmStatusToggle } = useStatusToggle({
     setItems,
     refetch,
-    toggleStatus: toggleSizeStatus,
-    label: "Size",
+    toggleStatus: toggleProductLabelStatus,
+    label: "Product Label",
   });
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;
 
     try {
-      await deleteSize(deleteItemId);
+      await deleteProductLabel(deleteItemId);
       if (items.length === 1 && page > 1) {
         setPage(page - 1);
       } else {
         refetch();
       }
-      toast({ title: "Success", description: "Size deleted successfully" });
+      toast({ title: "Success", description: "Product label deleted successfully" });
     } catch (error) {
       toast({
         title: "Error",
         description:
-          error instanceof ApiError ? error.message : "Failed to delete Size",
+          error instanceof ApiError ? error.message : "Failed to delete product label",
         variant: "destructive",
       });
     } finally {
@@ -74,23 +114,26 @@ export default function SizesList() {
     }
   };
 
-  const columns: ColumnDef<SizeRecord>[] = [
+  const columns: ColumnDef<ProductLabelRecord>[] = [
     {
       accessorKey: "id",
       header: "ID",
       cell: ({ row }) => (
-        <div className="font-mono">
-          {(itemsPage - 1) * itemsLimit + row.index + 1}
-        </div>
+        <div className="font-mono">{(itemsPage - 1) * itemsLimit + row.index + 1}</div>
+      ),
+    },
+    {
+      accessorKey: "type",
+      header: "Type",
+      cell: ({ row }) => (
+        <Badge variant="secondary">{TYPE_LABELS[row.original.type]}</Badge>
       ),
     },
     {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
-        <div className="font-medium max-w-[280px] truncate">
-          {row.getValue("title")}
-        </div>
+        <div className="font-medium max-w-[280px] truncate">{row.getValue("title")}</div>
       ),
     },
     {
@@ -102,15 +145,21 @@ export default function SizesList() {
         </div>
       ),
     },
-    {
-      accessorKey: "slug",
-      header: "Slug",
-      cell: ({ row }) => (
-        <div className="font-mono text-sm text-muted-foreground">
-          {row.getValue("slug") || "-"}
-        </div>
-      ),
-    },
+    // The badge concept only applies to tags, so only surface it for that type.
+    ...(typeFilter === "tag"
+      ? ([
+          {
+            accessorKey: "is_product_badge",
+            header: "Badge",
+            cell: ({ row }) =>
+              row.original.is_product_badge ? (
+                <Badge>Badge</Badge>
+              ) : (
+                <span className="text-sm text-muted-foreground">-</span>
+              ),
+          },
+        ] as ColumnDef<ProductLabelRecord>[])
+      : []),
     {
       accessorKey: "sort_order",
       header: "Sort Order",
@@ -159,7 +208,7 @@ export default function SizesList() {
         const item = row.original;
         return (
           <RowActionsMenu
-            onEdit={() => navigate(`/sizes/${item.id}/edit`)}
+            onEdit={() => navigate(`/product-labels/${item.id}/edit`)}
             onDelete={() => setDeleteItemId(item.id)}
           />
         );
@@ -167,19 +216,38 @@ export default function SizesList() {
     },
   ];
 
+  const newLabelUrl =
+    typeFilter === ALL ? "/product-labels/new" : `/product-labels/new?type=${typeFilter}`;
+
   return (
     <>
       <DataTable
         columns={columns}
         data={items}
-        title="Sizes"
-        searchPlaceholder="Search Sizes..."
-        onAdd={() => navigate("/sizes/new")}
-        addButtonText="Add Size"
+        title="Product Labels"
+        searchPlaceholder="Search labels..."
+        onAdd={() => navigate(newLabelUrl)}
+        addButtonText="Add Label"
         loading={loading}
         searching={searching}
         searchQuery={searchInput}
         onSearchChange={setSearchInput}
+        headerExtra={
+          <Combobox
+            maxVisibleItems={5}
+            autoWidth
+            value={typeFilter}
+            options={[
+              { value: ALL, label: "All types" },
+              { value: "feature", label: "Features" },
+              { value: "tag", label: "Tags" },
+              { value: "specification", label: "Specifications" },
+            ]}
+            placeholder="All types"
+            searchPlaceholder="Search type..."
+            onChange={(v) => handleTypeChange(v || ALL)}
+          />
+        }
         pagination={{
           currentPage: page,
           totalPages,
@@ -197,14 +265,14 @@ export default function SizesList() {
         deleteItemId={deleteItemId}
         setDeleteItemId={setDeleteItemId}
         confirmDelete={confirmDelete}
-        itemLabel="Size"
+        itemLabel="Product Label"
       />
 
       <StatusChangeDialogue
         statusToggleItem={statusToggleItem}
         setStatusToggleItem={setStatusToggleItem}
         confirmStatusToggle={confirmStatusToggle}
-        itemLabel="Size"
+        itemLabel="Product Label"
       />
     </>
   );

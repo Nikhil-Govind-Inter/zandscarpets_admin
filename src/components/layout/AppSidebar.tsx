@@ -36,10 +36,10 @@ import {
   LayoutTemplate,
   ShieldCheck,
   Tag,
-  Hash,
   ShoppingBag,
   SlidersHorizontal,
   Shapes,
+  Sparkles,
 } from "lucide-react";
 
 import {
@@ -99,8 +99,9 @@ const productsSection = [
   { title: "Category Highlights", url: "/product-highlights", icon: Star },
   { title: "Attributes", url: "/attributes", icon: SlidersHorizontal },
   { title: "Attribute Values", url: "/attribute-values", icon: Shapes },
-  { title: "Tags", url: "/tags", icon: Tag },
-  { title: "Product Tags", url: "/product-tags", icon: Hash },
+  { title: "Features", url: "/product-labels?type=feature", icon: Sparkles },
+  { title: "Tags", url: "/product-labels?type=tag", icon: Tag },
+  { title: "Specifications", url: "/product-labels?type=specification", icon: ListChecks },
 ];
 
 const enquiriesSection = [

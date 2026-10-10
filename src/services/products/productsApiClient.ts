@@ -1,8 +1,8 @@
 import { apiFetch } from "@/lib/apiClient";
 
-// Shared plumbing for the Products > Sizes/Colors/Tags/Product Tags/Products/FAQ/Media
-// services: the apiFetch + ApiError + envelope-parsing convention from pagesApi.ts,
-// defined once here and re-exported by each resource file.
+// Shared plumbing for the Products > Labels/Products/FAQ/Media services: the
+// apiFetch + ApiError + envelope-parsing convention from pagesApi.ts, defined
+// once here and re-exported by each resource file.
 export const PRODUCTS_API_URL = `${import.meta.env.VITE_API_BASE_URL}/products`;
 
 interface ApiEnvelope<T> {
