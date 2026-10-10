@@ -108,6 +108,8 @@ const AttributeValuesList = React.lazy(() => import("./pages/products/AttributeV
 const AttributeValueForm = React.lazy(() => import("./pages/products/AttributeValueForm"));
 const ProductLabelsList = React.lazy(() => import("./pages/products/ProductLabelsList"));
 const ProductLabelForm = React.lazy(() => import("./pages/products/ProductLabelForm"));
+const ProductVariantsList = React.lazy(() => import("./pages/products/ProductVariantsList"));
+const ProductVariantForm = React.lazy(() => import("./pages/products/ProductVariantForm"));
 
 // Masters — Projects
 const ProjectsList = React.lazy(() => import("./pages/masters/ProjectsList"));
@@ -391,6 +393,9 @@ const App = () => (
               <Route path="/products/:productId/media" element={<ProductMediaList />} />
               <Route path="/products/:productId/media/new" element={<ProductMediaForm />} />
               <Route path="/products/:productId/media/:id/edit" element={<ProductMediaForm />} />
+              <Route path="/products/:productId/variants" element={<ProductVariantsList />} />
+              <Route path="/products/:productId/variants/new" element={<ProductVariantForm />} />
+              <Route path="/products/:productId/variants/:id/edit" element={<ProductVariantForm />} />
 
               {/* Attribute Routes */}
               <Route path="/attributes" element={<AttributesList />} />

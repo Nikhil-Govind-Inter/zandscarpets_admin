@@ -10,7 +10,7 @@ import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
 import MediaThumbnail from "@/components/common/MediaThumbnail";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { HelpCircle, Images } from "lucide-react";
+import { HelpCircle, Images, Layers } from "lucide-react";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
 import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
@@ -213,6 +213,10 @@ export default function ProductsList() {
           <RowActionsMenu
             extraItems={
               <>
+                <DropdownMenuItem onClick={() => navigate(`/products/${item.id}/variants`)}>
+                  <Layers className="mr-2 h-4 w-4" />
+                  Variants
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate(`/products/${item.id}/faqs`)}>
                   <HelpCircle className="mr-2 h-4 w-4" />
                   FAQs

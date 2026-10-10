@@ -3,6 +3,12 @@ import { PRODUCTS_API_URL, createCrudApi } from "./productsApiClient";
 import type { ProductLabelOption } from "./productLabelsApi";
 import type { ProductFaqRecord } from "./productFaqApi";
 import type { ProductMediaRecord } from "./productMediaApi";
+import type { AttributeOption } from "./attributesApi";
+
+// Attributes the product uses to build variants, with the link's sort order.
+export type ProductAttributeOption = AttributeOption & {
+  ProductAttributes?: { sort_order: number };
+};
 
 // Products > Products — backed by `/api/backend/products/products`. FormData
 // bodies: main_media_path / list_media_path (image uploads); the *_ids relation
@@ -31,6 +37,7 @@ export interface ProductRecord {
   is_active: boolean;
   category?: { id: number; title: string; title_ar?: string } | null;
   labels?: ProductLabelOption[];
+  attributes?: ProductAttributeOption[];
   relatedProducts?: ProductOption[];
   productFaq?: ProductFaqRecord[];
   productMedia?: ProductMediaRecord[];

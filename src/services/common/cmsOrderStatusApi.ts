@@ -35,6 +35,7 @@ export type CmsResource =
   | "products"
   | "product-faq"
   | "product-media"
+  | "product-variants"
   | "attributes"
   | "attribute-values";
 

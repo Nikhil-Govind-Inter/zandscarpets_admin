@@ -27,7 +27,7 @@ import {
   FormRichTextField,
   FormFileUploadField,
 } from "@/components/forms/FormFieldComponents";
-import { Save, ArrowLeft } from "lucide-react";
+import { Save, ArrowLeft, Layers } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   fetchProductById,
@@ -38,6 +38,7 @@ import {
 } from "@/services/products/productsApi";
 import { fetchActiveProductCategories } from "@/services/products/productCategoryApi";
 import { fetchActiveProductLabels } from "@/services/products/productLabelsApi";
+import { fetchActiveAttributes } from "@/services/products/attributesApi";
 import { productSchema, ProductFormData } from "@/schemas/productSchema";
 import { generateSlug } from "@/utils/formUtils";
 import { buildCategoryPathOptions } from "@/utils/productCategoryTree";
@@ -62,10 +63,12 @@ export default function ProductForm() {
   const [tagOptions, setTagOptions] = useState<MultiSelectOption[]>([]);
   const [specificationOptions, setSpecificationOptions] = useState<MultiSelectOption[]>([]);
   const [relatedOptions, setRelatedOptions] = useState<MultiSelectOption[]>([]);
+  const [attributeOptions, setAttributeOptions] = useState<MultiSelectOption[]>([]);
   const [featureIds, setFeatureIds] = useState<(number | string)[]>([]);
   const [tagIds, setTagIds] = useState<(number | string)[]>([]);
   const [specificationIds, setSpecificationIds] = useState<(number | string)[]>([]);
   const [relatedIds, setRelatedIds] = useState<(number | string)[]>([]);
+  const [attributeIds, setAttributeIds] = useState<(number | string)[]>([]);
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -118,6 +121,10 @@ export default function ProductForm() {
     fetchActiveProducts(productId)
       .then((res) => setRelatedOptions(toOptions(res.data)))
       .catch((e) => errorToast(e, "Failed to load products"));
+
+    fetchActiveAttributes()
+      .then((res) => setAttributeOptions(toOptions(res.data)))
+      .catch((e) => errorToast(e, "Failed to load attributes"));
   }, [id]);
 
   useEffect(() => {
@@ -171,6 +178,7 @@ export default function ProductForm() {
         labels.filter((l) => l.type === "specification").map((l) => l.id),
       );
       setRelatedIds((data.relatedProducts || []).map((p) => p.id));
+      setAttributeIds((data.attributes || []).map((a) => a.id));
     } catch (error) {
       errorToast(error, "Failed to load product data");
     } finally {
@@ -215,6 +223,7 @@ export default function ProductForm() {
 
       formData.append("label_ids", JSON.stringify([...featureIds, ...tagIds, ...specificationIds]));
       formData.append("related_product_ids", JSON.stringify(relatedIds));
+      formData.append("attribute_ids", JSON.stringify(attributeIds));
 
       if (isEditing && productId) {
         await updateProduct(productId, formData);
@@ -238,16 +247,28 @@ export default function ProductForm() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/products")}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Product</h1>
-          <p className="text-muted-foreground">
-            {isEditing ? "Update" : "Create a new"} product
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate("/products")}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Product</h1>
+            <p className="text-muted-foreground">
+              {isEditing ? "Update" : "Create a new"} product
+            </p>
+          </div>
         </div>
+        {isEditing && productId && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate(`/products/${productId}/variants`)}
+          >
+            <Layers className="mr-2 h-4 w-4" />
+            Variants
+          </Button>
+        )}
       </div>
 
       <Form {...form}>
@@ -417,6 +438,44 @@ export default function ProductForm() {
               <p className="text-xs text-muted-foreground md:col-span-2">
                 Only active items are listed.
               </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Attributes & Variants</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Attributes used for Variants</Label>
+                <MultiSelect
+                  options={attributeOptions}
+                  selected={attributeIds}
+                  onChange={setAttributeIds}
+                  placeholder="Select attributes (e.g. Size, Color, Material)"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Select the attributes this product uses. Each variant will carry one value for each selected attribute.
+                </p>
+              </div>
+              {isEditing && productId && (
+                <div className="pt-2 flex items-center justify-between border-t">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Product Variants</p>
+                    <p className="text-xs text-muted-foreground">
+                      Manage or generate combinations of the selected attributes
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate(`/products/${productId}/variants`)}
+                  >
+                    <Layers className="mr-2 h-4 w-4" />
+                    Manage Variants
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 
