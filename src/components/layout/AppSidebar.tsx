@@ -141,8 +141,29 @@ const adminSection = [{ title: "Users", url: "/users", icon: Users }];
 
 const CMS_SECTIONS = ["home", "about", "contact", "services", "common"];
 
-const isNavActive = (pathname: string, url: string, end = false) =>
-  end ? pathname === url : pathname === url || pathname.startsWith(`${url}/`);
+const isNavActive = (
+  location: { pathname: string; search: string },
+  url: string,
+  end = false,
+) => {
+  const [path, query] = url.split("?");
+  const pathMatch = end
+    ? location.pathname === path
+    : location.pathname === path || location.pathname.startsWith(`${path}/`);
+  if (!pathMatch) return false;
+
+  // Query-param links (e.g. /product-labels?type=tag) are only active when the
+  // matching param is present, so each type highlights its own entry.
+  if (query) {
+    const want = new URLSearchParams(query);
+    const have = new URLSearchParams(location.search);
+    for (const [key, value] of want) {
+      if (have.get(key) !== value) return false;
+    }
+  }
+
+  return true;
+};
 
 const navItemCls =
   "flex items-center w-full text-left text-sidebar-foreground hover:bg-sidebar-accent/50";
@@ -197,10 +218,9 @@ export function AppSidebar() {
         "/products",
         "/product-categories",
         "/product-highlights",
-        "/product-tags",
         "/attributes",
         "/attribute-values",
-        "/tags",
+        "/product-labels",
       ].some((route) =>
         path.includes(route),
       )
@@ -277,7 +297,7 @@ export function AppSidebar() {
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   asChild
-                  isActive={isNavActive(location.pathname, item.url, true)}
+                  isActive={isNavActive(location, item.url, true)}
                 >
                   <NavLink to={item.url} end className={navItemCls}>
                     <item.icon className="h-5 w-5 flex-shrink-0" />
@@ -299,7 +319,7 @@ export function AppSidebar() {
             setCmsOpen(isOpen);
             if (isOpen) setOpenSection(null);
           }}
-          pathname={location.pathname}
+          location={location}
           Section={[]}
         >
             <GetLayout
@@ -309,7 +329,7 @@ export function AppSidebar() {
               isCollapsed={isCollapsed}
               open={openSection === "home"}
               onOpenChange={(isOpen) => setOpenSection(isOpen ? "home" : null)}
-              pathname={location.pathname}
+              location={location}
               Section={homeSection}
             />
             <GetLayout
@@ -319,7 +339,7 @@ export function AppSidebar() {
               isCollapsed={isCollapsed}
               open={openSection === "about"}
               onOpenChange={(isOpen) => setOpenSection(isOpen ? "about" : null)}
-              pathname={location.pathname}
+              location={location}
               Section={aboutSection}
             />
             <GetLayout
@@ -329,7 +349,7 @@ export function AppSidebar() {
               isCollapsed={isCollapsed}
               open={openSection === "contact"}
               onOpenChange={(isOpen) => setOpenSection(isOpen ? "contact" : null)}
-              pathname={location.pathname}
+              location={location}
               Section={contactSection}
             />
             <GetLayout
@@ -339,7 +359,7 @@ export function AppSidebar() {
               isCollapsed={isCollapsed}
               open={openSection === "services"}
               onOpenChange={(isOpen) => setOpenSection(isOpen ? "services" : null)}
-              pathname={location.pathname}
+              location={location}
               Section={servicesSection}
             />
             <GetLayout
@@ -349,7 +369,7 @@ export function AppSidebar() {
               isCollapsed={isCollapsed}
               open={openSection === "common"}
               onOpenChange={(isOpen) => setOpenSection(isOpen ? "common" : null)}
-              pathname={location.pathname}
+              location={location}
               Section={commonSection}
             />
         </GetLayout>
@@ -360,7 +380,7 @@ export function AppSidebar() {
           isCollapsed={isCollapsed}
           open={openSection === "projects"}
           onOpenChange={(isOpen) => setOpenSection(isOpen ? "projects" : null)}
-          pathname={location.pathname}
+          location={location}
           Section={projectsSection}
         />
 
@@ -370,7 +390,7 @@ export function AppSidebar() {
           isCollapsed={isCollapsed}
           open={openSection === "products"}
           onOpenChange={(isOpen) => setOpenSection(isOpen ? "products" : null)}
-          pathname={location.pathname}
+          location={location}
           Section={productsSection}
         />
 
@@ -381,7 +401,7 @@ export function AppSidebar() {
           isCollapsed={isCollapsed}
           open={openSection === "enquiries"}
           onOpenChange={(isOpen) => setOpenSection(isOpen ? "enquiries" : null)}
-          pathname={location.pathname}
+          location={location}
           Section={enquiriesSection}
         />
 
@@ -392,7 +412,7 @@ export function AppSidebar() {
           isCollapsed={isCollapsed}
           open={openSection === "masters"}
           onOpenChange={(isOpen) => setOpenSection(isOpen ? "masters" : null)}
-          pathname={location.pathname}
+          location={location}
           Section={mastersSection}
         />
 
@@ -403,7 +423,7 @@ export function AppSidebar() {
           isCollapsed={isCollapsed}
           open={openSection === "policies"}
           onOpenChange={(isOpen) => setOpenSection(isOpen ? "policies" : null)}
-          pathname={location.pathname}
+          location={location}
           Section={policiesSection}
         />
 
@@ -414,7 +434,7 @@ export function AppSidebar() {
             isCollapsed={isCollapsed}
             open={openSection === "admin"}
             onOpenChange={(isOpen) => setOpenSection(isOpen ? "admin" : null)}
-            pathname={location.pathname}
+            location={location}
             Section={adminSection}
           />
         )}
@@ -426,7 +446,7 @@ export function AppSidebar() {
 function GetLayout({
   open,
   onOpenChange,
-  pathname,
+  location,
   Section,
   isCollapsed,
   title,
@@ -470,7 +490,7 @@ function GetLayout({
                   <SidebarMenuButton
                     asChild
                     size="sm"
-                    isActive={isNavActive(pathname, item.url)}
+                    isActive={isNavActive(location, item.url)}
                   >
                     <NavLink to={item.url} className={navItemCls}>
                       <item.icon className="h-4 w-4" />
