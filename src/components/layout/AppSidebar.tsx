@@ -35,11 +35,11 @@ import {
   ClipboardList,
   LayoutTemplate,
   ShieldCheck,
-  Ruler,
-  Palette,
   Tag,
   Hash,
   ShoppingBag,
+  SlidersHorizontal,
+  Shapes,
 } from "lucide-react";
 
 import {
@@ -97,8 +97,8 @@ const productsSection = [
   { title: "Products", url: "/products", icon: ShoppingBag },
   { title: "Categories", url: "/product-categories", icon: Boxes },
   { title: "Category Highlights", url: "/product-highlights", icon: Star },
-  { title: "Colors", url: "/colors", icon: Palette },
-  { title: "Sizes", url: "/sizes", icon: Ruler },
+  { title: "Attributes", url: "/attributes", icon: SlidersHorizontal },
+  { title: "Attribute Values", url: "/attribute-values", icon: Shapes },
   { title: "Tags", url: "/tags", icon: Tag },
   { title: "Product Tags", url: "/product-tags", icon: Hash },
 ];
@@ -197,8 +197,8 @@ export function AppSidebar() {
         "/product-categories",
         "/product-highlights",
         "/product-tags",
-        "/colors",
-        "/sizes",
+        "/attributes",
+        "/attribute-values",
         "/tags",
       ].some((route) =>
         path.includes(route),

@@ -37,7 +37,9 @@ export type CmsResource =
   | "product-tags"
   | "products"
   | "product-faq"
-  | "product-media";
+  | "product-media"
+  | "attributes"
+  | "attribute-values";
 
 interface ApiEnvelope<T> {
   success: boolean;

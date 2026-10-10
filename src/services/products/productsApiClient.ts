@@ -87,7 +87,7 @@ export const listParams = (
   page: number,
   limit: number,
   search?: string,
-  extra?: Record<string, string | number | undefined>,
+  extra?: Record<string, unknown>,
 ) => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -95,7 +95,8 @@ export const listParams = (
   });
   if (search) params.append("search", search);
   Object.entries(extra || {}).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") params.append(key, String(value));
+    if (value !== undefined && value !== null && value !== "")
+      params.append(key, String(value));
   });
   return params;
 };
@@ -120,9 +121,9 @@ export const createCrudApi = <TRecord, TActive = TRecord>(baseUrl: string) => ({
     page: number,
     limit: number,
     search?: string,
-    extra?: Record<string, string | number | undefined>,
+    extra?: Record<string, unknown>,
   ) =>
-    apiFetch(`${baseUrl}?${listParams(page, limit, search, extra)}`).then(
+    apiFetch(`${baseUrl}?${listParams(page, limit, search, extra as Record<string, string | number | undefined>)}`).then(
       (response) =>
         parseEnvelope<PaginatedListResponse<TRecord>["data"]>(response),
     ),

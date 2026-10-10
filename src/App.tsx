@@ -102,12 +102,12 @@ const ProductFaqList = React.lazy(() => import("./pages/products/ProductFaqList"
 const ProductFaqForm = React.lazy(() => import("./pages/products/ProductFaqForm"));
 const ProductMediaList = React.lazy(() => import("./pages/products/ProductMediaList"));
 const ProductMediaForm = React.lazy(() => import("./pages/products/ProductMediaForm"));
-const ColorsList = React.lazy(() => import("./pages/products/ColorsList"));
-const ColorForm = React.lazy(() => import("./pages/products/ColorForm"));
-const SizesList = React.lazy(() => import("./pages/products/SizesList"));
-const SizeForm = React.lazy(() => import("./pages/products/SizeForm"));
 const TagsList = React.lazy(() => import("./pages/products/TagsList"));
 const TagForm = React.lazy(() => import("./pages/products/TagForm"));
+const AttributesList = React.lazy(() => import("./pages/products/AttributesList"));
+const AttributeForm = React.lazy(() => import("./pages/products/AttributeForm"));
+const AttributeValuesList = React.lazy(() => import("./pages/products/AttributeValuesList"));
+const AttributeValueForm = React.lazy(() => import("./pages/products/AttributeValueForm"));
 const ProductTagsList = React.lazy(() => import("./pages/products/ProductTagsList"));
 const ProductTagForm = React.lazy(() => import("./pages/products/ProductTagForm"));
 
@@ -394,15 +394,15 @@ const App = () => (
               <Route path="/products/:productId/media/new" element={<ProductMediaForm />} />
               <Route path="/products/:productId/media/:id/edit" element={<ProductMediaForm />} />
 
-              {/* Color Routes */}
-              <Route path="/colors" element={<ColorsList />} />
-              <Route path="/colors/new" element={<ColorForm />} />
-              <Route path="/colors/:id/edit" element={<ColorForm />} />
+              {/* Attribute Routes */}
+              <Route path="/attributes" element={<AttributesList />} />
+              <Route path="/attributes/new" element={<AttributeForm />} />
+              <Route path="/attributes/:id/edit" element={<AttributeForm />} />
 
-              {/* Size Routes */}
-              <Route path="/sizes" element={<SizesList />} />
-              <Route path="/sizes/new" element={<SizeForm />} />
-              <Route path="/sizes/:id/edit" element={<SizeForm />} />
+              {/* Attribute Value Routes */}
+              <Route path="/attribute-values" element={<AttributeValuesList />} />
+              <Route path="/attribute-values/new" element={<AttributeValueForm />} />
+              <Route path="/attribute-values/:id/edit" element={<AttributeValueForm />} />
 
               {/* Tag Routes */}
               <Route path="/tags" element={<TagsList />} />
