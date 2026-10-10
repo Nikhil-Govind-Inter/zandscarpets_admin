@@ -5,6 +5,7 @@ export const productTagSchema = z.object({
   title: commonValidations.requiredString("Title"),
   title_ar: commonValidations.requiredString("Title (Arabic)"),
   is_global: z.boolean(),
+  is_product_badge: z.boolean(),
   sort_order: commonValidations.sortOrder,
   is_active: commonValidations.booleanStatus,
 });

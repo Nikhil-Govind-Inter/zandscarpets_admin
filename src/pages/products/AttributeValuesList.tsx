@@ -253,6 +253,7 @@ export default function AttributeValuesList() {
         data={items}
         title="Attribute Values"
         searchPlaceholder="Search Attribute Values..."
+        onBack={() => navigate("/attributes")}
         onAdd={() => navigate(addPath)}
         addButtonText="Add Value"
         loading={loading}

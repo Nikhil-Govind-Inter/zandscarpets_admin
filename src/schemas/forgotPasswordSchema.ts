@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { commonValidations } from "@/utils/formUtils";
 
 export const emailSchema = z.object({
-  email: z.string().min(1, "Email is required").email("Enter a valid email address"),
+  email: commonValidations.requiredEmail,
 });
 export type EmailFormData = z.infer<typeof emailSchema>;
 

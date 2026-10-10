@@ -1,15 +1,35 @@
 import { z } from "zod";
 
+// Blocks any HTML/script-like markup (e.g. <script>, <img onerror=...>) in plain text inputs.
+const HTML_TAG_PATTERN = /<[^>]*>/;
+
+// Shared base for short text inputs (title, name, label, etc.): required,
+// trimmed, and rejects HTML/script tags. Chain further rules (e.g. `.max()`)
+// on the returned schema for per-form custom constraints.
+const safeText = (fieldName: string, min = 1) =>
+  z
+    .string()
+    .trim()
+    .min(min, `${fieldName} is required`)
+    .refine((val) => !HTML_TAG_PATTERN.test(val), `${fieldName} must not contain HTML or script tags`);
+
+// Same tag rejection, but optional (no min-length requirement).
+const optionalSafeText = z
+  .string()
+  .trim()
+  .refine((val) => !HTML_TAG_PATTERN.test(val), "Must not contain HTML or script tags")
+  .optional();
+
 // Common validation patterns
 export const commonValidations = {
   // String validations
-  requiredString: (fieldName: string) => 
-    z.string().min(1, `${fieldName} is required`),
-  
+  requiredString: (fieldName: string) => safeText(fieldName),
+
   optionalString: z.string().optional(),
-  
-  requiredText: (fieldName: string) => 
-    z.string().min(1, `${fieldName} is required`),
+
+  optionalSafeText,
+
+  requiredText: (fieldName: string) => safeText(fieldName),
   
   // Number validations
   sortOrder: z

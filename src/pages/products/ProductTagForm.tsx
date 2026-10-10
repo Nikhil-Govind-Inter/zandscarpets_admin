@@ -6,14 +6,7 @@ import PageLoader from "@/components/layout/PageLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormTextField, FormSwitchField } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
@@ -36,6 +29,7 @@ export default function ProductTagForm() {
       title: "",
       title_ar: "",
       is_global: false,
+      is_product_badge: false,
       sort_order: "1",
       is_active: true,
     },
@@ -52,6 +46,7 @@ export default function ProductTagForm() {
       form.reset({
         title: data.title || "",
         title_ar: data.title_ar || "",
+        is_product_badge: data.is_product_badge ?? false,
         is_global: data.is_global ?? false,
         sort_order: (data.sort_order ?? 1).toString(),
         is_active: data.is_active ?? true,
@@ -75,6 +70,7 @@ export default function ProductTagForm() {
         title: data.title,
         title_ar: data.title_ar,
         is_global: data.is_global,
+        is_product_badge: data.is_product_badge,
         sort_order: parseInt(data.sort_order || "1"),
         is_active: data.is_active,
       };
@@ -91,10 +87,7 @@ export default function ProductTagForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError
-            ? error.message
-            : `Failed to ${isEditing ? "update" : "create"} Product Tag`,
+        description: error instanceof ApiError ? error.message : `Failed to ${isEditing ? "update" : "create"} Product Tag`,
         variant: "destructive",
       });
     } finally {
@@ -112,9 +105,7 @@ export default function ProductTagForm() {
         </Button>
         <div>
           <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Product Tag</h1>
-          <p className="text-muted-foreground">
-            Hash tags attached to products, such as "#wool" or "#outdoor"
-          </p>
+          <p className="text-muted-foreground">Hash tags attached to products, such as "#wool" or "#outdoor"</p>
         </div>
       </div>
 
@@ -127,18 +118,19 @@ export default function ProductTagForm() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormTextField form={form} name="title" label="Title" placeholder="e.g., Outdoor" />
-                <FormTextField
-                  form={form}
-                  name="title_ar"
-                  label="Title (Arabic)"
-                  placeholder="مثال: خارجي"
-                />
+                <FormTextField form={form} name="title_ar" label="Title (Arabic)" placeholder="مثال: خارجي" />
               </div>
               <FormSwitchField
                 form={form}
                 name="is_global"
                 label="Global"
                 description="Global tags apply across all products rather than being product-specific."
+              />
+              <FormSwitchField
+                form={form}
+                name="is_product_badge"
+                label="Product Badge"
+                description="If enabled, this tag will be displayed as a badge on the product."
               />
             </CardContent>
           </Card>

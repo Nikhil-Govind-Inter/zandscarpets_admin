@@ -57,6 +57,7 @@ import {
   Trash2,
   FileText,
   FileSpreadsheet,
+  ArrowLeft,
 } from "lucide-react";
 
 export interface FilterOption {
@@ -93,6 +94,7 @@ interface DataTableProps<TData, TValue> {
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
   headerExtra?: React.ReactNode;
+  onBack?: () => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -113,6 +115,7 @@ export function DataTable<TData, TValue>({
   searchQuery,
   onSearchChange,
   headerExtra,
+  onBack,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -205,13 +208,25 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          {title && (
-            <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onBack}
+              aria-label="Back"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
           )}
-          <p className="text-muted-foreground">
-            Manage your {title?.toLowerCase() || "items"}
-          </p>
+          <div>
+            {title && (
+              <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+            )}
+            <p className="text-muted-foreground">
+              Manage your {title?.toLowerCase() || "items"}
+            </p>
+          </div>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
           {headerExtra}

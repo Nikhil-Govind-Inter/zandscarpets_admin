@@ -35,7 +35,7 @@ export interface AttributeRecord {
 export interface AttributePayload {
   title: string;
   title_ar: string;
-  slug: string;
+  slug?: string;
   type: AttributeType;
   sort_order: number;
   is_active: boolean;

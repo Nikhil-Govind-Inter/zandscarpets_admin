@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useNavigate } from "react-router-dom";
@@ -29,7 +29,6 @@ import {
   ApiError,
 } from "@/services/products/attributesApi";
 import { attributeSchema, AttributeFormData } from "@/schemas/attributeSchema";
-import { generateSlug } from "@/utils/formUtils";
 
 const TYPE_OPTIONS = [
   { value: "text", label: "Text" },
@@ -51,7 +50,6 @@ export default function AttributeForm() {
     defaultValues: {
       title: "",
       title_ar: "",
-      slug: "",
       type: "text",
       sort_order: "1",
       is_active: true,
@@ -62,24 +60,6 @@ export default function AttributeForm() {
     if (isEditing && id) loadAttributeData(parseInt(id));
   }, [id, isEditing]);
 
-  // Slug is derived from the title and is read-only. Guard against clobbering
-  // the stored slug during the initial edit load; only regenerate once the
-  // title actually changes.
-  const titleValue = form.watch("title");
-  const lastTitleRef = useRef<string | null>(null);
-  useEffect(() => {
-    if (isEditing && initialLoading) return;
-    if (lastTitleRef.current === null) {
-      lastTitleRef.current = titleValue;
-      return;
-    }
-    if (titleValue === lastTitleRef.current) return;
-    lastTitleRef.current = titleValue;
-    form.setValue("slug", generateSlug(titleValue || ""), {
-      shouldValidate: true,
-    });
-  }, [titleValue, isEditing, initialLoading, form]);
-
   const loadAttributeData = async (itemId: number) => {
     try {
       setInitialLoading(true);
@@ -87,7 +67,6 @@ export default function AttributeForm() {
       form.reset({
         title: data.title || "",
         title_ar: data.title_ar || "",
-        slug: data.slug || "",
         type: data.type || "text",
         sort_order: (data.sort_order ?? 1).toString(),
         is_active: data.is_active ?? true,
@@ -111,7 +90,6 @@ export default function AttributeForm() {
       const payload = {
         title: data.title,
         title_ar: data.title_ar,
-        slug: data.slug,
         type: data.type as AttributeType,
         sort_order: parseInt(data.sort_order || "1"),
         is_active: data.is_active,
@@ -172,26 +150,6 @@ export default function AttributeForm() {
                   placeholder="مثال: اللون"
                 />
               </div>
-              <FormField
-                control={form.control}
-                name="slug"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Slug</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value ?? ""}
-                        readOnly
-                        disabled
-                        placeholder="Auto-generated from title"
-                        className="bg-muted cursor-not-allowed"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormSelectField
                   form={form}

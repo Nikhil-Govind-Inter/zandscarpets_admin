@@ -6,39 +6,16 @@ import PageLoader from "@/components/layout/PageLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  FormTextField,
-  FormSlugField,
-  FormFileUploadField,
-} from "@/components/forms/FormFieldComponents";
+import { FormTextField, FormFileUploadField } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import {
-  fetchAttributeValueById,
-  createAttributeValue,
-  updateAttributeValue,
-  ApiError,
-} from "@/services/products/attributeValuesApi";
+import { fetchAttributeValueById, createAttributeValue, updateAttributeValue, ApiError } from "@/services/products/attributeValuesApi";
 import { fetchActiveAttributes, AttributeOption, AttributeType } from "@/services/products/attributesApi";
 import { attributeValueSchema, AttributeValueFormData } from "@/schemas/attributeValueSchema";
-import { generateSlug } from "@/utils/formUtils";
 
 // How a color-type value is represented: a hex color bar, or an uploaded photo.
 type ColorMode = "color" | "image";
@@ -50,6 +27,11 @@ export default function AttributeValueForm() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const isEditing = Boolean(id);
+  // The attribute is fixed when editing an existing value, or when the add
+  // form was opened from a specific attribute (carried in the URL); it's only
+  // editable when a new value is added from the "All attributes" filter.
+  const lockedAttributeId = searchParams.get("attribute_id");
+  const isAttributeLocked = isEditing || Boolean(lockedAttributeId);
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
@@ -64,9 +46,10 @@ export default function AttributeValueForm() {
     resolver: zodResolver(attributeValueSchema),
     defaultValues: {
       attribute_id: searchParams.get("attribute_id") || "",
+      type: undefined,
+      color_mode: "color",
       value: "",
       value_ar: "",
-      slug: "",
       media_path: "",
       media_alt: "",
       media_alt_ar: "",
@@ -78,15 +61,27 @@ export default function AttributeValueForm() {
 
   const watchedAttributeId = form.watch("attribute_id");
 
-  const selectedAttribute = useMemo(
-    () => attributes.find((a) => String(a.id) === watchedAttributeId) || null,
-    [attributes, watchedAttributeId],
-  );
+  const selectedAttribute = useMemo(() => attributes.find((a) => String(a.id) === watchedAttributeId) || null, [attributes, watchedAttributeId]);
 
   // When the attribute changes, surface its type so the right fields show.
   useEffect(() => {
     if (selectedAttribute?.type) setSelectedType(selectedAttribute.type);
   }, [selectedAttribute]);
+
+  // Mirror the UI branch state into the form so the schema validates the fields
+  // the selected attribute type needs. Only re-validate once the user has tried
+  // to submit, so errors don't appear before the first attempt.
+  useEffect(() => {
+    form.setValue("type", selectedType ?? undefined, {
+      shouldValidate: form.formState.isSubmitted,
+    });
+  }, [selectedType, form]);
+
+  useEffect(() => {
+    form.setValue("color_mode", colorMode, {
+      shouldValidate: form.formState.isSubmitted,
+    });
+  }, [colorMode, form]);
 
   useEffect(() => {
     fetchActiveAttributes()
@@ -118,7 +113,6 @@ export default function AttributeValueForm() {
         attribute_id: String(data.attribute_id || ""),
         value: data.value || "",
         value_ar: data.value_ar || "",
-        slug: data.slug || "",
         media_path: data.media_path || "",
         media_alt: data.media_alt || "",
         media_alt_ar: data.media_alt_ar || "",
@@ -134,10 +128,7 @@ export default function AttributeValueForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError
-            ? error.message
-            : "Failed to load Attribute value data",
+        description: error instanceof ApiError ? error.message : "Failed to load Attribute value data",
         variant: "destructive",
       });
     } finally {
@@ -158,50 +149,26 @@ export default function AttributeValueForm() {
 
   const handleModeChange = (mode: ColorMode) => {
     setColorMode(mode);
+    const shouldValidate = form.formState.isSubmitted;
     if (mode === "color") {
+      // Color bar mode: the Name mirrors the picked hex.
       const hex = form.getValues("color_code") || DEFAULT_HEX;
-      form.setValue("color_code", hex, { shouldValidate: true });
-      if (!form.getValues("value")) {
-        form.setValue("value", hex, { shouldValidate: true });
-        autoColorRef.current = hex;
-      }
+      form.setValue("color_code", hex, { shouldValidate });
+      form.setValue("value", hex, { shouldValidate });
+      form.setValue("value_ar", "", { shouldValidate });
+      autoColorRef.current = hex;
+    } else {
+      // Photo mode: reset the Name so it's entered manually for the photo.
+      form.setValue("value", "", { shouldValidate });
+      form.setValue("value_ar", "", { shouldValidate });
+      autoColorRef.current = null;
     }
   };
 
   const onSubmit = async (data: AttributeValueFormData) => {
-    if (!selectedType || !watchedAttributeId) {
-      toast({
-        title: "Missing fields",
-        description: "Please select an attribute first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     const isColorBar = selectedType === "color" && colorMode === "color";
     const isColorImage = selectedType === "color" && colorMode === "image";
     const wantsMedia = selectedType === "icon" || isColorImage;
-
-    let validationError: string | null = null;
-    if (selectedType === "text") {
-      if (!data.value?.trim()) validationError = "Value is required.";
-      else if (!data.value_ar?.trim()) validationError = "Value (Arabic) is required.";
-    } else if (selectedType === "icon") {
-      if (!data.media_path) validationError = "Icon image is required.";
-    } else if (isColorBar) {
-      if (!data.color_code?.trim()) validationError = "Pick a color.";
-    } else if (isColorImage) {
-      if (!data.media_path) validationError = "Upload a color photo.";
-    }
-
-    if (validationError) {
-      toast({
-        title: "Missing fields",
-        description: validationError,
-        variant: "destructive",
-      });
-      return;
-    }
 
     try {
       setLoading(true);
@@ -210,7 +177,6 @@ export default function AttributeValueForm() {
       formData.append("attribute_id", data.attribute_id);
       formData.append("value", data.value || "");
       formData.append("value_ar", data.value_ar || "");
-      formData.append("slug", data.slug || "");
       formData.append("media_alt", data.media_alt || "");
       formData.append("media_alt_ar", data.media_alt_ar || "");
       formData.append("sort_order", (data.sort_order || "1").toString());
@@ -237,17 +203,12 @@ export default function AttributeValueForm() {
         toast({ title: "Success", description: "Attribute value created successfully" });
       }
 
-      const attributeParam = data.attribute_id
-        ? `?attribute_id=${data.attribute_id}`
-        : "";
+      const attributeParam = data.attribute_id ? `?attribute_id=${data.attribute_id}` : "";
       navigate(`/attribute-values${attributeParam}`);
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError
-            ? error.message
-            : `Failed to ${isEditing ? "update" : "create"} Attribute value`,
+        description: error instanceof ApiError ? error.message : `Failed to ${isEditing ? "update" : "create"} Attribute value`,
         variant: "destructive",
       });
     } finally {
@@ -260,7 +221,6 @@ export default function AttributeValueForm() {
   const showIconMedia = selectedType === "icon";
   const showColorImage = selectedType === "color" && colorMode === "image";
   const showMedia = showIconMedia || showColorImage;
-  const showSlug = selectedType !== null;
 
   if (initialLoading) return <PageLoader />;
 
@@ -275,12 +235,8 @@ export default function AttributeValueForm() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">
-            {isEditing ? "Edit" : "Add"} Attribute Value
-          </h1>
-          <p className="text-muted-foreground">
-            Options grouped under an attribute, such as "Red" under Color
-          </p>
+          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Attribute Value</h1>
+          <p className="text-muted-foreground">Options grouped under an attribute, such as "Red" under Color</p>
         </div>
       </div>
 
@@ -302,6 +258,7 @@ export default function AttributeValueForm() {
                       onValueChange={(value) => {
                         field.onChange(value);
                       }}
+                      disabled={isAttributeLocked}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -317,44 +274,33 @@ export default function AttributeValueForm() {
                       </SelectContent>
                     </Select>
                     <FormMessage />
+                    {isAttributeLocked && (
+                      <p className="text-xs text-muted-foreground">
+                        Locked to this attribute.
+                      </p>
+                    )}
                   </FormItem>
                 )}
               />
 
               {selectedType && (
                 <p className="text-sm text-muted-foreground">
-                  This attribute uses values of type{" "}
-                  <span className="font-medium capitalize">{selectedType}</span>.
+                  This attribute uses values of type <span className="font-medium capitalize">{selectedType}</span>.
                 </p>
               )}
 
               {showValues && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormTextField form={form} name="value" label="Value" placeholder="e.g., Red" />
-                  <FormTextField
-                    form={form}
-                    name="value_ar"
-                    label="Value (Arabic)"
-                    placeholder="مثال: أحمر"
-                  />
+                  <FormTextField form={form} name="value_ar" label="Value (Arabic)" placeholder="مثال: أحمر" />
                 </div>
               )}
 
               {showColorFields && (
                 <>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <FormTextField
-                      form={form}
-                      name="value"
-                      label="Name"
-                      placeholder="e.g., #FF0000"
-                    />
-                    <FormTextField
-                      form={form}
-                      name="value_ar"
-                      label="Name (Arabic)"
-                      placeholder="مثال: أحمر"
-                    />
+                    <FormTextField form={form} name="value" label="Name" placeholder="e.g., #FF0000" />
+                    <FormTextField form={form} name="value_ar" label="Name (Arabic)" placeholder="مثال: أحمر" />
                   </div>
 
                   <div className="space-y-2">
@@ -403,17 +349,6 @@ export default function AttributeValueForm() {
                   )}
                 </>
               )}
-
-              {showSlug && (
-                <FormSlugField
-                  form={form}
-                  name="slug"
-                  label="Slug"
-                  placeholder="e.g., red"
-                  sourceField="value"
-                  generateSlug={generateSlug}
-                />
-              )}
             </CardContent>
           </Card>
 
@@ -427,19 +362,12 @@ export default function AttributeValueForm() {
                   form={form}
                   name="media_path"
                   label={showIconMedia ? "Icon Image" : "Color Photo"}
-                  placeholder={
-                    showIconMedia ? "Upload an icon image" : "Upload a color photo"
-                  }
+                  placeholder={showIconMedia ? "Upload an icon image" : "Upload a color photo"}
                   accept="image/*"
                 />
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormTextField form={form} name="media_alt" label="Image Alt" placeholder="Icon alt text" />
-                  <FormTextField
-                    form={form}
-                    name="media_alt_ar"
-                    label="Image Alt (Arabic)"
-                    placeholder="نص بديل للصورة"
-                  />
+                  <FormTextField form={form} name="media_alt_ar" label="Image Alt (Arabic)" placeholder="نص بديل للصورة" />
                 </div>
               </CardContent>
             </Card>

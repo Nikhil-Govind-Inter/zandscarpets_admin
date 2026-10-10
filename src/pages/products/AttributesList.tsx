@@ -75,8 +75,7 @@ export default function AttributesList() {
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError ? error.message : "Failed to delete Attribute",
+        description: error instanceof ApiError ? error.message : "Failed to delete Attribute",
         variant: "destructive",
       });
     } finally {
@@ -88,11 +87,12 @@ export default function AttributesList() {
     {
       accessorKey: "id",
       header: "ID",
-      cell: ({ row }) => (
-        <div className="font-mono">
-          {(itemsPage - 1) * itemsLimit + row.index + 1}
-        </div>
-      ),
+      cell: ({ row }) => <div className="font-mono">{(itemsPage - 1) * itemsLimit + row.index + 1}</div>,
+    },
+    {
+      accessorKey: "title",
+      header: "Title",
+      cell: ({ row }) => <div className="font-medium max-w-[280px] truncate">{row.getValue("title")}</div>,
     },
     {
       accessorKey: "type",
@@ -101,15 +101,6 @@ export default function AttributesList() {
         const type = row.getValue("type") as AttributeType;
         return <Badge variant="secondary">{TYPE_LABELS[type] || type}</Badge>;
       },
-    },
-    {
-      accessorKey: "title",
-      header: "Title",
-      cell: ({ row }) => (
-        <div className="font-medium max-w-[280px] truncate">
-          {row.getValue("title")}
-        </div>
-      ),
     },
     {
       accessorKey: "title_ar",
@@ -123,11 +114,7 @@ export default function AttributesList() {
     {
       accessorKey: "slug",
       header: "Slug",
-      cell: ({ row }) => (
-        <div className="font-mono text-sm text-muted-foreground">
-          {row.getValue("slug") || "-"}
-        </div>
-      ),
+      cell: ({ row }) => <div className="font-mono text-sm text-muted-foreground">{row.getValue("slug") || "-"}</div>,
     },
     {
       accessorKey: "attributeValues",
@@ -154,14 +141,7 @@ export default function AttributesList() {
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("is_active") as boolean;
-        return (
-          <StatusToggleCell
-            status={status}
-            onCheckedChange={(checked) =>
-              setStatusToggleItem({ item: row.original, newStatus: checked })
-            }
-          />
-        );
+        return <StatusToggleCell status={status} onCheckedChange={(checked) => setStatusToggleItem({ item: row.original, newStatus: checked })} />;
       },
     },
     {
@@ -169,9 +149,7 @@ export default function AttributesList() {
       header: "Created At",
       cell: ({ row }) => (
         <div className="text-sm text-muted-foreground">
-          {row.getValue("createdAt")
-            ? new Date(row.getValue("createdAt")).toLocaleDateString()
-            : "-"}
+          {row.getValue("createdAt") ? new Date(row.getValue("createdAt")).toLocaleDateString() : "-"}
         </div>
       ),
     },
@@ -185,11 +163,7 @@ export default function AttributesList() {
             onEdit={() => navigate(`/attributes/${item.id}/edit`)}
             onDelete={() => setDeleteItemId(item.id)}
             extraItems={
-              <DropdownMenuItem
-                onClick={() =>
-                  navigate(`/attribute-values?attribute_id=${item.id}`)
-                }
-              >
+              <DropdownMenuItem onClick={() => navigate(`/attribute-values?attribute_id=${item.id}`)}>
                 <ListFilter className="mr-2 h-4 w-4" />
                 Attribute Values
               </DropdownMenuItem>
@@ -226,12 +200,7 @@ export default function AttributesList() {
         }}
       />
 
-      <DeleteDialogue
-        deleteItemId={deleteItemId}
-        setDeleteItemId={setDeleteItemId}
-        confirmDelete={confirmDelete}
-        itemLabel="Attribute"
-      />
+      <DeleteDialogue deleteItemId={deleteItemId} setDeleteItemId={setDeleteItemId} confirmDelete={confirmDelete} itemLabel="Attribute" />
 
       <StatusChangeDialogue
         statusToggleItem={statusToggleItem}
