@@ -1,4 +1,4 @@
-import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
+import { updateCmsStatus, updateCmsSortOrder, updateCmsNavbar } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Products > Categories — backed by `/api/backend/products/product-category`.
@@ -27,6 +27,7 @@ export interface ProductCategoryRecord {
   material_type_ar: string | null;
   media_path: string | null;
   is_active: boolean;
+  show_in_navbar: boolean;
   sort_order: number;
   industry?: { id: number; title: string } | null;
   parent?: { id: number; title: string } | null;
@@ -114,6 +115,7 @@ export interface ProductCategoryFilters {
   type?: "category" | "subcategory";
   parent_id?: number;
   status?: "active" | "inactive";
+  show_in_navbar?: boolean;
 }
 
 // Fetcher shape matches usePaginatedList's `Fetcher<T>` contract.
@@ -134,6 +136,7 @@ export const fetchProductCategoryList = async (
   if (filters?.type) params.append("type", filters.type);
   if (filters?.parent_id) params.append("parent_id", String(filters.parent_id));
   if (filters?.status) params.append("status", filters.status);
+  if (filters?.show_in_navbar !== undefined) params.append("show_in_navbar", String(filters.show_in_navbar));
 
   const response = await apiFetch(`${CATEGORIES_URL}?${params}`);
   return parseEnvelope<ProductCategoryListResponse["data"]>(response);
@@ -188,6 +191,10 @@ export const deleteProductCategory = async (
 
 export const toggleProductCategoryStatus = (item: { id?: number | string }, isActive: boolean) =>
   updateCmsStatus("product-categories", item.id!, isActive);
+
+// Toggles show_in_navbar via the dedicated CMS PATCH route (same pattern as status).
+export const toggleProductCategoryNavbar = (item: { id?: number | string }, showInNavbar: boolean) =>
+  updateCmsNavbar("product-categories", item.id!, showInNavbar);
 
 export const updateProductCategorySortOrder = (item: { id?: number | string }, sortOrder: number) =>
   updateCmsSortOrder("product-categories", item.id!, sortOrder);

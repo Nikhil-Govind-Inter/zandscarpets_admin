@@ -14,6 +14,7 @@ export const productCategorySchema = z.object({
   media_path: z.custom<File | string>().optional(),
   sort_order: commonValidations.sortOrder,
   is_active: commonValidations.booleanStatus,
+  show_in_navbar: commonValidations.booleanStatus,
 });
 
 export type ProductCategoryFormData = z.infer<typeof productCategorySchema>;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
@@ -10,6 +10,16 @@ import StatusToggleCell from "@/components/common/StatusToggleCell";
 import SortOrderCell from "@/components/common/SortOrderCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Combobox } from "@/components/ui/combobox";
 import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
@@ -21,6 +31,7 @@ import {
   fetchActiveProductCategories,
   deleteProductCategory,
   toggleProductCategoryStatus,
+  toggleProductCategoryNavbar,
   updateProductCategorySortOrder,
   ProductCategoryRecord,
   ProductCategoryOption,
@@ -30,6 +41,7 @@ import {
 
 type TypeFilter = "all" | "category" | "subcategory";
 type StatusFilter = "all" | "active" | "inactive";
+type NavbarFilter = "all" | "yes" | "no";
 
 const TYPE_OPTIONS = [
   { value: "all", label: "All levels" },
@@ -43,6 +55,12 @@ const STATUS_OPTIONS = [
   { value: "inactive", label: "Inactive" },
 ];
 
+const NAVBAR_OPTIONS = [
+  { value: "all", label: "All navbar" },
+  { value: "yes", label: "In navbar" },
+  { value: "no", label: "Not in navbar" },
+];
+
 export default function ProductCategoryList() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,12 +72,13 @@ export default function ProductCategoryList() {
     filters: categoryFilters,
     setFilter: setCategoryFilter,
     reset: resetCategoryFilters,
-  } = useUrlFilters({ type: "all", status: "all", parent_id: "all" });
+  } = useUrlFilters({ type: "all", status: "all", parent_id: "all", navbar: "all" });
   const [parentOptions, setParentOptions] = useState<ProductCategoryOption[]>([]);
 
   const typeFilter = categoryFilters.type as TypeFilter;
   const statusFilter = categoryFilters.status as StatusFilter;
   const parentFilter = categoryFilters.parent_id;
+  const navbarFilter = categoryFilters.navbar as NavbarFilter;
 
   useEffect(() => {
     fetchActiveProductCategories()
@@ -77,8 +96,9 @@ export default function ProductCategoryList() {
       type: typeFilter === "all" ? undefined : typeFilter,
       parent_id: parentFilter === "all" ? undefined : Number(parentFilter),
       status: statusFilter === "all" ? undefined : statusFilter,
+      show_in_navbar: navbarFilter === "all" ? undefined : navbarFilter === "yes",
     }),
-    [typeFilter, parentFilter, statusFilter],
+    [typeFilter, parentFilter, statusFilter, navbarFilter],
   );
 
   const {
@@ -99,7 +119,7 @@ export default function ProductCategoryList() {
     refetch,
   } = usePaginatedList<ProductCategoryRecord, ProductCategoryFilters>(fetchProductCategoryList, 10, filters);
 
-  const hasActiveFilters = typeFilter !== "all" || statusFilter !== "all" || parentFilter !== "all" || searchInput !== "";
+  const hasActiveFilters = typeFilter !== "all" || statusFilter !== "all" || parentFilter !== "all" || navbarFilter !== "all" || searchInput !== "";
 
   const resetAll = () => {
     resetCategoryFilters();
@@ -114,6 +134,33 @@ export default function ProductCategoryList() {
     toggleStatus: toggleProductCategoryStatus,
     label: "Category",
   });
+
+  // Navbar toggle — same confirm→API→toast flow as status.
+  const [navbarToggleItem, setNavbarToggleItem] = useState<{
+    item: ProductCategoryRecord;
+    newValue: boolean;
+  } | null>(null);
+
+  const confirmNavbarToggle = async () => {
+    if (!navbarToggleItem) return;
+    const { item, newValue } = navbarToggleItem;
+    try {
+      await toggleProductCategoryNavbar(item, newValue);
+      setCategories((prev) => prev.map((c) => (c.id === item.id ? { ...c, show_in_navbar: newValue } : c)));
+      toast({
+        title: "Success",
+        description: `Category ${newValue ? "added to" : "removed from"} navbar successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof ApiError ? error.message : "Failed to update navbar visibility",
+        variant: "destructive",
+      });
+    } finally {
+      setNavbarToggleItem(null);
+    }
+  };
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;
@@ -185,6 +232,16 @@ export default function ProductCategoryList() {
         const status = row.getValue("is_active") as boolean;
         return <StatusToggleCell status={status} onCheckedChange={(checked) => setStatusToggleItem({ item: row.original, newStatus: checked })} />;
       },
+    },
+    {
+      accessorKey: "show_in_navbar",
+      header: "Navbar Visibility",
+      cell: ({ row }) => (
+        <StatusToggleCell
+          status={row.original.show_in_navbar}
+          onCheckedChange={(checked) => setNavbarToggleItem({ item: row.original, newValue: checked })}
+        />
+      ),
     },
     {
       accessorKey: "createdAt",
@@ -262,6 +319,15 @@ export default function ProductCategoryList() {
               searchPlaceholder="Search status..."
               onChange={(value) => setCategoryFilter("status", value)}
             />
+            <Combobox
+              maxVisibleItems={3}
+              autoWidth
+              value={navbarFilter}
+              options={NAVBAR_OPTIONS}
+              placeholder="All navbar"
+              searchPlaceholder="Search navbar..."
+              onChange={(value) => setCategoryFilter("navbar", value)}
+            />
             <Button variant="outline" size="sm" onClick={resetAll} disabled={!hasActiveFilters}>
               <RotateCcw className="mr-2 h-4 w-4" />
               Reset
@@ -289,6 +355,42 @@ export default function ProductCategoryList() {
         confirmStatusToggle={confirmStatusToggle}
         itemLabel="category"
       />
+
+      <NavbarChangeDialogue navbarToggleItem={navbarToggleItem} setNavbarToggleItem={setNavbarToggleItem} confirmNavbarToggle={confirmNavbarToggle} />
     </>
+  );
+}
+
+// ─── Navbar confirmation dialog ───────────────────────────────────────────────
+interface NavbarChangeDialogueProps {
+  navbarToggleItem: { item: ProductCategoryRecord; newValue: boolean } | null;
+  setNavbarToggleItem: (val: null) => void;
+  confirmNavbarToggle: () => void;
+}
+
+function NavbarChangeDialogue({ navbarToggleItem, setNavbarToggleItem, confirmNavbarToggle }: NavbarChangeDialogueProps) {
+  const actionRef = useRef<HTMLButtonElement>(null);
+  return (
+    <AlertDialog open={!!navbarToggleItem} onOpenChange={() => setNavbarToggleItem(null)}>
+      <AlertDialogContent
+        onOpenAutoFocus={(e) => {
+          e.preventDefault();
+          actionRef.current?.focus();
+        }}
+      >
+        <AlertDialogHeader>
+          <AlertDialogTitle>Confirm Navbar Change</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to {navbarToggleItem?.newValue ? "show this category in the navbar" : "remove this category from the navbar"}?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction ref={actionRef} onClick={confirmNavbarToggle}>
+            {navbarToggleItem?.newValue ? "Show in Navbar" : "Remove from Navbar"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

@@ -30,6 +30,8 @@ interface MultiSelectProps {
   placeholder?: string
   className?: string
   disabled?: boolean
+  /** Caps how many options can be selected at once (e.g. remaining slots left in a limit). */
+  max?: number
 }
 
 export function MultiSelect({
@@ -39,8 +41,10 @@ export function MultiSelect({
   placeholder = "Select options...",
   className,
   disabled = false,
+  max,
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false)
+  const atMax = typeof max === "number" && selected.length >= max
 
   const handleUnselect = (item: number | string) => {
     onChange(selected.filter((s) => s !== item))
@@ -50,6 +54,7 @@ export function MultiSelect({
     if (selected.includes(item)) {
       onChange(selected.filter((s) => s !== item))
     } else {
+      if (atMax) return
       onChange([...selected, item])
     }
   }
@@ -115,20 +120,30 @@ export function MultiSelect({
           <CommandList>
             <CommandEmpty>No options found.</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => (
-                <CommandItem
-                  key={option.id}
-                  onSelect={() => handleSelect(option.id)}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      selected.includes(option.id) ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {option.name}
-                </CommandItem>
-              ))}
+              {typeof max === "number" && (
+                <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                  {selected.length} / {max} selected
+                </div>
+              )}
+              {options.map((option) => {
+                const isSelected = selected.includes(option.id)
+                const disableOption = atMax && !isSelected
+                return (
+                  <CommandItem
+                    key={option.id}
+                    onSelect={() => !disableOption && handleSelect(option.id)}
+                    className={cn(disableOption && "opacity-40 cursor-not-allowed")}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        isSelected ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {option.name}
+                  </CommandItem>
+                )
+              })}
             </CommandGroup>
           </CommandList>
         </Command>

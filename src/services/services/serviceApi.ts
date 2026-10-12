@@ -118,6 +118,14 @@ export const fetchServiceById = async (
   return parseEnvelope<ServiceRecord>(response);
 };
 
+// Source for pickers elsewhere.
+export const fetchActiveServices = async (): Promise<{
+  data: Pick<ServiceRecord, "id" | "title">[];
+}> => {
+  const response = await apiFetch(`${SERVICE_URL}/active`);
+  return parseEnvelope<Pick<ServiceRecord, "id" | "title">[]>(response);
+};
+
 export const createService = async (
   payload: ServicePayload,
 ): Promise<{ data: ServiceRecord }> => {

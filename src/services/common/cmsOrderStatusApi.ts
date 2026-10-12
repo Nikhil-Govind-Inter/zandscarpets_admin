@@ -92,3 +92,8 @@ export const updateCmsSortOrder = (resource: CmsResource, id: number | string, s
   patch<{ id: number; sort_order: number }>(`${resource}/${id}/sort-order`, {
     sort_order: Math.max(1, sortOrder),
   });
+
+export const updateCmsNavbar = (resource: CmsResource, id: number | string, showInNavbar: boolean) =>
+  patch<{ id: number; show_in_navbar: boolean }>(`${resource}/${id}/navbar`, {
+    show_in_navbar: showInNavbar,
+  });
