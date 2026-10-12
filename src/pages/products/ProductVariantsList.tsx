@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowLeft, Layers, Wand2 } from "lucide-react";
+import { ArrowLeft, Layers, RotateCcw, Wand2 } from "lucide-react";
 import { DataTable } from "@/components/common/DataTable";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import StatusToggleCell from "@/components/common/StatusToggleCell";
@@ -12,20 +12,17 @@ import MediaThumbnail from "@/components/common/MediaThumbnail";
 import PageLoader from "@/components/layout/PageLoader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { MultiSelect, Option as MultiSelectOption } from "@/components/ui/multi-select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Option as MultiSelectOption } from "@/components/ui/multi-select";
+import { Combobox } from "@/components/ui/combobox";
+import VariantValuePicker, { groupValuesByAttribute } from "@/components/products/VariantValuePicker";
+import VariantGeneratePreview from "@/components/products/VariantGeneratePreview";
+import { AttributeSelection, buildComboPreviews } from "@/utils/variantCombinations";
 import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
 import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { useUrlFilters } from "@/hooks/useUrlFilters";
 import {
   fetchProductVariantList,
   deleteProductVariant,
@@ -37,20 +34,50 @@ import {
   ApiError,
 } from "@/services/products/productVariantsApi";
 import { fetchProductById } from "@/services/products/productsApi";
-import { fetchActiveAttributeValues } from "@/services/products/attributeValuesApi";
+import { fetchActiveAttributeValues, AttributeValueOption } from "@/services/products/attributeValuesApi";
 import type { ProductAttributeOption } from "@/services/products/productsApi";
 import { useParentProduct } from "./useParentProduct";
+
+const ALL = "all";
+
+type StatusFilter = "all" | "active" | "inactive";
+
+const STATUS_OPTIONS = [
+  { value: "all", label: "All statuses" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+];
 
 // Variants for one product, reached from the Products list row actions.
 export default function ProductVariantsList() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const listPath = (location.state as { from?: string } | null)?.from ?? "/products";
+  const goToList = () => navigate(listPath);
+
   const { productId, productTitle, loading: productLoading } = useParentProduct();
+  const [generateOpen, setGenerateOpen] = useState(Boolean((location.state as { reopenGenerate?: boolean } | null)?.reopenGenerate));
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const [generateOpen, setGenerateOpen] = useState(false);
   const basePath = `/products/${productId}/variants`;
 
-  const filters = useMemo<VariantFilters>(() => ({ product_id: productId }), [productId]);
+  const {
+    filters: listFilters,
+    setFilter,
+    reset: resetListFilters,
+  } = useUrlFilters({
+    status: ALL,
+  });
+  const statusFilter = listFilters.status as StatusFilter;
+
+  const filters = useMemo<VariantFilters>(
+    () => ({
+      product_id: productId,
+      status: statusFilter === "all" ? undefined : statusFilter,
+    }),
+    [productId, statusFilter],
+  );
   const {
     items,
     setItems,
@@ -67,11 +94,23 @@ export default function ProductVariantsList() {
     itemsPage,
     itemsLimit,
     refetch,
-  } = usePaginatedList<ProductVariantRecord, VariantFilters>(
-    fetchProductVariantList,
-    10,
-    filters,
-  );
+  } = usePaginatedList<ProductVariantRecord, VariantFilters>(fetchProductVariantList, 10, filters);
+
+  const hasActiveFilters = statusFilter !== "all" || searchInput !== "";
+
+  const resetAll = () => {
+    resetListFilters();
+    setSearchInput("");
+    setPage(1);
+  };
+
+  useEffect(() => {
+    if ((location.state as { reopenGenerate?: boolean } | null)?.reopenGenerate) {
+      // clear the flag so reload/back doesn't reopen the dialog
+      navigate(location.pathname, { replace: true, state: null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSortOrderChange = useSortOrder(items, setItems, updateProductVariantSortOrder);
   const { statusToggleItem, setStatusToggleItem, confirmStatusToggle } = useStatusToggle({
@@ -106,23 +145,17 @@ export default function ProductVariantsList() {
     {
       accessorKey: "id",
       header: "ID",
-      cell: ({ row }) => (
-        <div className="font-mono">{(itemsPage - 1) * itemsLimit + row.index + 1}</div>
-      ),
+      cell: ({ row }) => <div className="font-mono">{(itemsPage - 1) * itemsLimit + row.index + 1}</div>,
     },
     {
       accessorKey: "media_path",
       header: "Image",
-      cell: ({ row }) => (
-        <MediaThumbnail path={row.original.media_path} alt={row.original.media_alt || row.original.label} />
-      ),
+      cell: ({ row }) => <MediaThumbnail path={row.original.media_path} alt={row.original.media_alt || row.original.label} />,
     },
     {
       accessorKey: "label",
       header: "Variant",
-      cell: ({ row }) => (
-        <div className="font-medium max-w-[220px] truncate">{row.original.label}</div>
-      ),
+      cell: ({ row }) => <div className="font-medium max-w-[220px] truncate">{row.original.label}</div>,
     },
     {
       id: "values",
@@ -145,9 +178,7 @@ export default function ProductVariantsList() {
     {
       accessorKey: "sku",
       header: "SKU",
-      cell: ({ row }) => (
-        <div className="font-mono text-sm">{row.original.sku || "-"}</div>
-      ),
+      cell: ({ row }) => <div className="font-mono text-sm">{row.original.sku || "-"}</div>,
     },
     {
       accessorKey: "sort_order",
@@ -166,9 +197,7 @@ export default function ProductVariantsList() {
       cell: ({ row }) => (
         <StatusToggleCell
           status={row.original.is_active}
-          onCheckedChange={(checked) =>
-            setStatusToggleItem({ item: row.original, newStatus: checked })
-          }
+          onCheckedChange={(checked) => setStatusToggleItem({ item: row.original, newStatus: checked })}
         />
       ),
     },
@@ -176,10 +205,7 @@ export default function ProductVariantsList() {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <RowActionsMenu
-          onEdit={() => navigate(`${basePath}/${row.original.id}/edit`)}
-          onDelete={() => setDeleteItemId(row.original.id)}
-        />
+        <RowActionsMenu onEdit={() => navigate(`${basePath}/${row.original.id}/edit`)} onDelete={() => setDeleteItemId(row.original.id)} />
       ),
     },
   ];
@@ -189,14 +215,12 @@ export default function ProductVariantsList() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/products")}>
+        <Button variant="outline" size="icon" onClick={() => goToList()}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
           <h1 className="text-2xl font-bold">Variants — {productTitle}</h1>
-          <p className="text-muted-foreground">
-            Options generated from this product's attributes
-          </p>
+          <p className="text-muted-foreground">Options generated from this product's attributes</p>
         </div>
       </div>
 
@@ -205,19 +229,30 @@ export default function ProductVariantsList() {
         data={items}
         title="Variants"
         searchPlaceholder="Search variants..."
-        onAdd={() =>
-          navigate(`${basePath}/new`, { state: { nextSortOrder: totalCount + 1 } })
-        }
-        addButtonText="Add Variant"
         loading={loading}
         searching={searching}
         searchQuery={searchInput}
         onSearchChange={setSearchInput}
         headerExtra={
-          <Button type="button" variant="outline" onClick={() => setGenerateOpen(true)}>
-            <Wand2 className="mr-2 h-4 w-4" />
-            Generate
-          </Button>
+          <>
+            <Combobox
+              maxVisibleItems={3}
+              autoWidth
+              value={statusFilter}
+              options={STATUS_OPTIONS}
+              placeholder="All statuses"
+              searchPlaceholder="Search status..."
+              onChange={(value) => setFilter("status", value)}
+            />
+            <Button variant="outline" size="sm" onClick={resetAll} disabled={!hasActiveFilters}>
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Reset
+            </Button>
+            <Button type="button" variant="outline" onClick={() => setGenerateOpen(true)}>
+              <Wand2 className="mr-2 h-4 w-4" />
+              Generate
+            </Button>
+          </>
         }
         pagination={{
           currentPage: page,
@@ -232,19 +267,9 @@ export default function ProductVariantsList() {
         }}
       />
 
-      <GenerateVariantsDialog
-        open={generateOpen}
-        onOpenChange={setGenerateOpen}
-        productId={productId}
-        onGenerated={refetch}
-      />
+      <GenerateVariantsDialog open={generateOpen} onOpenChange={setGenerateOpen} productId={productId} onGenerated={refetch} />
 
-      <DeleteDialogue
-        deleteItemId={deleteItemId}
-        setDeleteItemId={setDeleteItemId}
-        confirmDelete={confirmDelete}
-        itemLabel="Variant"
-      />
+      <DeleteDialogue deleteItemId={deleteItemId} setDeleteItemId={setDeleteItemId} confirmDelete={confirmDelete} itemLabel="Variant" />
 
       <StatusChangeDialogue
         statusToggleItem={statusToggleItem}
@@ -263,19 +288,13 @@ interface GenerateVariantsDialogProps {
   onGenerated: () => void;
 }
 
-// Lets the admin pick one or more values per product attribute, then asks the
-// server to create every missing combination.
-function GenerateVariantsDialog({
-  open,
-  onOpenChange,
-  productId,
-  onGenerated,
-}: GenerateVariantsDialogProps) {
+function GenerateVariantsDialog({ open, onOpenChange, productId, onGenerated }: GenerateVariantsDialogProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [attributes, setAttributes] = useState<ProductAttributeOption[]>([]);
-  const [valuesByAttribute, setValuesByAttribute] = useState<
-    Record<number, MultiSelectOption[]>
-  >({});
+  const [valuesByAttribute, setValuesByAttribute] = useState<Record<number, MultiSelectOption[]>>({});
+  const [valuesById, setValuesById] = useState<Record<number, AttributeValueOption>>({});
+  const [existingKeys, setExistingKeys] = useState<Set<string>>(new Set());
   const [selections, setSelections] = useState<Record<number, (number | string)[]>>({});
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -284,29 +303,21 @@ function GenerateVariantsDialog({
     if (!open) return;
     let cancelled = false;
     setLoading(true);
-    Promise.all([fetchProductById(productId), fetchActiveAttributeValues()])
-      .then(([productRes, valuesRes]) => {
+    Promise.all([fetchProductById(productId), fetchActiveAttributeValues(), fetchProductVariantList(1, 1000, undefined, { product_id: productId })])
+      .then(([productRes, valuesRes, variantsRes]) => {
         if (cancelled) return;
         const attrs = productRes.data.attributes || [];
-        const grouped: Record<number, MultiSelectOption[]> = {};
-        attrs.forEach((attr) => {
-          grouped[attr.id] = valuesRes.data
-            .filter((v) => v.attribute_id === attr.id)
-            .map((v) => ({
-              id: v.id,
-              name: v.value || v.value_ar || v.slug || `Value ${v.id}`,
-            }));
-        });
         setAttributes(attrs);
-        setValuesByAttribute(grouped);
+        setValuesByAttribute(groupValuesByAttribute(valuesRes.data, attrs));
+        setValuesById(Object.fromEntries(valuesRes.data.map((v) => [v.id, v])));
+        setExistingKeys(new Set(variantsRes.data.data.map((v) => v.combination_key)));
         setSelections({});
       })
       .catch((error) => {
         if (!cancelled)
           toast({
             title: "Error",
-            description:
-              error instanceof ApiError ? error.message : "Failed to load attributes",
+            description: error instanceof ApiError ? error.message : "Failed to load attributes",
             variant: "destructive",
           });
       })
@@ -318,6 +329,13 @@ function GenerateVariantsDialog({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, productId]);
+
+  const orderedSelections: AttributeSelection[] = attributes.map((a) => ({
+    attributeId: a.id,
+    valueIds: selections[a.id] || [],
+  }));
+  const isComplete = attributes.length > 0 && orderedSelections.every((s) => s.valueIds.length > 0);
+  const newCount = isComplete ? buildComboPreviews(orderedSelections, valuesById, existingKeys).filter((p) => !p.exists).length : 0;
 
   const handleGenerate = async () => {
     if (!attributes.length) {
@@ -360,17 +378,14 @@ function GenerateVariantsDialog({
       });
       toast({
         title: "Success",
-        description: `${data.created} variant(s) created${
-          data.skipped ? `, ${data.skipped} already existed` : ""
-        }`,
+        description: `${data.created} variant(s) created${data.skipped ? `, ${data.skipped} already existed` : ""}`,
       });
       onOpenChange(false);
       onGenerated();
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError ? error.message : "Failed to generate variants",
+        description: error instanceof ApiError ? error.message : "Failed to generate variants",
         variant: "destructive",
       });
     } finally {
@@ -383,9 +398,7 @@ function GenerateVariantsDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Generate Variants</DialogTitle>
-          <DialogDescription>
-            Pick the values to combine. Existing combinations are skipped.
-          </DialogDescription>
+          <DialogDescription>Pick the values to combine. Existing combinations are skipped.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 max-h-[60vh] overflow-y-auto py-2">
@@ -395,47 +408,54 @@ function GenerateVariantsDialog({
               Loading attributes...
             </div>
           ) : attributes.length ? (
-            attributes.map((attr) => {
-              const options = valuesByAttribute[attr.id] || [];
-              return (
-                <div key={attr.id} className="space-y-2">
-                  <Label>{attr.title}</Label>
-                  {options.length ? (
-                    <MultiSelect
-                      options={options}
-                      selected={selections[attr.id] || []}
-                      onChange={(selected) =>
-                        setSelections((prev) => ({ ...prev, [attr.id]: selected }))
-                      }
-                      placeholder={`Select ${attr.title.toLowerCase()} values`}
-                    />
-                  ) : (
-                    <p className="text-xs text-muted-foreground">
-                      No active values found for {attr.title}. Add values under Attribute Values first.
-                    </p>
-                  )}
-                </div>
-              );
-            })
+            <>
+              <VariantValuePicker
+                attributes={attributes}
+                valuesByAttribute={valuesByAttribute}
+                selections={selections}
+                onChange={(attrId, selected) => setSelections((prev) => ({ ...prev, [attrId]: selected }))}
+              />
+              <div className="pt-2 border-t">
+                <VariantGeneratePreview
+                  selections={orderedSelections}
+                  attributeValuesById={valuesById}
+                  isComplete={isComplete}
+                  existingKeys={existingKeys}
+                />
+              </div>
+            </>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              This product has no attributes. Add attributes in the product form first.
-            </p>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">This product has no attributes. Add attributes in the product form first.</p>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  navigate(`/products/${productId}/edit`, {
+                    state: {
+                      from: `/products/${productId}/variants`,
+                      reopenGenerate: true,
+                    },
+                  })
+                }
+              >
+                Add Attributes
+              </Button>
+            </div>
           )}
         </div>
 
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            onClick={handleGenerate}
-            disabled={loading || generating || !attributes.length}
-          >
-            <Wand2 className="mr-2 h-4 w-4" />
-            {generating ? "Generating..." : "Generate"}
-          </Button>
+        <DialogFooter className="sm:flex-col sm:items-end sm:gap-2">
+          {isComplete && newCount === 0 && <p className="text-xs text-muted-foreground">All selected combinations already exist.</p>}
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleGenerate} disabled={loading || generating || !attributes.length || (isComplete && newCount === 0)}>
+              <Wand2 className="mr-2 h-4 w-4" />
+              {generating ? "Generating..." : isComplete ? `Generate ${newCount} new variant${newCount === 1 ? "" : "s"}` : "Generate"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

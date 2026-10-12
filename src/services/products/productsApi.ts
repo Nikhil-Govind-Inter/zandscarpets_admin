@@ -38,6 +38,7 @@ export interface ProductRecord {
   category?: { id: number; title: string; title_ar?: string } | null;
   labels?: ProductLabelOption[];
   attributes?: ProductAttributeOption[];
+  variant_count?: number;
   relatedProducts?: ProductOption[];
   productFaq?: ProductFaqRecord[];
   productMedia?: ProductMediaRecord[];
@@ -52,6 +53,7 @@ export type ProductOption = Pick<
 
 export interface ProductFilters {
   product_category_id?: number;
+  status?: "active" | "inactive";
 }
 
 const api = createCrudApi<ProductRecord, ProductOption>(`${PRODUCTS_API_URL}/products`);
@@ -65,6 +67,7 @@ export const fetchProductList = (
 ) =>
   api.list(page, limit, search, {
     product_category_id: filters?.product_category_id,
+    status: filters?.status,
   });
 export const fetchProductById = (id: number) => api.getById(id);
 // Related-products picker source; pass the product being edited to exclude it.

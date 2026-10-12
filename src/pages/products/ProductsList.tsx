@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
@@ -9,8 +9,9 @@ import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
 import MediaThumbnail from "@/components/common/MediaThumbnail";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { HelpCircle, Images, Layers } from "lucide-react";
+import { HelpCircle, Images, Layers, RotateCcw } from "lucide-react";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
 import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
@@ -30,14 +31,27 @@ import { fetchActiveProductCategories } from "@/services/products/productCategor
 
 const ALL = "all";
 
+type StatusFilter = "all" | "active" | "inactive";
+
+const STATUS_OPTIONS = [
+  { value: "all", label: "All statuses" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+];
+
 export default function ProductsList() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Passed along so the add/edit form can come back here with filters intact.
+  const returnState = { state: { from: location.pathname + location.search } };
   const { toast } = useToast();
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const { filters: listFilters, setFilter } = useUrlFilters({
+  const { filters: listFilters, setFilter, reset: resetListFilters } = useUrlFilters({
     product_category_id: ALL,
+    status: ALL,
   });
   const categoryFilter = listFilters.product_category_id;
+  const statusFilter = listFilters.status as StatusFilter;
   const [categoryOptions, setCategoryOptions] = useState<ComboboxOption[]>([]);
 
   useEffect(() => {
@@ -51,8 +65,9 @@ export default function ProductsList() {
   const filters = useMemo<ProductFilters>(
     () => ({
       product_category_id: categoryFilter === ALL ? undefined : Number(categoryFilter),
+      status: statusFilter === "all" ? undefined : statusFilter,
     }),
-    [categoryFilter],
+    [categoryFilter, statusFilter],
   );
 
   const {
@@ -72,6 +87,15 @@ export default function ProductsList() {
     itemsLimit,
     refetch,
   } = usePaginatedList<ProductRecord, ProductFilters>(fetchProductList, 10, filters);
+
+  const hasActiveFilters =
+    categoryFilter !== ALL || statusFilter !== "all" || searchInput !== "";
+
+  const resetAll = () => {
+    resetListFilters();
+    setSearchInput("");
+    setPage(1);
+  };
 
   const handleSortOrderChange = useSortOrder(items, setItems, updateProductSortOrder);
   const { statusToggleItem, setStatusToggleItem, confirmStatusToggle } = useStatusToggle({
@@ -198,15 +222,16 @@ export default function ProductsList() {
       },
     },
     {
-      accessorKey: "createdAt",
-      header: "Created At",
-      cell: ({ row }) => (
-        <div className="text-sm text-muted-foreground">
-          {row.getValue("createdAt")
-            ? new Date(row.getValue("createdAt")).toLocaleDateString()
-            : "-"}
-        </div>
-      ),
+      id: "variants",
+      header: "Variants",
+      cell: ({ row }) => {
+        const count = row.original.variant_count ?? 0;
+        return (
+          <Badge variant={count ? "secondary" : "outline"}>
+            {count}
+          </Badge>
+        );
+      },
     },
     {
       id: "actions",
@@ -217,21 +242,27 @@ export default function ProductsList() {
           <RowActionsMenu
             extraItems={
               <>
-                <DropdownMenuItem onClick={() => navigate(`/products/${item.id}/variants`)}>
+                <DropdownMenuItem
+                  onClick={() => navigate(`/products/${item.id}/variants`, returnState)}
+                >
                   <Layers className="mr-2 h-4 w-4" />
                   Variants
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate(`/products/${item.id}/faqs`)}>
+                <DropdownMenuItem
+                  onClick={() => navigate(`/products/${item.id}/faqs`, returnState)}
+                >
                   <HelpCircle className="mr-2 h-4 w-4" />
                   FAQs
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate(`/products/${item.id}/media`)}>
+                <DropdownMenuItem
+                  onClick={() => navigate(`/products/${item.id}/media`, returnState)}
+                >
                   <Images className="mr-2 h-4 w-4" />
                   Media
                 </DropdownMenuItem>
               </>
             }
-            onEdit={() => navigate(`/products/${item.id}/edit`)}
+            onEdit={() => navigate(`/products/${item.id}/edit`, returnState)}
             onDelete={() => setDeleteItemId(item.id)}
           />
         );
@@ -246,22 +277,42 @@ export default function ProductsList() {
         data={items}
         title="Products"
         searchPlaceholder="Search Products..."
-        onAdd={() => navigate("/products/new")}
+        onAdd={() => navigate("/products/new", returnState)}
         addButtonText="Add Product"
         loading={loading}
         searching={searching}
         searchQuery={searchInput}
         onSearchChange={setSearchInput}
         headerExtra={
-          <Combobox
-            maxVisibleItems={5}
-            autoWidth
-            value={categoryFilter}
-            options={[{ value: ALL, label: "All categories" }, ...categoryOptions]}
-            placeholder="All categories"
-            searchPlaceholder="Search category..."
-            onChange={(v) => setFilter("product_category_id", v || ALL)}
-          />
+          <>
+            <Combobox
+              maxVisibleItems={5}
+              autoWidth
+              value={categoryFilter}
+              options={[{ value: ALL, label: "All categories" }, ...categoryOptions]}
+              placeholder="All categories"
+              searchPlaceholder="Search category..."
+              onChange={(v) => setFilter("product_category_id", v || ALL)}
+            />
+            <Combobox
+              maxVisibleItems={3}
+              autoWidth
+              value={statusFilter}
+              options={STATUS_OPTIONS}
+              placeholder="All statuses"
+              searchPlaceholder="Search status..."
+              onChange={(value) => setFilter("status", value)}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetAll}
+              disabled={!hasActiveFilters}
+            >
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Reset
+            </Button>
+          </>
         }
         pagination={{
           currentPage: page,

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import PageLoader from "@/components/layout/PageLoader";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -38,7 +38,12 @@ import {
 } from "@/services/products/productsApi";
 import { fetchActiveProductCategories } from "@/services/products/productCategoryApi";
 import { fetchActiveProductLabels } from "@/services/products/productLabelsApi";
-import { fetchActiveAttributes } from "@/services/products/attributesApi";
+import { fetchActiveAttributes, AttributeOption } from "@/services/products/attributesApi";
+import { fetchActiveAttributeValues, AttributeValueOption } from "@/services/products/attributeValuesApi";
+import { fetchProductVariantList, generateProductVariants } from "@/services/products/productVariantsApi";
+import VariantValuePicker, { groupValuesByAttribute } from "@/components/products/VariantValuePicker";
+import VariantGeneratePreview from "@/components/products/VariantGeneratePreview";
+import { AttributeSelection } from "@/utils/variantCombinations";
 import { productSchema, ProductFormData } from "@/schemas/productSchema";
 import { generateSlug } from "@/utils/formUtils";
 import { buildCategoryPathOptions } from "@/utils/productCategoryTree";
@@ -49,6 +54,13 @@ const toOptions = (rows: { id: number; title: string }[]): MultiSelectOption[] =
 export default function ProductForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  // The list page carries its filters/page in the URL; a plain `navigate`
+  // back there would drop them, so go back to wherever we came from (set by
+  // the list's own links) and fall back to the bare path if opened directly.
+  const listPath =
+    (location.state as { from?: string } | null)?.from ?? "/products";
+  const goToList = () => navigate(listPath);
   const { id } = useParams();
   const isEditing = Boolean(id);
   const productId = id ? parseInt(id) : undefined;
@@ -62,13 +74,31 @@ export default function ProductForm() {
   const [featureOptions, setFeatureOptions] = useState<MultiSelectOption[]>([]);
   const [tagOptions, setTagOptions] = useState<MultiSelectOption[]>([]);
   const [specificationOptions, setSpecificationOptions] = useState<MultiSelectOption[]>([]);
-  const [attributeOptions, setAttributeOptions] = useState<MultiSelectOption[]>([]);
+  const [attributeRecords, setAttributeRecords] = useState<AttributeOption[]>([]);
   const [relatedOptions, setRelatedOptions] = useState<MultiSelectOption[]>([]);
   const [featureIds, setFeatureIds] = useState<(number | string)[]>([]);
   const [tagIds, setTagIds] = useState<(number | string)[]>([]);
   const [specificationIds, setSpecificationIds] = useState<(number | string)[]>([]);
   const [attributeIds, setAttributeIds] = useState<(number | string)[]>([]);
   const [relatedIds, setRelatedIds] = useState<(number | string)[]>([]);
+  const [attributeValueRecords, setAttributeValueRecords] = useState<AttributeValueOption[]>([]);
+  const [generateSelections, setGenerateSelections] = useState<Record<number, (number | string)[]>>({});
+  const [existingVariantCount, setExistingVariantCount] = useState(0);
+  const valuesByAttribute = groupValuesByAttribute(attributeValueRecords, attributeRecords);
+
+  const attributeOptions: MultiSelectOption[] = attributeRecords.map((a) => ({ id: a.id, name: a.title }));
+  const selectedAttributes = attributeRecords.filter((a) => attributeIds.includes(a.id));
+  const attributesLocked = isEditing && existingVariantCount > 0;
+
+  const orderedSelections: AttributeSelection[] = selectedAttributes.map((a) => ({
+    attributeId: a.id,
+    valueIds: generateSelections[a.id] || [],
+  }));
+  const selectionsComplete =
+    orderedSelections.length > 0 && orderedSelections.every((s) => s.valueIds.length > 0);
+  const attributeValuesById: Record<number, AttributeValueOption> = Object.fromEntries(
+    attributeValueRecords.map((v) => [v.id, v]),
+  );
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -119,8 +149,12 @@ export default function ProductForm() {
       .catch((e) => errorToast(e, "Failed to load specifications"));
 
     fetchActiveAttributes()
-      .then((res) => setAttributeOptions(toOptions(res.data)))
+      .then((res) => setAttributeRecords(res.data))
       .catch((e) => errorToast(e, "Failed to load attributes"));
+
+    fetchActiveAttributeValues()
+      .then((res) => setAttributeValueRecords(res.data))
+      .catch((e) => errorToast(e, "Failed to load attribute values"));
 
     fetchActiveProducts(productId)
       .then((res) => setRelatedOptions(toOptions(res.data)))
@@ -179,6 +213,9 @@ export default function ProductForm() {
       );
       setAttributeIds((data.attributes || []).map((a) => a.id));
       setRelatedIds((data.relatedProducts || []).map((p) => p.id));
+
+      const variantsRes = await fetchProductVariantList(1, 1, undefined, { product_id: itemId });
+      setExistingVariantCount(variantsRes.data.pagination.totalCount);
     } catch (error) {
       errorToast(error, "Failed to load product data");
     } finally {
@@ -197,43 +234,72 @@ export default function ProductForm() {
     });
   };
 
+  const buildFormData = (data: ProductFormData) => {
+    const { main_media_path, list_media_path, price, sort_order, is_active, list_in_navbar, ...text } =
+      data;
+
+    const formData = new FormData();
+    Object.entries(text).forEach(([key, value]) => formData.append(key, value ?? ""));
+    // Price is hidden from the admin UI; never send it so it stays null server-side.
+    void price;
+    formData.append("sort_order", (sort_order || "1").toString());
+    formData.append("is_active", (is_active ?? true).toString());
+    formData.append("list_in_navbar", (list_in_navbar ?? true).toString());
+
+    // A File uploads a new file; a string sends back the existing path unchanged.
+    [
+      ["main_media_path", main_media_path],
+      ["list_media_path", list_media_path],
+    ].forEach(([key, value]) => {
+      if (value instanceof File || (typeof value === "string" && value)) {
+        formData.append(key as string, value);
+      }
+    });
+
+    formData.append("label_ids", JSON.stringify([...featureIds, ...tagIds, ...specificationIds]));
+    formData.append("attribute_ids", JSON.stringify(attributeIds));
+    formData.append("related_product_ids", JSON.stringify(relatedIds));
+
+    return formData;
+  };
+
   const onSubmit = async (data: ProductFormData) => {
     try {
       setLoading(true);
-
-      const { main_media_path, list_media_path, price, sort_order, is_active, list_in_navbar, ...text } =
-        data;
-
-      const formData = new FormData();
-      Object.entries(text).forEach(([key, value]) => formData.append(key, value ?? ""));
-      // Price is hidden from the admin UI; never send it so it stays null server-side.
-      void price;
-      formData.append("sort_order", (sort_order || "1").toString());
-      formData.append("is_active", (is_active ?? true).toString());
-      formData.append("list_in_navbar", (list_in_navbar ?? true).toString());
-
-      // A File uploads a new file; a string sends back the existing path unchanged.
-      [
-        ["main_media_path", main_media_path],
-        ["list_media_path", list_media_path],
-      ].forEach(([key, value]) => {
-        if (value instanceof File || (typeof value === "string" && value)) {
-          formData.append(key as string, value);
-        }
-      });
-
-      formData.append("label_ids", JSON.stringify([...featureIds, ...tagIds, ...specificationIds]));
-      formData.append("attribute_ids", JSON.stringify(attributeIds));
-      formData.append("related_product_ids", JSON.stringify(relatedIds));
+      const formData = buildFormData(data);
 
       if (isEditing && productId) {
         await updateProduct(productId, formData);
         toast({ title: "Success", description: "Product updated successfully" });
       } else {
-        await createProduct(formData);
-        toast({ title: "Success", description: "Product created successfully" });
+        const res = await createProduct(formData);
+
+        if (selectionsComplete) {
+          try {
+            const { data: generateResult } = await generateProductVariants({
+              product_id: res.data.id,
+              selections: orderedSelections.map((s) => ({
+                attribute_id: s.attributeId,
+                value_ids: s.valueIds.map(Number),
+              })),
+            });
+            toast({
+              title: "Success",
+              description: `Product created successfully — ${generateResult.created} variant(s) created`,
+            });
+          } catch {
+            toast({
+              title: "Product created",
+              description:
+                "The product was saved, but its variants could not be generated. Use Manage Variants to generate them.",
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({ title: "Success", description: "Product created successfully" });
+        }
       }
-      navigate("/products");
+      goToList();
     } catch (error) {
       applyFieldErrors(error);
       errorToast(error, `Failed to ${isEditing ? "update" : "create"} product`);
@@ -250,7 +316,7 @@ export default function ProductForm() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate("/products")}>
+          <Button variant="outline" size="icon" onClick={() => goToList()}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
@@ -441,11 +507,38 @@ export default function ProductForm() {
                   selected={attributeIds}
                   onChange={setAttributeIds}
                   placeholder="Select attributes (e.g. Size, Color, Material)"
+                  disabled={attributesLocked}
                 />
                 <p className="text-xs text-muted-foreground">
                   Select the attributes this product uses. Each variant will carry one value for each selected attribute.
                 </p>
+                {attributesLocked && (
+                  <p className="text-xs text-muted-foreground">
+                    Attributes can't be changed once this product has variants. Remove its
+                    variants first if you need to change them.
+                  </p>
+                )}
               </div>
+
+              {!isEditing && attributeIds.length > 0 && (
+                <div className="space-y-4 pt-2 border-t">
+                  <VariantValuePicker
+                    attributes={selectedAttributes}
+                    valuesByAttribute={valuesByAttribute}
+                    selections={generateSelections}
+                    onChange={(attrId, selected) =>
+                      setGenerateSelections((prev) => ({ ...prev, [attrId]: selected }))
+                    }
+                    disabled={loading}
+                  />
+                  <VariantGeneratePreview
+                    selections={orderedSelections}
+                    attributeValuesById={attributeValuesById}
+                    isComplete={selectionsComplete}
+                  />
+                </div>
+              )}
+
               {isEditing && productId && (
                 <div className="pt-2 flex items-center justify-between border-t">
                   <div className="space-y-0.5">
@@ -525,7 +618,7 @@ export default function ProductForm() {
           </Card>
 
           <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => navigate("/products")}>
+            <Button type="button" variant="outline" onClick={() => goToList()}>
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>

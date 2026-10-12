@@ -51,6 +51,7 @@ export interface ProductVariantRecord {
 
 export interface VariantFilters {
   product_id: number;
+  status?: "active" | "inactive";
 }
 
 export interface GenerateSelectionsPayload {
@@ -72,7 +73,11 @@ export const fetchProductVariantList = (
   limit: number,
   search?: string,
   filters?: VariantFilters,
-) => api.list(page, limit, search, { product_id: filters?.product_id });
+) =>
+  api.list(page, limit, search, {
+    product_id: filters?.product_id,
+    status: filters?.status,
+  });
 export const fetchProductVariantById = (id: number) => api.getById(id);
 export const createProductVariant = (formData: FormData) => api.create(formData);
 export const updateProductVariant = (id: number, formData: FormData) =>

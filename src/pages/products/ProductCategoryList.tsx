@@ -50,8 +50,11 @@ export default function ProductCategoryList() {
   const returnState = { state: { from: location.pathname + location.search } };
   const { toast } = useToast();
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const { filters: categoryFilters, setFilter: setCategoryFilter, reset: resetCategoryFilters } =
-    useUrlFilters({ type: "all", status: "all", parent_id: "all" });
+  const {
+    filters: categoryFilters,
+    setFilter: setCategoryFilter,
+    reset: resetCategoryFilters,
+  } = useUrlFilters({ type: "all", status: "all", parent_id: "all" });
   const [parentOptions, setParentOptions] = useState<ProductCategoryOption[]>([]);
 
   const typeFilter = categoryFilters.type as TypeFilter;
@@ -65,10 +68,7 @@ export default function ProductCategoryList() {
   }, []);
 
   const parentComboOptions = useMemo(
-    () => [
-      { value: "all", label: "All parents" },
-      ...parentOptions.map((o) => ({ value: String(o.id), label: o.title })),
-    ],
+    () => [{ value: "all", label: "All parents" }, ...parentOptions.map((o) => ({ value: String(o.id), label: o.title }))],
     [parentOptions],
   );
 
@@ -97,18 +97,9 @@ export default function ProductCategoryList() {
     itemsPage,
     itemsLimit,
     refetch,
-  } = usePaginatedList<ProductCategoryRecord, ProductCategoryFilters>(
-    fetchProductCategoryList,
-    10,
-    filters,
-  );
+  } = usePaginatedList<ProductCategoryRecord, ProductCategoryFilters>(fetchProductCategoryList, 10, filters);
 
-
-  const hasActiveFilters =
-    typeFilter !== "all" ||
-    statusFilter !== "all" ||
-    parentFilter !== "all" ||
-    searchInput !== "";
+  const hasActiveFilters = typeFilter !== "all" || statusFilter !== "all" || parentFilter !== "all" || searchInput !== "";
 
   const resetAll = () => {
     resetCategoryFilters();
@@ -138,10 +129,7 @@ export default function ProductCategoryList() {
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError
-            ? error.message
-            : "Failed to delete category",
+        description: error instanceof ApiError ? error.message : "Failed to delete category",
         variant: "destructive",
       });
     } finally {
@@ -153,45 +141,27 @@ export default function ProductCategoryList() {
     {
       accessorKey: "id",
       header: "ID",
-      cell: ({ row }) => (
-        <div className="font-mono">
-          {(itemsPage - 1) * itemsLimit + row.index + 1}
-        </div>
-      ),
+      cell: ({ row }) => <div className="font-mono">{(itemsPage - 1) * itemsLimit + row.index + 1}</div>,
     },
     {
       accessorKey: "title",
       header: "Title",
-      cell: ({ row }) => (
-        <div className="font-medium">{row.getValue("title")}</div>
-      ),
+      cell: ({ row }) => <div className="font-medium">{row.getValue("title")}</div>,
     },
     {
       id: "industry",
       header: "Industry",
-      cell: ({ row }) => (
-        <div className="text-sm text-muted-foreground">
-          {row.original.industry?.title || "-"}
-        </div>
-      ),
+      cell: ({ row }) => <div className="text-sm text-muted-foreground">{row.original.industry?.title || "-"}</div>,
     },
     {
       id: "parent",
       header: "Parent Category",
-      cell: ({ row }) => (
-        <div className="text-sm text-muted-foreground">
-          {row.original.parent?.title || "-"}
-        </div>
-      ),
+      cell: ({ row }) => <div className="text-sm text-muted-foreground">{row.original.parent?.title || "-"}</div>,
     },
     {
       id: "children",
       header: "Sub-categories",
-      cell: ({ row }) => (
-        <div className="text-sm text-muted-foreground">
-          {row.original.children?.length ?? 0}
-        </div>
-      ),
+      cell: ({ row }) => <div className="text-sm text-muted-foreground">{row.original.children?.length ?? 0}</div>,
     },
     {
       accessorKey: "sort_order",
@@ -213,14 +183,7 @@ export default function ProductCategoryList() {
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("is_active") as boolean;
-        return (
-          <StatusToggleCell
-            status={status}
-            onCheckedChange={(checked) =>
-              setStatusToggleItem({ item: row.original, newStatus: checked })
-            }
-          />
-        );
+        return <StatusToggleCell status={status} onCheckedChange={(checked) => setStatusToggleItem({ item: row.original, newStatus: checked })} />;
       },
     },
     {
@@ -228,9 +191,7 @@ export default function ProductCategoryList() {
       header: "Created At",
       cell: ({ row }) => (
         <div className="text-sm text-muted-foreground">
-          {row.getValue("createdAt")
-            ? new Date(row.getValue("createdAt")).toLocaleDateString()
-            : "-"}
+          {row.getValue("createdAt") ? new Date(row.getValue("createdAt")).toLocaleDateString() : "-"}
         </div>
       ),
     },
@@ -242,11 +203,7 @@ export default function ProductCategoryList() {
         return (
           <RowActionsMenu
             extraItems={
-              <DropdownMenuItem
-                onClick={() =>
-                  navigate(`/product-categories/new?parent=${item.id}`, returnState)
-                }
-              >
+              <DropdownMenuItem onClick={() => navigate(`/product-categories/new?parent=${item.id}`, returnState)}>
                 <FolderPlus className="mr-2 h-4 w-4" />
                 Add sub-category
               </DropdownMenuItem>
@@ -305,12 +262,7 @@ export default function ProductCategoryList() {
               searchPlaceholder="Search status..."
               onChange={(value) => setCategoryFilter("status", value)}
             />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={resetAll}
-              disabled={!hasActiveFilters}
-            >
+            <Button variant="outline" size="sm" onClick={resetAll} disabled={!hasActiveFilters}>
               <RotateCcw className="mr-2 h-4 w-4" />
               Reset
             </Button>
@@ -329,11 +281,7 @@ export default function ProductCategoryList() {
         }}
       />
 
-      <DeleteDialogue
-        deleteItemId={deleteItemId}
-        setDeleteItemId={setDeleteItemId}
-        confirmDelete={confirmDelete}
-      />
+      <DeleteDialogue deleteItemId={deleteItemId} setDeleteItemId={setDeleteItemId} confirmDelete={confirmDelete} />
 
       <StatusChangeDialogue
         statusToggleItem={statusToggleItem}
