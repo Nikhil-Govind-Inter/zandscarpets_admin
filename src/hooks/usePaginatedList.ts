@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
 
 interface PaginatedResponse<T> {
   data: {
@@ -20,55 +21,78 @@ type Fetcher<T, F> = (
 ) => Promise<PaginatedResponse<T>>;
 
 const SEARCH_DEBOUNCE_MS = 600;
+
 export function usePaginatedList<T, F = undefined>(
   fetcher: Fetcher<T, F>,
   initialLimit = 10,
   filters?: F
 ) {
+  const [urlState, setUrlState] = useQueryStates(
+    {
+      page: parseAsInteger.withDefault(1),
+      limit: parseAsInteger.withDefault(initialLimit),
+      search: parseAsString.withDefault(""),
+    },
+    { history: "replace", shallow: false }
+  );
+
+  const page = urlState.page;
+  const limit = urlState.limit;
+  const committedSearch = urlState.search;
+
   const [items, setItems] = useState<T[]>([]);
-  const [page, setPage] = useState(1);
-  const [itemsPage, setItemsPage] = useState(1);
-  const [itemsLimit, setItemsLimit] = useState(initialLimit);
-  const [limit, setLimit] = useState(initialLimit);
-  const [searchInput, setSearchInput] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [itemsPage, setItemsPage] = useState(page);
+  const [itemsLimit, setItemsLimit] = useState(limit);
+  const [searchInput, setSearchInput] = useState(committedSearch);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [searching, setSearching] = useState(false);
 
-  const isFirstRender = useRef(true);
-
-  useEffect(() => {
-    setSearching(true);
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchInput);
-    }, SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [searchInput]);
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    setPage(1);
-  }, [debouncedSearch]);
-
-  // Filters are usually an inline object; compare by value so a new reference
-  // with the same contents doesn't refetch.
+  // Filters are usually an inline object; the fetcher reads the latest value
+  // through a ref while `filtersKey` (by value) drives refetch/reset.
   const filtersKey = JSON.stringify(filters ?? null);
   const filtersRef = useRef(filters);
   filtersRef.current = filters;
 
-  const isFirstFilters = useRef(true);
+  const setPage = useCallback(
+    (next: number) => setUrlState({ page: next }),
+    [setUrlState]
+  );
+  const setLimit = useCallback(
+    (next: number) => setUrlState({ limit: next }),
+    [setUrlState]
+  );
+
+  // Debounce the search box, then commit it (resetting to page 1) into the URL.
   useEffect(() => {
-    if (isFirstFilters.current) {
-      isFirstFilters.current = false;
-      return;
-    }
-    setPage(1);
-  }, [filtersKey]);
+    const timer = setTimeout(() => {
+      if (searchInput !== committedSearch) {
+        setUrlState({
+          search: searchInput.trim() ? searchInput : null,
+          page: 1,
+        });
+      }
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+    // committedSearch is read fresh; only searchInput should restart the timer.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
+
+  // Keep the input in sync when the URL changes from outside (back/forward,
+  // shared link) without clobbering the value while the user is typing.
+  useEffect(() => {
+    setSearchInput((current) =>
+      current === committedSearch ? current : committedSearch
+    );
+  }, [committedSearch]);
+
+  // Filters are persisted in the URL; when they change, restart from page 1.
+  const previousFiltersKey = useRef(filtersKey);
+  useEffect(() => {
+    if (previousFiltersKey.current === filtersKey) return;
+    previousFiltersKey.current = filtersKey;
+    setUrlState({ page: 1 });
+  }, [filtersKey, setUrlState]);
 
   const load = useCallback(async () => {
     try {
@@ -76,7 +100,7 @@ export function usePaginatedList<T, F = undefined>(
       const response = await fetcher(
         page,
         limit,
-        debouncedSearch || undefined,
+        committedSearch || undefined,
         filtersRef.current
       );
       setItems(response.data.data);
@@ -86,15 +110,17 @@ export function usePaginatedList<T, F = undefined>(
       setTotalPages(response.data.pagination.totalPages);
     } finally {
       setLoading(false);
-      setSearching(false);
     }
-    // filtersKey (not the filters object) drives refetches; the value is read via ref.
+    // `filtersKey` is read via ref for the value, but must be a dep so a filter
+    // change refetches even when the page/search stay the same.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetcher, page, limit, debouncedSearch, filtersKey]);
+  }, [fetcher, page, limit, committedSearch, filtersKey]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  const searching = searchInput !== committedSearch;
 
   return {
     items,
@@ -103,14 +129,14 @@ export function usePaginatedList<T, F = undefined>(
     setPage,
     limit,
     setLimit,
-    itemsPage,
-    itemsLimit,
     searchInput,
     setSearchInput,
     totalCount,
     totalPages,
     loading,
     searching,
+    itemsPage,
+    itemsLimit,
     refetch: load,
   };
 }

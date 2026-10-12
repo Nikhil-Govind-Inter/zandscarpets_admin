@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import PageLoader from "@/components/layout/PageLoader";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -49,6 +49,13 @@ const NO_PARENT = "0";
 export default function ProductCategoryForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  // The list page carries its filters/page in the URL; a plain `navigate`
+  // back there would drop them, so go back to wherever we came from (set by
+  // the list's own links) and fall back to the bare path if opened directly.
+  const listPath =
+    (location.state as { from?: string } | null)?.from ?? "/product-categories";
+  const goToList = () => navigate(listPath);
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const isEditing = Boolean(id);
@@ -182,7 +189,7 @@ export default function ProductCategoryForm() {
         toast({ title: "Success", description: "Category created successfully" });
       }
 
-      navigate("/product-categories");
+      goToList();
     } catch (error) {
       errorToast(
         error,
@@ -208,7 +215,7 @@ export default function ProductCategoryForm() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate("/product-categories")}
+          onClick={() => goToList()}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -394,7 +401,7 @@ export default function ProductCategoryForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/product-categories")}
+              onClick={() => goToList()}
             >
               Cancel
             </Button>

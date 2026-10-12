@@ -62,13 +62,13 @@ export default function ProductForm() {
   const [featureOptions, setFeatureOptions] = useState<MultiSelectOption[]>([]);
   const [tagOptions, setTagOptions] = useState<MultiSelectOption[]>([]);
   const [specificationOptions, setSpecificationOptions] = useState<MultiSelectOption[]>([]);
-  const [relatedOptions, setRelatedOptions] = useState<MultiSelectOption[]>([]);
   const [attributeOptions, setAttributeOptions] = useState<MultiSelectOption[]>([]);
+  const [relatedOptions, setRelatedOptions] = useState<MultiSelectOption[]>([]);
   const [featureIds, setFeatureIds] = useState<(number | string)[]>([]);
   const [tagIds, setTagIds] = useState<(number | string)[]>([]);
   const [specificationIds, setSpecificationIds] = useState<(number | string)[]>([]);
-  const [relatedIds, setRelatedIds] = useState<(number | string)[]>([]);
   const [attributeIds, setAttributeIds] = useState<(number | string)[]>([]);
+  const [relatedIds, setRelatedIds] = useState<(number | string)[]>([]);
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -118,13 +118,13 @@ export default function ProductForm() {
       .then((res) => setSpecificationOptions(toOptions(res.data)))
       .catch((e) => errorToast(e, "Failed to load specifications"));
 
-    fetchActiveProducts(productId)
-      .then((res) => setRelatedOptions(toOptions(res.data)))
-      .catch((e) => errorToast(e, "Failed to load products"));
-
     fetchActiveAttributes()
       .then((res) => setAttributeOptions(toOptions(res.data)))
       .catch((e) => errorToast(e, "Failed to load attributes"));
+
+    fetchActiveProducts(productId)
+      .then((res) => setRelatedOptions(toOptions(res.data)))
+      .catch((e) => errorToast(e, "Failed to load products"));
   }, [id]);
 
   useEffect(() => {
@@ -177,8 +177,8 @@ export default function ProductForm() {
       setSpecificationIds(
         labels.filter((l) => l.type === "specification").map((l) => l.id),
       );
-      setRelatedIds((data.relatedProducts || []).map((p) => p.id));
       setAttributeIds((data.attributes || []).map((a) => a.id));
+      setRelatedIds((data.relatedProducts || []).map((p) => p.id));
     } catch (error) {
       errorToast(error, "Failed to load product data");
     } finally {
@@ -206,7 +206,8 @@ export default function ProductForm() {
 
       const formData = new FormData();
       Object.entries(text).forEach(([key, value]) => formData.append(key, value ?? ""));
-      formData.append("price", price || "");
+      // Price is hidden from the admin UI; never send it so it stays null server-side.
+      void price;
       formData.append("sort_order", (sort_order || "1").toString());
       formData.append("is_active", (is_active ?? true).toString());
       formData.append("list_in_navbar", (list_in_navbar ?? true).toString());
@@ -222,8 +223,8 @@ export default function ProductForm() {
       });
 
       formData.append("label_ids", JSON.stringify([...featureIds, ...tagIds, ...specificationIds]));
-      formData.append("related_product_ids", JSON.stringify(relatedIds));
       formData.append("attribute_ids", JSON.stringify(attributeIds));
+      formData.append("related_product_ids", JSON.stringify(relatedIds));
 
       if (isEditing && productId) {
         await updateProduct(productId, formData);
@@ -314,19 +315,6 @@ export default function ProductForm() {
                   name="slug"
                   label="Slug"
                   placeholder="e.g., hand-knotted-wool-rug"
-                />
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={0} step="0.01" placeholder="0.00" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
                 />
               </div>
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
 import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { useUrlFilters } from "@/hooks/useUrlFilters";
 import {
   fetchProductLabelList,
   deleteProductLabel,
@@ -39,21 +40,18 @@ const isLabelType = (value: string | null): value is LabelType =>
 export default function ProductLabelsList() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
 
   // The URL (`?type=…`) is the single source of truth, so the sidebar menu
   // entries (/product-labels?type=tag) apply the filter on load and update it
   // while the page is already mounted.
-  const typeParam = searchParams.get("type");
-  const typeFilter: TypeFilter = isLabelType(typeParam) ? typeParam : ALL;
+  const { filters: listFilters, setFilter } = useUrlFilters({ type: ALL });
+  const typeFilter: TypeFilter = isLabelType(listFilters.type)
+    ? listFilters.type
+    : ALL;
 
   const handleTypeChange = (value: string) => {
-    if (value === ALL) {
-      setSearchParams({});
-    } else {
-      setSearchParams({ type: value });
-    }
+    setFilter("type", value || ALL);
   };
 
   const filters = useMemo(

@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
+import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { FolderPlus } from "lucide-react";
+import { FolderPlus, RotateCcw } from "lucide-react";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import StatusToggleCell from "@/components/common/StatusToggleCell";
 import SortOrderCell from "@/components/common/SortOrderCell";
@@ -14,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
 import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { useUrlFilters } from "@/hooks/useUrlFilters";
 import {
   fetchProductCategoryList,
   fetchActiveProductCategories,
@@ -27,6 +29,7 @@ import {
 } from "@/services/products/productCategoryApi";
 
 type TypeFilter = "all" | "category" | "subcategory";
+type StatusFilter = "all" | "active" | "inactive";
 
 const TYPE_OPTIONS = [
   { value: "all", label: "All levels" },
@@ -34,14 +37,26 @@ const TYPE_OPTIONS = [
   { value: "subcategory", label: "Sub-categories" },
 ];
 
+const STATUS_OPTIONS = [
+  { value: "all", label: "All statuses" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+];
 
 export default function ProductCategoryList() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Passed along so the add/edit form can come back here with filters intact.
+  const returnState = { state: { from: location.pathname + location.search } };
   const { toast } = useToast();
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
-  const [parentFilter, setParentFilter] = useState("all");
+  const { filters: categoryFilters, setFilter: setCategoryFilter, reset: resetCategoryFilters } =
+    useUrlFilters({ type: "all", status: "all", parent_id: "all" });
   const [parentOptions, setParentOptions] = useState<ProductCategoryOption[]>([]);
+
+  const typeFilter = categoryFilters.type as TypeFilter;
+  const statusFilter = categoryFilters.status as StatusFilter;
+  const parentFilter = categoryFilters.parent_id;
 
   useEffect(() => {
     fetchActiveProductCategories()
@@ -61,8 +76,9 @@ export default function ProductCategoryList() {
     () => ({
       type: typeFilter === "all" ? undefined : typeFilter,
       parent_id: parentFilter === "all" ? undefined : Number(parentFilter),
+      status: statusFilter === "all" ? undefined : statusFilter,
     }),
-    [typeFilter, parentFilter],
+    [typeFilter, parentFilter, statusFilter],
   );
 
   const {
@@ -87,6 +103,18 @@ export default function ProductCategoryList() {
     filters,
   );
 
+
+  const hasActiveFilters =
+    typeFilter !== "all" ||
+    statusFilter !== "all" ||
+    parentFilter !== "all" ||
+    searchInput !== "";
+
+  const resetAll = () => {
+    resetCategoryFilters();
+    setSearchInput("");
+    setPage(1);
+  };
 
   const handleSortOrderChange = useSortOrder(categories, setCategories, updateProductCategorySortOrder);
   const { statusToggleItem, setStatusToggleItem, confirmStatusToggle } = useStatusToggle({
@@ -215,13 +243,15 @@ export default function ProductCategoryList() {
           <RowActionsMenu
             extraItems={
               <DropdownMenuItem
-                onClick={() => navigate(`/product-categories/new?parent=${item.id}`)}
+                onClick={() =>
+                  navigate(`/product-categories/new?parent=${item.id}`, returnState)
+                }
               >
                 <FolderPlus className="mr-2 h-4 w-4" />
                 Add sub-category
               </DropdownMenuItem>
             }
-            onEdit={() => navigate(`/product-categories/${item.id}/edit`)}
+            onEdit={() => navigate(`/product-categories/${item.id}/edit`, returnState)}
             onDelete={() => setDeleteItemId(item.id)}
           />
         );
@@ -236,7 +266,7 @@ export default function ProductCategoryList() {
         data={categories}
         title="Categories"
         searchPlaceholder="Search categories..."
-        onAdd={() => navigate("/product-categories/new")}
+        onAdd={() => navigate("/product-categories/new", returnState)}
         addButtonText="Add Category"
         loading={loading}
         searching={searching}
@@ -252,9 +282,9 @@ export default function ProductCategoryList() {
               placeholder="All levels"
               searchPlaceholder="Search level..."
               onChange={(value) => {
-                setTypeFilter(value as TypeFilter);
+                setCategoryFilter("type", value);
                 // A specific parent already implies sub-categories.
-                setParentFilter("all");
+                setCategoryFilter("parent_id", "all");
               }}
             />
             <Combobox
@@ -264,8 +294,26 @@ export default function ProductCategoryList() {
               options={parentComboOptions}
               placeholder="All parents"
               searchPlaceholder="Search parent..."
-              onChange={setParentFilter}
+              onChange={(value) => setCategoryFilter("parent_id", value)}
             />
+            <Combobox
+              maxVisibleItems={3}
+              autoWidth
+              value={statusFilter}
+              options={STATUS_OPTIONS}
+              placeholder="All statuses"
+              searchPlaceholder="Search status..."
+              onChange={(value) => setCategoryFilter("status", value)}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetAll}
+              disabled={!hasActiveFilters}
+            >
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Reset
+            </Button>
           </>
         }
         pagination={{

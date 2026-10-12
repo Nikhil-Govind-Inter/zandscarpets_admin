@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
 import { Combobox } from "@/components/ui/combobox";
@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
 import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { useUrlFilters } from "@/hooks/useUrlFilters";
 import {
   fetchAttributeValueList,
   deleteAttributeValue,
@@ -27,13 +28,12 @@ import { fetchActiveAttributes, AttributeOption } from "@/services/products/attr
 export default function AttributeValuesList() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [searchParams] = useSearchParams();
-  const initialAttributeId = searchParams.get("attribute_id");
 
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const [attributeFilter, setAttributeFilter] = useState<string>(
-    initialAttributeId || "all",
-  );
+  const { filters: listFilters, setFilter } = useUrlFilters({
+    attribute_id: "all",
+  });
+  const attributeFilter = listFilters.attribute_id;
   const [attributeOptions, setAttributeOptions] = useState<AttributeOption[]>([]);
 
   useEffect(() => {
@@ -274,7 +274,7 @@ export default function AttributeValuesList() {
             ]}
             placeholder="All attributes"
             searchPlaceholder="Search attribute..."
-            onChange={(value) => setAttributeFilter(value as string)}
+            onChange={(value) => setFilter("attribute_id", value)}
           />
         }
         pagination={{

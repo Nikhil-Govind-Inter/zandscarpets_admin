@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
@@ -74,12 +74,15 @@ export default function ProductVariantForm() {
     },
   });
 
-  const errorToast = (error: unknown, fallback: string) =>
-    toast({
-      title: "Error",
-      description: error instanceof ApiError ? error.message : fallback,
-      variant: "destructive",
-    });
+  const errorToast = useCallback(
+    (error: unknown, fallback: string) =>
+      toast({
+        title: "Error",
+        description: error instanceof ApiError ? error.message : fallback,
+        variant: "destructive",
+      }),
+    [toast],
+  );
 
   const applyFieldErrors = (error: unknown) => {
     if (!(error instanceof ApiError)) return;
@@ -99,11 +102,9 @@ export default function ProductVariantForm() {
       navigate("/products", { replace: true });
       return;
     }
-    let cancelled = false;
     setInitialLoading(true);
     Promise.all([fetchProductById(productId), fetchActiveAttributeValues()])
       .then(([productRes, valuesRes]) => {
-        if (cancelled) return;
         setProductTitle(productRes.data.title || "");
         const attrs = productRes.data.attributes || [];
         const grouped: Record<number, AttributeValueOption[]> = {};
@@ -114,30 +115,22 @@ export default function ProductVariantForm() {
         setValuesByAttribute(grouped);
       })
       .catch((error) => {
-        if (cancelled) return;
         errorToast(error, "Failed to load product attributes");
         navigate(`/products/${productId}/variants`, { replace: true });
       })
       .finally(() => {
-        if (!cancelled) setInitialLoading(false);
+        setInitialLoading(false);
       });
-    return () => {
-      cancelled = true;
-    };
-  }, [productId, navigate]);
+  }, [productId, navigate, errorToast]);
 
   useEffect(() => {
     if (!isEditing || !id) return;
-    let cancelled = false;
     setInitialLoading(true);
     fetchProductVariantById(Number(id))
       .then(({ data }) => {
-        if (cancelled) return;
         const values = (data.valueLinks || []).map((l) => String(l.attribute_value_id));
         form.reset({
           attribute_value_ids: values,
-          label: data.label || "",
-          label_ar: data.label_ar || "",
           sku: data.sku || "",
           media_path: data.media_path || "",
           media_alt: data.media_alt || "",
@@ -147,14 +140,13 @@ export default function ProductVariantForm() {
         });
       })
       .catch((error) => {
-        if (cancelled) return;
         errorToast(error, "Failed to load variant");
         navigate(`/products/${productId}/variants`, { replace: true });
       })
       .finally(() => {
-        if (!cancelled) setInitialLoading(false);
+        setInitialLoading(false);
       });
-  }, [id, isEditing, productId, navigate, form]);
+  }, [id, isEditing, productId, navigate, form, errorToast]);
 
   const onSubmit = async (data: ProductVariantFormData) => {
     try {

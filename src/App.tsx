@@ -10,6 +10,7 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
+import { NuqsAdapter } from "nuqs/adapters/react-router/v6";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 
@@ -234,8 +235,9 @@ const App = () => (
       <Toaster />
       <Sonner position="top-right" />
       <BrowserRouter>
-        <AuthProvider>
-          <Routes>
+        <NuqsAdapter defaultOptions={{ shallow: false }}>
+          <AuthProvider>
+            <Routes>
             <Route path="/login" element={<Login />} />
 
             <Route element={<ProtectedRoute />}>
@@ -478,8 +480,9 @@ const App = () => (
 
             {/* Catch all route - must be last */}
             <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
+            </Routes>
+          </AuthProvider>
+        </NuqsAdapter>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -113,6 +113,7 @@ export interface ProductCategoryListResponse {
 export interface ProductCategoryFilters {
   type?: "category" | "subcategory";
   parent_id?: number;
+  status?: "active" | "inactive";
 }
 
 // Fetcher shape matches usePaginatedList's `Fetcher<T>` contract.
@@ -132,6 +133,7 @@ export const fetchProductCategoryList = async (
   }
   if (filters?.type) params.append("type", filters.type);
   if (filters?.parent_id) params.append("parent_id", String(filters.parent_id));
+  if (filters?.status) params.append("status", filters.status);
 
   const response = await apiFetch(`${CATEGORIES_URL}?${params}`);
   return parseEnvelope<ProductCategoryListResponse["data"]>(response);

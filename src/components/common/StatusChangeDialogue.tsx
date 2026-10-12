@@ -1,3 +1,4 @@
+import { useRef } from "react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog"
 
 const StatusChangeDialogue = ({
@@ -7,13 +8,21 @@ const StatusChangeDialogue = ({
     itemLabel = "item",
 
 }) => {
+  const actionRef = useRef<HTMLButtonElement>(null)
+
   return (
     <div>
        <AlertDialog
               open={!!statusToggleItem}
               onOpenChange={() => setStatusToggleItem(null)}
             >
-              <AlertDialogContent>
+              {/* Radix focuses Cancel by default; focus Confirm instead so Enter confirms. */}
+              <AlertDialogContent
+                onOpenAutoFocus={(e) => {
+                  e.preventDefault();
+                  actionRef.current?.focus();
+                }}
+              >
                 <AlertDialogHeader>
                   <AlertDialogTitle>Confirm Status Change</AlertDialogTitle>
                   <AlertDialogDescription>
@@ -25,7 +34,7 @@ const StatusChangeDialogue = ({
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={confirmStatusToggle}>
+                  <AlertDialogAction ref={actionRef} onClick={confirmStatusToggle}>
                     {statusToggleItem?.newStatus ? "Activate" : "Deactivate"}
                   </AlertDialogAction>
                 </AlertDialogFooter>

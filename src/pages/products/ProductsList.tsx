@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
 import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { useUrlFilters } from "@/hooks/useUrlFilters";
 import {
   fetchProductList,
   deleteProduct,
@@ -33,7 +34,10 @@ export default function ProductsList() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState(ALL);
+  const { filters: listFilters, setFilter } = useUrlFilters({
+    product_category_id: ALL,
+  });
+  const categoryFilter = listFilters.product_category_id;
   const [categoryOptions, setCategoryOptions] = useState<ComboboxOption[]>([]);
 
   useEffect(() => {
@@ -256,7 +260,7 @@ export default function ProductsList() {
             options={[{ value: ALL, label: "All categories" }, ...categoryOptions]}
             placeholder="All categories"
             searchPlaceholder="Search category..."
-            onChange={(v) => setCategoryFilter(v || ALL)}
+            onChange={(v) => setFilter("product_category_id", v || ALL)}
           />
         }
         pagination={{
