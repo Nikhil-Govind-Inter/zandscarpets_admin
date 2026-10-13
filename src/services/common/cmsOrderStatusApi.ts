@@ -37,7 +37,8 @@ export type CmsResource =
   | "product-media"
   | "product-variants"
   | "attributes"
-  | "attribute-values";
+  | "attribute-values"
+  | "detail-fields";
 
 interface ApiEnvelope<T> {
   success: boolean;

@@ -40,6 +40,7 @@ import {
   SlidersHorizontal,
   Shapes,
   Sparkles,
+  LayoutList,
 } from "lucide-react";
 
 import {
@@ -99,6 +100,8 @@ const productsSection = [
   { title: "Category Highlights", url: "/product-highlights", icon: Star },
   { title: "Attributes", url: "/attributes", icon: SlidersHorizontal },
   { title: "Attribute Values", url: "/attribute-values", icon: Shapes },
+  { title: "Detail Fields", url: "/details/fields", icon: LayoutList },
+  { title: "Media Library", url: "/details/media", icon: Image },
   { title: "Features", url: "/product-labels?type=feature", icon: Sparkles },
   { title: "Tags", url: "/product-labels?type=tag", icon: Tag },
   { title: "Specifications", url: "/product-labels?type=specification", icon: ListChecks },
@@ -221,6 +224,7 @@ export function AppSidebar() {
         "/attributes",
         "/attribute-values",
         "/product-labels",
+        "/details",
       ].some((route) =>
         path.includes(route),
       )

@@ -11,7 +11,7 @@ import MediaThumbnail from "@/components/common/MediaThumbnail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { HelpCircle, Images, Layers, RotateCcw } from "lucide-react";
+import { HelpCircle, Images, Layers, RotateCcw, LayoutList } from "lucide-react";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
 import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
@@ -259,6 +259,12 @@ export default function ProductsList() {
                 >
                   <Images className="mr-2 h-4 w-4" />
                   Media
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => navigate(`/products/${item.id}/details`, returnState)}
+                >
+                  <LayoutList className="mr-2 h-4 w-4" />
+                  Details
                 </DropdownMenuItem>
               </>
             }

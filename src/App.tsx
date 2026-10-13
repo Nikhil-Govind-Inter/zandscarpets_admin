@@ -111,6 +111,11 @@ const ProductLabelsList = React.lazy(() => import("./pages/products/ProductLabel
 const ProductLabelForm = React.lazy(() => import("./pages/products/ProductLabelForm"));
 const ProductVariantsList = React.lazy(() => import("./pages/products/ProductVariantsList"));
 const ProductVariantForm = React.lazy(() => import("./pages/products/ProductVariantForm"));
+const ProductDetailsPage = React.lazy(() => import("./pages/products/ProductDetailsPage"));
+const VariantDetailsPage = React.lazy(() => import("./pages/products/VariantDetailsPage"));
+const DetailFieldsList = React.lazy(() => import("./pages/details/DetailFieldsList"));
+const DetailFieldForm = React.lazy(() => import("./pages/details/DetailFieldForm"));
+const MediaLibraryList = React.lazy(() => import("./pages/details/MediaLibraryList"));
 
 // Masters — Projects
 const ProjectsList = React.lazy(() => import("./pages/masters/ProjectsList"));
@@ -398,6 +403,14 @@ const App = () => (
               <Route path="/products/:productId/variants" element={<ProductVariantsList />} />
               <Route path="/products/:productId/variants/new" element={<ProductVariantForm />} />
               <Route path="/products/:productId/variants/:id/edit" element={<ProductVariantForm />} />
+              <Route path="/products/:productId/details" element={<ProductDetailsPage />} />
+              <Route path="/products/:productId/variants/:variantId/details" element={<VariantDetailsPage />} />
+
+              {/* Detail Field Routes (dynamic content-block master list) */}
+              <Route path="/details/fields" element={<DetailFieldsList />} />
+              <Route path="/details/fields/new" element={<DetailFieldForm />} />
+              <Route path="/details/fields/:id/edit" element={<DetailFieldForm />} />
+              <Route path="/details/media" element={<MediaLibraryList />} />
 
               {/* Attribute Routes */}
               <Route path="/attributes" element={<AttributesList />} />

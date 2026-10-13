@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowLeft, Layers, RotateCcw, Wand2 } from "lucide-react";
+import { ArrowLeft, Layers, RotateCcw, Wand2, LayoutList } from "lucide-react";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { DataTable } from "@/components/common/DataTable";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import StatusToggleCell from "@/components/common/StatusToggleCell";
@@ -205,7 +206,16 @@ export default function ProductVariantsList() {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <RowActionsMenu onEdit={() => navigate(`${basePath}/${row.original.id}/edit`)} onDelete={() => setDeleteItemId(row.original.id)} />
+        <RowActionsMenu
+          extraItems={
+            <DropdownMenuItem onClick={() => navigate(`${basePath}/${row.original.id}/details`)}>
+              <LayoutList className="mr-2 h-4 w-4" />
+              Details
+            </DropdownMenuItem>
+          }
+          onEdit={() => navigate(`${basePath}/${row.original.id}/edit`)}
+          onDelete={() => setDeleteItemId(row.original.id)}
+        />
       ),
     },
   ];
