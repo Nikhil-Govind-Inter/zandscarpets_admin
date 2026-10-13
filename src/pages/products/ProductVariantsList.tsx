@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowLeft, Layers, RotateCcw, Wand2, LayoutList } from "lucide-react";
+import { ArrowLeft, Layers, RotateCcw, Wand2, LayoutList, Tags } from "lucide-react";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { DataTable } from "@/components/common/DataTable";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
@@ -208,10 +208,16 @@ export default function ProductVariantsList() {
       cell: ({ row }) => (
         <RowActionsMenu
           extraItems={
-            <DropdownMenuItem onClick={() => navigate(`${basePath}/${row.original.id}/details`)}>
-              <LayoutList className="mr-2 h-4 w-4" />
-              Details
-            </DropdownMenuItem>
+            <>
+              <DropdownMenuItem onClick={() => navigate(`${basePath}/${row.original.id}/details`)}>
+                <LayoutList className="mr-2 h-4 w-4" />
+                Details
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(`/meta-tags?type=product-variant&variant_id=${row.original.id}`)}>
+                <Tags className="mr-2 h-4 w-4" />
+                SEO Meta
+              </DropdownMenuItem>
+            </>
           }
           onEdit={() => navigate(`${basePath}/${row.original.id}/edit`)}
           onDelete={() => setDeleteItemId(row.original.id)}

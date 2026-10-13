@@ -27,7 +27,7 @@ import {
   FormRichTextField,
   FormFileUploadField,
 } from "@/components/forms/FormFieldComponents";
-import { Save, ArrowLeft, Layers } from "lucide-react";
+import { Save, ArrowLeft, Layers, Tags } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   fetchProductById,
@@ -334,6 +334,16 @@ export default function ProductForm() {
           >
             <Layers className="mr-2 h-4 w-4" />
             Variants
+          </Button>
+        )}
+        {isEditing && productId && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate(`/meta-tags?type=product&product_id=${productId}`, { state: location.state })}
+          >
+            <Tags className="mr-2 h-4 w-4" />
+            SEO Meta
           </Button>
         )}
       </div>

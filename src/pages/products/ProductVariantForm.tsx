@@ -21,7 +21,7 @@ import {
   FormTextField,
   FormFileUploadField,
 } from "@/components/forms/FormFieldComponents";
-import { Save, ArrowLeft } from "lucide-react";
+import { Save, ArrowLeft, Tags } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   fetchProductVariantById,
@@ -190,22 +190,34 @@ export default function ProductVariantForm() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => navigate(`/products/${productId}/variants`)}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">
-            {isEditing ? "Edit" : "Add"} Variant {productTitle ? `— ${productTitle}` : ""}
-          </h1>
-          <p className="text-muted-foreground">
-            {isEditing ? "Update variant configuration" : "Create an option combination"}
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate(`/products/${productId}/variants`)}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">
+              {isEditing ? "Edit" : "Add"} Variant {productTitle ? `— ${productTitle}` : ""}
+            </h1>
+            <p className="text-muted-foreground">
+              {isEditing ? "Update variant configuration" : "Create an option combination"}
+            </p>
+          </div>
         </div>
+        {isEditing && id && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate(`/meta-tags?type=product-variant&variant_id=${id}`)}
+          >
+            <Tags className="mr-2 h-4 w-4" />
+            SEO Meta
+          </Button>
+        )}
       </div>
 
       <Form {...form}>

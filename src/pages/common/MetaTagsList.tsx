@@ -1,13 +1,49 @@
-import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/common/DataTable";
-import { fetchMetaTagsList, MetaTag } from "@/services/common/metaTagsApi";
+import { Combobox } from "@/components/ui/combobox";
+import { fetchMetaTagsList, MetaTag, MetaTagFilters } from "@/services/common/metaTagsApi";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { useUrlFilters } from "@/hooks/useUrlFilters";
+import { pageLabel } from "@/constants/pagenames";
+
+const ALL = "all";
+
+const TYPE_OPTIONS = [
+  { value: ALL, label: "All types" },
+  { value: "page", label: "Page" },
+  { value: "product", label: "Product" },
+  { value: "product-variant", label: "Product Variant" },
+  { value: "blog", label: "Blog" },
+];
 
 export const MetaTagsList: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const { filters: listFilters, setFilter } = useUrlFilters({ type: ALL });
+  const typeFilter = listFilters.type as string;
+
+  // Deep-links (product/variant "SEO Meta" buttons) carry the target id in the
+  // URL; read those through so the list lands pre-filtered on that single row.
+  const pageNameParam = searchParams.get("page_name") || undefined;
+  const productIdParam = searchParams.get("product_id") || undefined;
+  const variantIdParam = searchParams.get("variant_id") || undefined;
+  const blogIdParam = searchParams.get("blog_id") || undefined;
+
+  const filters = useMemo<MetaTagFilters>(
+    () => ({
+      type: typeFilter === ALL ? undefined : typeFilter,
+      page_name: pageNameParam,
+      product_id: productIdParam ? Number(productIdParam) : undefined,
+      variant_id: variantIdParam ? Number(variantIdParam) : undefined,
+      blog_id: blogIdParam,
+    }),
+    [typeFilter, pageNameParam, productIdParam, variantIdParam, blogIdParam],
+  );
 
   const {
     items: metaTags,
@@ -23,7 +59,18 @@ export const MetaTagsList: React.FC = () => {
     totalPages,
     loading,
     searching,
-  } = usePaginatedList<MetaTag>(fetchMetaTagsList);
+  } = usePaginatedList<MetaTag, MetaTagFilters>(fetchMetaTagsList, 15, filters);
+
+  const addQuery = () => {
+    const params = new URLSearchParams();
+    if (typeFilter !== ALL) params.set("type", typeFilter);
+    if (pageNameParam) params.set("page_name", pageNameParam);
+    if (productIdParam) params.set("product_id", productIdParam);
+    if (variantIdParam) params.set("variant_id", variantIdParam);
+    if (blogIdParam) params.set("blog_id", blogIdParam);
+    const qs = params.toString();
+    return qs ? `?${qs}` : "";
+  };
 
   const columns: ColumnDef<MetaTag>[] = [
     // Serial ID that increments from 1 and stays continuous across pagination
@@ -37,23 +84,40 @@ export const MetaTagsList: React.FC = () => {
       ),
     },
     {
-      id: "page",
-      accessorFn: (row) => row.page?.page,
-      header: "Page",
-      cell: ({ row }) => (
-        <div className="font-medium capitalize">{row.original.page?.page}</div>
-      ),
+      id: "target",
+      header: "Target",
+      cell: ({ row }) => {
+        const item = row.original;
+        if (item.type === "page") {
+          return (
+            <div className="font-medium capitalize">
+              {pageLabel(item.page_name) ?? item.page_name ?? "-"}
+            </div>
+          );
+        }
+        if (item.type === "product") {
+          return (
+            <div className="font-medium max-w-[240px] truncate">
+              {item.product?.title || "-"}
+            </div>
+          );
+        }
+        if (item.type === "blog") {
+          return (
+            <div className="font-medium max-w-[240px] truncate">
+              <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
+                {item.blog_id || "-"}
+              </span>
+            </div>
+          );
+        }
+        return (
+          <div className="font-medium max-w-[240px] truncate">
+            {item.variant?.label || "-"}
+          </div>
+        );
+      },
     },
-    // {
-    //   id: "page_slug",
-    //   accessorFn: (row) => row.page?.page_slug,
-    //   header: "Page Slug",
-    //   enableHiding: true,
-    //   meta: { defaultVisible: true },
-    //   cell: ({ row }) => (
-    //     <div className="text-muted-foreground">{row.original.page?.page_slug}</div>
-    //   ),
-    // },
     {
       accessorKey: "meta_title",
       header: "Meta Title",
@@ -118,9 +182,22 @@ export const MetaTagsList: React.FC = () => {
         title="Meta Tags"
         loading={loading}
         searching={searching}
-        searchPlaceholder="Search by page..."
+        searchPlaceholder="Search by target or title..."
         searchQuery={searchInput}
         onSearchChange={setSearchInput}
+        onAdd={() => navigate(`/meta-tags/new${addQuery()}`)}
+        addButtonText="Add Meta Tag"
+        headerExtra={
+          <Combobox
+            maxVisibleItems={4}
+            autoWidth
+            value={typeFilter}
+            options={TYPE_OPTIONS}
+            placeholder="All types"
+            searchPlaceholder="Search type..."
+            onChange={(value) => setFilter("type", value)}
+          />
+        }
         pagination={{
           currentPage: page,
           totalPages,

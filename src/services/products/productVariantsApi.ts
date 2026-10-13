@@ -49,6 +49,15 @@ export interface ProductVariantRecord {
   updatedAt?: string;
 }
 
+// Slim pick for the SEO-meta variant picker: label plus its product for
+// disambiguation across products.
+export interface ActiveProductVariantOption {
+  id: number;
+  label: string;
+  product_id: number;
+  product?: { id: number; title: string } | null;
+}
+
 export interface VariantFilters {
   product_id: number;
   status?: "active" | "inactive";
@@ -79,6 +88,12 @@ export const fetchProductVariantList = (
     status: filters?.status,
   });
 export const fetchProductVariantById = (id: number) => api.getById(id);
+
+// Active variants across all products, for dropdowns (SEO meta picker).
+export const fetchActiveProductVariants = () =>
+  apiFetch(`${PRODUCTS_API_URL}/variants/active`).then((r) =>
+    parseEnvelope<ActiveProductVariantOption[]>(r),
+  );
 export const createProductVariant = (formData: FormData) => api.create(formData);
 export const updateProductVariant = (id: number, formData: FormData) =>
   api.update(id, formData);

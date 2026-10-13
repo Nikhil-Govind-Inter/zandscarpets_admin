@@ -60,6 +60,16 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
+const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50];
+
+// Always include the current page size, even when a caller uses a default
+// (e.g. 15) outside the standard list — otherwise the Select has a value with
+// no matching item and renders blank.
+const buildPageSizeOptions = (size: number) =>
+  PAGE_SIZE_OPTIONS.includes(size)
+    ? PAGE_SIZE_OPTIONS
+    : [...PAGE_SIZE_OPTIONS, size].sort((a, b) => a - b);
+
 export interface FilterOption {
   id: string;
   label: string;
@@ -522,7 +532,7 @@ export function DataTable<TData, TValue>({
                         <SelectValue placeholder={pagination.pageSize || 10} />
                       </SelectTrigger>
                       <SelectContent side="top">
-                        {[10, 20, 30, 40, 50].map((pageSize) => (
+                        {buildPageSizeOptions(pagination.pageSize || 10).map((pageSize) => (
                           <SelectItem key={pageSize} value={`${pageSize}`}>
                             {pageSize}
                           </SelectItem>
@@ -626,7 +636,9 @@ export function DataTable<TData, TValue>({
                       />
                     </SelectTrigger>
                     <SelectContent side="top">
-                      {[10, 20, 30, 40, 50].map((pageSize) => (
+                      {buildPageSizeOptions(
+                        table.getState().pagination.pageSize || 10,
+                      ).map((pageSize) => (
                         <SelectItem key={pageSize} value={`${pageSize}`}>
                           {pageSize}
                         </SelectItem>

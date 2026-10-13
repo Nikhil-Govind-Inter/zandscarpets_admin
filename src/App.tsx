@@ -481,6 +481,7 @@ const App = () => (
 
               {/* Meta Tags Routes */}
               <Route path="/meta-tags" element={<MetaTagsList />} />
+              <Route path="/meta-tags/new" element={<MetaTagsForm />} />
               <Route path="/meta-tags/:id/edit" element={<MetaTagsForm />} />
 
               {/* Users */}
