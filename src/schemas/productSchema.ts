@@ -27,7 +27,6 @@ export const productSchema = z.object({
   product_category_id: z.string().min(1, "Category is required"),
   title: commonValidations.requiredString("Title"),
   title_ar: commonValidations.requiredString("Title (Arabic)"),
-  slug: commonValidations.requiredString("Slug"),
   price: z
     .string()
     .optional()

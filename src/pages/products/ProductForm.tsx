@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import PageLoader from "@/components/layout/PageLoader";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -45,7 +45,6 @@ import VariantValuePicker, { groupValuesByAttribute } from "@/components/product
 import VariantGeneratePreview from "@/components/products/VariantGeneratePreview";
 import { AttributeSelection } from "@/utils/variantCombinations";
 import { productSchema, ProductFormData } from "@/schemas/productSchema";
-import { generateSlug } from "@/utils/formUtils";
 import { buildCategoryPathOptions } from "@/utils/productCategoryTree";
 
 const toOptions = (rows: { id: number; title: string }[]): MultiSelectOption[] =>
@@ -67,9 +66,6 @@ export default function ProductForm() {
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
-  // When true, the next title-driven slug sync is skipped. Used once after
-  // loading existing data so the fetched slug isn't clobbered on mount.
-  const skipNextSlugSync = useRef(false);
   const [categoryOptions, setCategoryOptions] = useState<ComboboxOption[]>([]);
   const [featureOptions, setFeatureOptions] = useState<MultiSelectOption[]>([]);
   const [tagOptions, setTagOptions] = useState<MultiSelectOption[]>([]);
@@ -106,7 +102,6 @@ export default function ProductForm() {
       product_category_id: "",
       title: "",
       title_ar: "",
-      slug: "",
       price: "",
       short_description: "",
       short_description_ar: "",
@@ -165,19 +160,6 @@ export default function ProductForm() {
     if (isEditing && productId) loadProductData(productId);
   }, [id, isEditing]);
 
-  const title = form.watch("title");
-
-  useEffect(() => {
-    if (skipNextSlugSync.current) {
-      skipNextSlugSync.current = false;
-      return;
-    }
-    form.setValue("slug", title ? generateSlug(title) : "", {
-      shouldValidate: form.formState.isSubmitted,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title]);
-
   const loadProductData = async (itemId: number) => {
     try {
       setInitialLoading(true);
@@ -187,7 +169,6 @@ export default function ProductForm() {
         product_category_id: data.product_category_id.toString(),
         title: data.title || "",
         title_ar: data.title_ar || "",
-        slug: data.slug || "",
         price: data.price != null ? String(data.price) : "",
         short_description: data.short_description || "",
         short_description_ar: data.short_description_ar || "",
@@ -203,7 +184,6 @@ export default function ProductForm() {
         is_active: data.is_active ?? true,
         list_in_navbar: data.list_in_navbar ?? true,
       });
-      skipNextSlugSync.current = true;
 
       const labels = data.labels || [];
       setFeatureIds(labels.filter((l) => l.type === "feature").map((l) => l.id));
@@ -382,15 +362,6 @@ export default function ProductForm() {
                   name="title_ar"
                   label="Title (Arabic)"
                   placeholder="مثال: سجادة صوف معقودة يدوياً"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormTextField
-                  form={form}
-                  name="slug"
-                  label="Slug"
-                  placeholder="e.g., hand-knotted-wool-rug"
                 />
               </div>
 
