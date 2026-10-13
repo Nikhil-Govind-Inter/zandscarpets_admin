@@ -41,6 +41,7 @@ import {
   Shapes,
   Sparkles,
   LayoutList,
+  UploadCloud,
 } from "lucide-react";
 
 import {
@@ -105,6 +106,16 @@ const productsSection = [
   { title: "Features", url: "/product-labels?type=feature", icon: Sparkles },
   { title: "Tags", url: "/product-labels?type=tag", icon: Tag },
   { title: "Specifications", url: "/product-labels?type=specification", icon: ListChecks },
+];
+
+const bulkUploadSection = [
+  { title: "Overview", url: "/bulk-upload", icon: UploadCloud },
+  { title: "Categories", url: "/bulk-upload/categories", icon: Boxes },
+  { title: "Attributes", url: "/bulk-upload/attributes", icon: SlidersHorizontal },
+  { title: "Attribute Values", url: "/bulk-upload/attribute-values", icon: Shapes },
+  { title: "Media", url: "/bulk-upload/media", icon: Image },
+  { title: "Products", url: "/bulk-upload/products", icon: ShoppingBag },
+  { title: "Product Variants", url: "/bulk-upload/product-variants", icon: Package },
 ];
 
 const enquiriesSection = [
@@ -216,6 +227,10 @@ export function AppSidebar() {
       ].some((route) => path.includes(route))
     ) {
       setOpenSection("common");
+    } else if (path.includes("/bulk-upload")) {
+      // Checked before "/products" below — "/bulk-upload/products" would
+      // otherwise also match that section's "/products" substring check.
+      setOpenSection("bulk-upload");
     } else if (
       [
         "/products",
@@ -396,6 +411,17 @@ export function AppSidebar() {
           onOpenChange={(isOpen) => setOpenSection(isOpen ? "products" : null)}
           location={location}
           Section={productsSection}
+        />
+
+        {/* Bulk Upload */}
+        <GetLayout
+          Icon={UploadCloud}
+          title="Bulk Upload"
+          isCollapsed={isCollapsed}
+          open={openSection === "bulk-upload"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "bulk-upload" : null)}
+          location={location}
+          Section={bulkUploadSection}
         />
 
         {/* Contact Enquiries */}

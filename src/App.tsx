@@ -199,6 +199,15 @@ const ConnectionsForm = React.lazy(() => import("./pages/contact/ConnectionsForm
 const ContactEnquiryList = React.lazy(() => import("./pages/enquiries/ContactEnquiryList"));
 const ContactEnquiryView = React.lazy(() => import("./pages/enquiries/ContactEnquiryView"));
 
+// Bulk Upload
+const BulkUploadHome = React.lazy(() => import("./pages/bulkUpload/BulkUploadHome"));
+const CategoriesBulkUpload = React.lazy(() => import("./pages/bulkUpload/CategoriesBulkUpload"));
+const AttributesBulkUpload = React.lazy(() => import("./pages/bulkUpload/AttributesBulkUpload"));
+const AttributeValuesBulkUpload = React.lazy(() => import("./pages/bulkUpload/AttributeValuesBulkUpload"));
+const MediaBulkUpload = React.lazy(() => import("./pages/bulkUpload/MediaBulkUpload"));
+const ProductsBulkUpload = React.lazy(() => import("./pages/bulkUpload/ProductsBulkUpload"));
+const ProductVariantsBulkUpload = React.lazy(() => import("./pages/bulkUpload/ProductVariantsBulkUpload"));
+
 const queryClient = new QueryClient();
 // Protected Route Component
 
@@ -435,6 +444,15 @@ const App = () => (
               {/* Contact Enquiries Routes — list + view only, no new/edit */}
               <Route path="/enquiries" element={<ContactEnquiryList />} />
               <Route path="/enquiries/:id" element={<ContactEnquiryView />} />
+
+              {/* Bulk Upload Routes */}
+              <Route path="/bulk-upload" element={<BulkUploadHome />} />
+              <Route path="/bulk-upload/categories" element={<CategoriesBulkUpload />} />
+              <Route path="/bulk-upload/attributes" element={<AttributesBulkUpload />} />
+              <Route path="/bulk-upload/attribute-values" element={<AttributeValuesBulkUpload />} />
+              <Route path="/bulk-upload/media" element={<MediaBulkUpload />} />
+              <Route path="/bulk-upload/products" element={<ProductsBulkUpload />} />
+              <Route path="/bulk-upload/product-variants" element={<ProductVariantsBulkUpload />} />
 
               {/* Site Settings Route */}
               <Route path="/site-settings" element={<SiteSettingsForm />} />
