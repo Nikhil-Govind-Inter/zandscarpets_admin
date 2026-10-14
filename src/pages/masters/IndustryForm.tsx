@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import PageLoader from "@/components/layout/PageLoader";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +21,6 @@ import {
 } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { generateSlug } from "@/utils/formUtils";
 import {
   fetchIndustryById,
   createIndustry,
@@ -38,16 +37,12 @@ export default function IndustryForm() {
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
-  // When true, the next title-driven slug sync is skipped. Used once after
-  // loading existing data so the fetched slug isn't clobbered on mount.
-  const skipNextSlugSync = useRef(false);
 
   const form = useForm<IndustryFormData>({
     resolver: zodResolver(industrySchema),
     defaultValues: {
       title: "",
       title_ar: "",
-      slug: "",
       description: "",
       description_ar: "",
       link: "",
@@ -56,24 +51,11 @@ export default function IndustryForm() {
     },
   });
 
-  const title = form.watch("title");
-
   useEffect(() => {
     if (isEditing && id) {
       loadIndustryData(parseInt(id));
     }
   }, [id, isEditing]);
-
-  useEffect(() => {
-    if (skipNextSlugSync.current) {
-      skipNextSlugSync.current = false;
-      return;
-    }
-    form.setValue("slug", title ? generateSlug(title) : "", {
-      shouldValidate: form.formState.isSubmitted,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title]);
 
   const loadIndustryData = async (itemId: number) => {
     try {
@@ -84,14 +66,12 @@ export default function IndustryForm() {
       form.reset({
         title: data.title || "",
         title_ar: data.title_ar || "",
-        slug: data.slug || "",
         description: data.description || "",
         description_ar: data.description_ar || "",
         link: data.link || "",
         sort_order: (data.sort_order ?? 1).toString(),
         is_active: data.is_active ?? true,
       });
-      skipNextSlugSync.current = true;
     } catch (error) {
       toast({
         title: "Error",
@@ -113,7 +93,6 @@ export default function IndustryForm() {
       const payload = {
         title: data.title,
         title_ar: data.title_ar,
-        slug: data.slug,
         description: data.description,
         description_ar: data.description_ar,
         link: data.link || undefined,
@@ -196,13 +175,6 @@ export default function IndustryForm() {
                   placeholder="e.g., صحة, تجارة"
                 />
               </div>
-
-              <FormTextField
-                form={form}
-                name="slug"
-                label="Slug"
-                placeholder="e.g., healthcare, retail"
-              />
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
                 <FormRichTextField

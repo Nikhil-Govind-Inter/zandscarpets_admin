@@ -90,11 +90,16 @@ export interface IndustryListResponse {
 
 export interface IndustryPayload {
   title: string;
-  slug: string;
+  title_ar?: string;
   description: string;
+  description_ar?: string;
   link?: string;
   sort_order: number;
   is_active: boolean;
+}
+
+export interface IndustryFilters {
+  status?: "active" | "inactive";
 }
 
 // Fetcher shape matches usePaginatedList's `Fetcher<T>` contract.
@@ -102,6 +107,7 @@ export const fetchIndustryList = async (
   page: number,
   limit: number,
   search?: string,
+  filters?: IndustryFilters,
 ): Promise<IndustryListResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -110,6 +116,9 @@ export const fetchIndustryList = async (
 
   if (search) {
     params.append("search", search);
+  }
+  if (filters?.status) {
+    params.append("status", filters.status);
   }
 
   const response = await apiFetch(`${INDUSTRY_URL}?${params}`);

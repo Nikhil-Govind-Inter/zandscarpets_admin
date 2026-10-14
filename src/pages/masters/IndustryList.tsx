@@ -1,29 +1,56 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
+import { Button } from "@/components/ui/button";
+import { RotateCcw } from "lucide-react";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
 import StatusToggleCell from "@/components/common/StatusToggleCell";
 import SortOrderCell from "@/components/common/SortOrderCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
+import { Combobox } from "@/components/ui/combobox";
 import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
 import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { useUrlFilters } from "@/hooks/useUrlFilters";
 import {
   fetchIndustryList,
   deleteIndustry,
   toggleIndustryStatus,
   updateIndustrySortOrder,
   IndustryRecord,
+  IndustryFilters,
   ApiError,
 } from "@/services/masters/industryApi";
+
+type StatusFilter = "all" | "active" | "inactive";
+
+const STATUS_OPTIONS = [
+  { value: "all", label: "All statuses" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+];
 
 export default function IndustryList() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
+  const {
+    filters: industryFilters,
+    setFilter: setIndustryFilter,
+    reset: resetIndustryFilters,
+  } = useUrlFilters({ status: "all" });
+
+  const statusFilter = industryFilters.status as StatusFilter;
+
+  const filters = useMemo<IndustryFilters>(
+    () => ({
+      status: statusFilter === "all" ? undefined : statusFilter,
+    }),
+    [statusFilter],
+  );
 
   const {
     items: industries,
@@ -41,8 +68,15 @@ export default function IndustryList() {
     itemsPage,
     itemsLimit,
     refetch,
-  } = usePaginatedList<IndustryRecord>(fetchIndustryList);
+  } = usePaginatedList<IndustryRecord, IndustryFilters>(fetchIndustryList, 10, filters);
 
+  const hasActiveFilters = statusFilter !== "all" || searchInput !== "";
+
+  const resetAll = () => {
+    resetIndustryFilters();
+    setSearchInput("");
+    setPage(1);
+  };
 
   const handleSortOrderChange = useSortOrder(industries, setIndustries, updateIndustrySortOrder);
   const { statusToggleItem, setStatusToggleItem, confirmStatusToggle } = useStatusToggle({
@@ -161,6 +195,23 @@ export default function IndustryList() {
         searching={searching}
         searchQuery={searchInput}
         onSearchChange={setSearchInput}
+        headerExtra={
+          <>
+            <Combobox
+              maxVisibleItems={3}
+              autoWidth
+              value={statusFilter}
+              options={STATUS_OPTIONS}
+              placeholder="All statuses"
+              searchPlaceholder="Search status..."
+              onChange={(value) => setIndustryFilter("status", value)}
+            />
+            <Button variant="outline" size="sm" onClick={resetAll} disabled={!hasActiveFilters}>
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Reset
+            </Button>
+          </>
+        }
         pagination={{
           currentPage: page,
           totalPages,
