@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Check, Loader2 } from "lucide-react";
 import { FileUpload } from "@/components/common/FileUpload";
 import { resolveImageUrl } from "@/lib/resolveImageUrl";
@@ -22,6 +23,7 @@ import {
   uploadMedia,
   maxSizeForKind,
   formatMb,
+  validateMediaText,
   MediaRecord,
   MediaKind,
   ApiError,
@@ -57,6 +59,8 @@ export default function MediaLibraryPicker({
   const [loadingLibrary, setLoadingLibrary] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [altText, setAltText] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [uploading, setUploading] = useState(false);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
@@ -70,6 +74,8 @@ export default function MediaLibraryPicker({
     setActiveTab("library");
     setUploadFile(null);
     setAltText("");
+    setTitle("");
+    setDescription("");
     setSelected([]);
     setThumbnail(null);
     setThumbnailPreview(null);
@@ -150,12 +156,32 @@ export default function MediaLibraryPicker({
 
   const handleUpload = async () => {
     if (!uploadFile) return;
+
+    for (const [value, label] of [
+      [altText, "Alt text"],
+      [title, "Title"],
+      [description, "Description"],
+    ] as const) {
+      const error = validateMediaText(value, label);
+      if (error) {
+        toast({ title: "Invalid input", description: error, variant: "destructive" });
+        return;
+      }
+    }
+
     try {
       setUploading(true);
-      const { data } = await uploadMedia(uploadFile, altText || undefined, thumbnail);
+      const { data } = await uploadMedia(uploadFile, {
+        altText: altText || undefined,
+        title: title || undefined,
+        description: description || undefined,
+        thumbnail,
+      });
       toast({ title: "Success", description: "Media uploaded successfully" });
       setUploadFile(null);
       setAltText("");
+      setTitle("");
+      setDescription("");
       if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
       setThumbnail(null);
       setThumbnailPreview(null);
@@ -290,6 +316,25 @@ export default function MediaLibraryPicker({
                 value={altText}
                 onChange={(e) => setAltText(e.target.value)}
                 placeholder="Describe this media for accessibility"
+              />
+            </div>
+            <div>
+              <Label htmlFor="media-title">Title</Label>
+              <Input
+                id="media-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Optional title"
+              />
+            </div>
+            <div>
+              <Label htmlFor="media-description">Description</Label>
+              <Textarea
+                id="media-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Optional description"
+                rows={2}
               />
             </div>
             {multiple && (

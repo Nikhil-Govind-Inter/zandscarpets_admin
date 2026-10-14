@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Upload, X, CheckCircle2, XCircle, Loader2 } from "lucide-react";
@@ -20,6 +21,7 @@ import {
   kindFromMimetype,
   maxSizeForKind,
   formatMb,
+  validateMediaText,
   MAX_BULK_UPLOAD_COUNT,
   MediaKind,
   ApiError,
@@ -33,6 +35,8 @@ interface StagedFile {
   kind: MediaKind | null;
   preview: string;
   altText: string;
+  title: string;
+  description: string;
   thumbnail: File | null;
   thumbnailPreview: string | null;
   generatingThumbnail: boolean;
@@ -106,6 +110,8 @@ export default function BulkMediaUploadDialog({ open, onOpenChange, onUploaded }
         kind: kindFromMimetype(file.type),
         preview: URL.createObjectURL(file),
         altText: "",
+        title: "",
+        description: "",
         thumbnail: null,
         thumbnailPreview: null,
         generatingThumbnail: false,
@@ -164,20 +170,43 @@ export default function BulkMediaUploadDialog({ open, onOpenChange, onUploaded }
     );
   };
 
-  const setAltText = (id: string, altText: string) =>
-    setStaged((prev) => prev.map((s) => (s.id === id ? { ...s, altText } : s)));
+  const setField = (id: string, field: "altText" | "title" | "description", value: string) =>
+    setStaged((prev) => prev.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
 
   const isOversized = (s: StagedFile) => s.kind !== null && s.file.size > maxSizeForKind(s.kind);
   const isUploadable = (s: StagedFile) => s.kind !== null && !isOversized(s) && s.status !== "done";
 
+  // Text fields fail-fast before anything is sent — a file with bad text
+  // is marked failed immediately, same tolerant-of-partial-failure
+  // behavior as an oversized file, so one bad entry never blocks the rest.
+  const textValidationError = (s: StagedFile): string | null =>
+    validateMediaText(s.altText, "Alt text") ||
+    validateMediaText(s.title, "Title") ||
+    validateMediaText(s.description, "Description");
+
   const handleUploadAll = async () => {
     setUploading(true);
-    const targets = staged.filter(isUploadable);
+    const candidates = staged.filter(isUploadable);
+
+    const targets: StagedFile[] = [];
+    for (const candidate of candidates) {
+      const error = textValidationError(candidate);
+      if (error) {
+        setStaged((prev) => prev.map((s) => (s.id === candidate.id ? { ...s, status: "failed", error } : s)));
+      } else {
+        targets.push(candidate);
+      }
+    }
 
     await runWithConcurrency(targets, CONCURRENCY, async (target) => {
       setStaged((prev) => prev.map((s) => (s.id === target.id ? { ...s, status: "uploading" } : s)));
       try {
-        await uploadMedia(target.file, target.altText || undefined, target.thumbnail);
+        await uploadMedia(target.file, {
+          altText: target.altText || undefined,
+          title: target.title || undefined,
+          description: target.description || undefined,
+          thumbnail: target.thumbnail,
+        });
         setStaged((prev) => prev.map((s) => (s.id === target.id ? { ...s, status: "done" } : s)));
       } catch (error) {
         setStaged((prev) =>
@@ -291,9 +320,23 @@ export default function BulkMediaUploadDialog({ open, onOpenChange, onUploaded }
                       {s.error && <p className="text-xs text-destructive">{s.error}</p>}
                       <Input
                         value={s.altText}
-                        onChange={(e) => setAltText(s.id, e.target.value)}
+                        onChange={(e) => setField(s.id, "altText", e.target.value)}
                         placeholder="Alt text (optional)"
                         className="h-7 text-xs"
+                        disabled={s.status === "uploading" || s.status === "done"}
+                      />
+                      <Input
+                        value={s.title}
+                        onChange={(e) => setField(s.id, "title", e.target.value)}
+                        placeholder="Title (optional)"
+                        className="h-7 text-xs"
+                        disabled={s.status === "uploading" || s.status === "done"}
+                      />
+                      <Textarea
+                        value={s.description}
+                        onChange={(e) => setField(s.id, "description", e.target.value)}
+                        placeholder="Description (optional)"
+                        className="text-xs min-h-0 h-12"
                         disabled={s.status === "uploading" || s.status === "done"}
                       />
                     </div>

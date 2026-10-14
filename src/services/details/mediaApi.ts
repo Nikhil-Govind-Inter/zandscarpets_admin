@@ -1,4 +1,5 @@
 import { apiFetch, parseEnvelope, ApiError, DETAILS_API_URL, listParams, PaginatedListResponse } from "./detailsApiClient";
+import { commonValidations } from "@/utils/formUtils";
 
 // Dynamic Details > Media — the central, reusable media table behind
 // image/video detail items. Backed by `/api/backend/details/media`.
@@ -33,9 +34,21 @@ export interface MediaRecord {
   mime_type: string | null;
   size_bytes: number | null;
   alt_text: string | null;
+  title: string | null;
+  description: string | null;
   thumbnail_location: string | null;
   createdAt?: string;
 }
+
+// Shared "optional, no HTML/script tags" rule for alt text/title/description
+// — reuses the exact same zod schema the rest of the admin's forms use
+// (commonValidations.optionalSafeText), so there's one place that defines
+// what "safe text" means. Returns an error message to show, or null if ok.
+export const validateMediaText = (value: string, fieldLabel: string): string | null => {
+  if (!value.trim()) return null;
+  const result = commonValidations.optionalSafeText.safeParse(value);
+  return result.success ? null : `${fieldLabel} must not contain HTML or script tags`;
+};
 
 // A video's own `location` is a video file, not something an <img> can
 // render — thumbnail previews (grids, item lists) must use its
@@ -53,21 +66,39 @@ export const fetchMediaList = (page: number, limit: number, search?: string, kin
     parseEnvelope<PaginatedListResponse<MediaRecord>["data"]>(r),
   );
 
-export const uploadMedia = (file: File, altText?: string, thumbnail?: File | null) => {
+export interface MediaUploadMeta {
+  altText?: string;
+  title?: string;
+  description?: string;
+  thumbnail?: File | null;
+}
+
+export const uploadMedia = (file: File, meta: MediaUploadMeta = {}) => {
   const formData = new FormData();
   formData.append("file", file);
-  if (altText) formData.append("alt_text", altText);
-  if (thumbnail) formData.append("thumbnail", thumbnail);
+  if (meta.altText) formData.append("alt_text", meta.altText);
+  if (meta.title) formData.append("title", meta.title);
+  if (meta.description) formData.append("description", meta.description);
+  if (meta.thumbnail) formData.append("thumbnail", meta.thumbnail);
   return apiFetch(MEDIA_URL, { method: "POST", body: formData }).then((r) =>
     parseEnvelope<MediaRecord>(r),
   );
 };
 
-export const updateMediaAltText = (id: number, altText: string) =>
+export interface MediaDetailsPatch {
+  alt_text?: string;
+  title?: string;
+  description?: string;
+}
+
+// Partial update: only the keys present in `patch` change. An empty string
+// for any of them genuinely clears that field to null server-side (see
+// mediaController.js's normalizeText), it never falls back to the old value.
+export const updateMediaDetails = (id: number, patch: MediaDetailsPatch) =>
   apiFetch(`${MEDIA_URL}/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ alt_text: altText }),
+    body: JSON.stringify(patch),
   }).then((r) => parseEnvelope<MediaRecord>(r));
 
 export const deleteMedia = (id: number) =>
