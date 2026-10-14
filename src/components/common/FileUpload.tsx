@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Upload, X, Eye, Download } from "lucide-react";
+import { Upload, X, Eye, Download, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { generatePlaceholderWithSizes } from "@/utils/imageUtils";
 
@@ -175,20 +175,22 @@ export function FileUpload({
 
   const getMediaType = (fileOrUrl: File | string | null) => {
     if (fileOrUrl instanceof File) {
-      return fileOrUrl.type.startsWith("image/") ? "image" : 
-             fileOrUrl.type.startsWith("video/") ? "video" : "unknown";
+      return fileOrUrl.type.startsWith("image/") ? "image" :
+             fileOrUrl.type.startsWith("video/") ? "video" :
+             fileOrUrl.type === "application/pdf" ? "document" : "unknown";
     }
-    
+
     if (typeof fileOrUrl === "string") {
       // Check file extension for URLs/paths
       const extension = fileOrUrl.toLowerCase().split('.').pop();
       const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
       const videoExtensions = ['mp4', 'webm', 'avi', 'mov', 'mkv', 'wmv', 'flv'];
-      
+
       if (extension && imageExtensions.includes(extension)) return "image";
       if (extension && videoExtensions.includes(extension)) return "video";
+      if (extension === "pdf") return "document";
     }
-    
+
     return "unknown";
   };
 
@@ -230,6 +232,12 @@ export function FileUpload({
                     alt={altText || "Preview"}
                     className="max-w-full h-32 object-cover rounded border"
                   />
+                </div>
+              )}
+              {preview && displayUrl && mediaType === "document" && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <FileText className="h-8 w-8 shrink-0" />
+                  <span>PDF document</span>
                 </div>
               )}
               {preview && displayUrl && mediaType === "video" && (

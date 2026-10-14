@@ -42,6 +42,7 @@ import {
   Sparkles,
   LayoutList,
   UploadCloud,
+  FileText,
 } from "lucide-react";
 
 import {
@@ -106,6 +107,7 @@ const productsSection = [
   { title: "Features", url: "/product-labels?type=feature", icon: Sparkles },
   { title: "Tags", url: "/product-labels?type=tag", icon: Tag },
   { title: "Specifications", url: "/product-labels?type=specification", icon: ListChecks },
+  { title: "Data Sheets", url: "/data-sheets", icon: FileText },
 ];
 
 const bulkUploadSection = [
