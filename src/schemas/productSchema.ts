@@ -14,14 +14,8 @@ const requiredFile = (label: string) =>
 
 const optionalFile = z.custom<File | string | null>().optional();
 
-// Rich-text editors emit "<p></p>" (or similar) when cleared.
-const requiredRichText = (label: string) =>
-  z
-    .string()
-    .refine(
-      (v) => v.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim().length > 0,
-      `${label} is required`,
-    );
+// Rich-text editors emit "<p></p>" (or similar) when cleared; the shared
+// commonValidations.richText rule handles that by stripping tags first.
 
 export const productSchema = z.object({
   product_category_id: z.string().min(1, "Category is required"),
@@ -36,8 +30,8 @@ export const productSchema = z.object({
     ),
   short_description: commonValidations.requiredString("Short description"),
   short_description_ar: commonValidations.requiredString("Short description (Arabic)"),
-  product_description: requiredRichText("Product description"),
-  product_description_ar: requiredRichText("Product description (Arabic)"),
+  product_description: commonValidations.richText("Product description"),
+  product_description_ar: commonValidations.richText("Product description (Arabic)"),
   main_media_path: requiredFile("Main image"),
   media_alt: commonValidations.optionalString.or(z.literal("")),
   media_alt_ar: commonValidations.optionalString.or(z.literal("")),

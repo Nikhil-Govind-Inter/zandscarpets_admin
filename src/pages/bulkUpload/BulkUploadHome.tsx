@@ -8,7 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 // links straight to each step instead.
 
 const STEPS = [
-  { order: 1, title: "Categories", url: "/bulk-upload/categories", description: "Create categories at any depth under an industry." },
+  { order: 1, title: "Categories", url: "/bulk-upload/categories", description: "Create categories at any depth." },
   { order: 2, title: "Attributes", url: "/bulk-upload/attributes", description: "Create attribute dimensions (Size, Color, …)." },
   { order: 3, title: "Attribute Values", url: "/bulk-upload/attribute-values", description: "Create values for existing attributes." },
   { order: 4, title: "Media", url: "/bulk-upload/media", description: "Upload product/variant images and get stored paths." },

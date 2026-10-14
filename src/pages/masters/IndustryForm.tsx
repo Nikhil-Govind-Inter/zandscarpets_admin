@@ -15,6 +15,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  MultiSelect,
+  Option as MultiSelectOption,
+} from "@/components/ui/multi-select";
 import {
   FormTextField,
   FormRichTextField,
@@ -27,6 +32,7 @@ import {
   updateIndustry,
   ApiError,
 } from "@/services/masters/industryApi";
+import { fetchActiveProductCategories } from "@/services/products/productCategoryApi";
 import { industrySchema, IndustryFormData } from "@/schemas/industrySchema";
 
 export default function IndustryForm() {
@@ -37,6 +43,10 @@ export default function IndustryForm() {
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
+  const [categoryOptions, setCategoryOptions] = useState<MultiSelectOption[]>(
+    [],
+  );
+  const [categoryIds, setCategoryIds] = useState<(number | string)[]>([]);
 
   const form = useForm<IndustryFormData>({
     resolver: zodResolver(industrySchema),
@@ -50,6 +60,16 @@ export default function IndustryForm() {
       is_active: true,
     },
   });
+
+  useEffect(() => {
+    fetchActiveProductCategories()
+      .then((res) =>
+        setCategoryOptions(
+          res.data.map((c) => ({ id: c.id, name: c.title })),
+        ),
+      )
+      .catch(() => setCategoryOptions([]));
+  }, []);
 
   useEffect(() => {
     if (isEditing && id) {
@@ -72,6 +92,8 @@ export default function IndustryForm() {
         sort_order: (data.sort_order ?? 1).toString(),
         is_active: data.is_active ?? true,
       });
+
+      setCategoryIds((data.categories || []).map((c) => c.id));
     } catch (error) {
       toast({
         title: "Error",
@@ -98,6 +120,7 @@ export default function IndustryForm() {
         link: data.link || undefined,
         sort_order: parseInt(data.sort_order || "1"),
         is_active: data.is_active,
+        category_ids: categoryIds.map((c) => Number(c)),
       };
 
       if (isEditing && id) {
@@ -198,6 +221,19 @@ export default function IndustryForm() {
                 label="Link"
                 placeholder="https://..."
               />
+
+              <div className="space-y-2">
+                <Label>Categories</Label>
+                <MultiSelect
+                  options={categoryOptions}
+                  selected={categoryIds}
+                  onChange={setCategoryIds}
+                  placeholder="Select categories"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Map one or more product categories to this industry.
+                </p>
+              </div>
             </CardContent>
           </Card>
 

@@ -7,6 +7,13 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const INDUSTRY_URL = `${API_BASE_URL}/masters/industry`;
 
+export interface IndustryCategoryRef {
+  id: number;
+  title: string;
+  title_ar?: string;
+  slug?: string;
+}
+
 export interface IndustryRecord {
   id: number;
   title: string;
@@ -17,6 +24,7 @@ export interface IndustryRecord {
   link?: string | null;
   sort_order: number;
   is_active: boolean;
+  categories?: IndustryCategoryRef[];
   deleted_at?: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -96,6 +104,7 @@ export interface IndustryPayload {
   link?: string;
   sort_order: number;
   is_active: boolean;
+  category_ids?: number[];
 }
 
 export interface IndustryFilters {

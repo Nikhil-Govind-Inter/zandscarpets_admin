@@ -196,11 +196,6 @@ export default function ProductCategoryList() {
       cell: ({ row }) => <div className="font-medium">{row.getValue("title")}</div>,
     },
     {
-      id: "industry",
-      header: "Industry",
-      cell: ({ row }) => <div className="text-sm text-muted-foreground">{row.original.industry?.title || "-"}</div>,
-    },
-    {
       id: "parent",
       header: "Parent Category",
       cell: ({ row }) => <div className="text-sm text-muted-foreground">{row.original.parent?.title || "-"}</div>,

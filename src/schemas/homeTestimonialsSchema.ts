@@ -7,8 +7,8 @@ export const homeTestimonialsSchema = z.object({
   name_ar: commonValidations.requiredString("Name (Arabic)"),
   designation: commonValidations.optionalString,
   designation_ar: commonValidations.optionalString,
-  message: commonValidations.requiredString("Message"),
-  message_ar: commonValidations.requiredString("Message (Arabic)"),
+  message: commonValidations.richText("Message"),
+  message_ar: commonValidations.richText("Message (Arabic)"),
   sort_order: commonValidations.sortOrder,
   is_active: commonValidations.booleanStatus,
 });

@@ -114,10 +114,21 @@ export const commonValidations = {
   
   categoryArray: z.array(z.number()).min(1, "At least one category is required"),
   
-  // Rich text validation
-  richText: (fieldName: string) => 
-    z.string().min(1, `${fieldName} is required`),
-  
+  // Rich text validation — TipTap stores HTML, so the tag-rejecting
+  // safeText rule must not be used here. Strip tags/nbsp and require the
+  // remaining text content (an empty editor yields "<p></p>").
+  richText: (fieldName: string) =>
+    z
+      .string()
+      .refine(
+        (val) =>
+          val
+            .replace(/<[^>]*>/g, "")
+            .replace(/&nbsp;/g, " ")
+            .trim().length > 0,
+        `${fieldName} is required`,
+      ),
+
   optionalRichText: z.string().optional(),
 };
 

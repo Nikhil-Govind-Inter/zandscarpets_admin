@@ -87,7 +87,9 @@ export interface ServiceListResponse {
 
 export interface ServicePayload {
   title: string;
+  title_ar?: string;
   description: string;
+  description_ar?: string;
   sort_order: number;
   is_active: boolean;
 }

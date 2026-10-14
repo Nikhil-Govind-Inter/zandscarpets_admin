@@ -37,7 +37,6 @@ import {
   ApiError,
 } from "@/services/products/productCategoryApi";
 import { fetchActiveProductHighlights } from "@/services/products/productHighlightApi";
-import { fetchActiveIndustries } from "@/services/masters/industryApi";
 import { buildCategoryPathOptions } from "@/utils/productCategoryTree";
 import {
   productCategorySchema,
@@ -63,7 +62,6 @@ export default function ProductCategoryForm() {
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
-  const [industryOptions, setIndustryOptions] = useState<ComboboxOption[]>([]);
   const [parentRows, setParentRows] = useState<ProductCategoryOption[]>([]);
   const [highlightOptions, setHighlightOptions] = useState<
     MultiSelectOption[]
@@ -73,7 +71,6 @@ export default function ProductCategoryForm() {
   const form = useForm<ProductCategoryFormData>({
     resolver: zodResolver(productCategorySchema),
     defaultValues: {
-      industry_id: "",
       parent_id: presetParent,
       title: "",
       title_ar: "",
@@ -96,14 +93,6 @@ export default function ProductCategoryForm() {
     });
 
   useEffect(() => {
-    fetchActiveIndustries()
-      .then((res) =>
-        setIndustryOptions(
-          res.data.map((i) => ({ value: i.id.toString(), label: i.title })),
-        ),
-      )
-      .catch((e) => errorToast(e, "Failed to load industries"));
-
     fetchActiveProductHighlights()
       .then((res) =>
         setHighlightOptions(
@@ -117,16 +106,6 @@ export default function ProductCategoryForm() {
       .catch((e) => errorToast(e, "Failed to load categories"));
   }, [id]);
 
-  // New sub-category from the list's "Add sub-category" action: inherit the
-  // parent's industry once the category list has loaded.
-  useEffect(() => {
-    if (isEditing || !presetParent) return;
-    const parent = parentRows.find((r) => r.id.toString() === presetParent);
-    if (parent && !form.getValues("industry_id")) {
-      form.setValue("industry_id", parent.industry_id.toString());
-    }
-  }, [parentRows, presetParent, isEditing]);
-
   useEffect(() => {
     if (isEditing && id) loadCategoryData(parseInt(id));
   }, [id, isEditing]);
@@ -137,7 +116,6 @@ export default function ProductCategoryForm() {
       const { data } = await fetchProductCategoryById(itemId);
 
       form.reset({
-        industry_id: data.industry_id.toString(),
         parent_id: data.parent_id ? data.parent_id.toString() : "",
         title: data.title || "",
         title_ar: data.title_ar || "",
@@ -164,7 +142,6 @@ export default function ProductCategoryForm() {
       setLoading(true);
 
       const formData = new FormData();
-      formData.append("industry_id", data.industry_id);
       formData.append("parent_id", data.parent_id || "");
       formData.append("title", data.title);
       formData.append("title_ar", data.title_ar);
@@ -241,26 +218,6 @@ export default function ProductCategoryForm() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="industry_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Industry</FormLabel>
-                      <FormControl>
-                        <Combobox
-                          options={industryOptions}
-                          value={field.value}
-                          onChange={field.onChange}
-                          placeholder="Select industry"
-                          searchPlaceholder="Search industry..."
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 <FormField
                   control={form.control}
                   name="parent_id"

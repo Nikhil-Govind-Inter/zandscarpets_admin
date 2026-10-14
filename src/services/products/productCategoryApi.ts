@@ -18,7 +18,6 @@ export interface ProductCategoryHighlightRef {
 export interface ProductCategoryRecord {
   id: number;
   parent_id: number | null;
-  industry_id: number;
   title: string;
   title_ar: string;
   description: string | null;
@@ -29,7 +28,6 @@ export interface ProductCategoryRecord {
   is_active: boolean;
   show_in_navbar: boolean;
   sort_order: number;
-  industry?: { id: number; title: string } | null;
   parent?: { id: number; title: string } | null;
   children?: { id: number; title?: string; is_active?: boolean }[];
   highlights?: ProductCategoryHighlightRef[];
@@ -43,7 +41,6 @@ export interface ProductCategoryOption {
   id: number;
   title: string;
   parent_id: number | null;
-  industry_id: number;
 }
 
 interface ApiEnvelope<T> {
