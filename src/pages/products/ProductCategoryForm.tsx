@@ -82,6 +82,7 @@ export default function ProductCategoryForm() {
       sort_order: "1",
       is_active: true,
       show_in_navbar: false,
+      show_in_home: false,
     },
   });
 
@@ -127,6 +128,7 @@ export default function ProductCategoryForm() {
         sort_order: (data.sort_order ?? 1).toString(),
         is_active: data.is_active ?? true,
         show_in_navbar: data.show_in_navbar ?? false,
+        show_in_home: data.show_in_home ?? false,
       });
 
       setHighlightIds((data.highlights || []).map((h) => h.id));
@@ -152,6 +154,7 @@ export default function ProductCategoryForm() {
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
       formData.append("show_in_navbar", (data.show_in_navbar ?? false).toString());
+      formData.append("show_in_home", (data.show_in_home ?? false).toString());
 
       if (data.media_path instanceof File) {
         formData.append("media_path", data.media_path);
@@ -364,6 +367,26 @@ export default function ProductCategoryForm() {
                         <FormLabel className="text-base">Show in Navbar</FormLabel>
                         <p className="text-sm text-muted-foreground">
                           Display this category in the site navigation.
+                        </p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="show_in_home"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Show in Home Page</FormLabel>
+                        <p className="text-sm text-muted-foreground">
+                          Display this category on the site home page.
                         </p>
                       </div>
                       <FormControl>

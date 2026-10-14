@@ -98,3 +98,8 @@ export const updateCmsNavbar = (resource: CmsResource, id: number | string, show
   patch<{ id: number; show_in_navbar: boolean }>(`${resource}/${id}/navbar`, {
     show_in_navbar: showInNavbar,
   });
+
+export const updateCmsHome = (resource: CmsResource, id: number | string, showInHome: boolean) =>
+  patch<{ id: number; show_in_home: boolean }>(`${resource}/${id}/home`, {
+    show_in_home: showInHome,
+  });

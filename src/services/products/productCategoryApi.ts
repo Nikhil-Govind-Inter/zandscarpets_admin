@@ -1,4 +1,4 @@
-import { updateCmsStatus, updateCmsSortOrder, updateCmsNavbar } from "@/services/common/cmsOrderStatusApi";
+import { updateCmsStatus, updateCmsSortOrder, updateCmsNavbar, updateCmsHome } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Products > Categories — backed by `/api/backend/products/product-category`.
@@ -27,6 +27,7 @@ export interface ProductCategoryRecord {
   media_path: string | null;
   is_active: boolean;
   show_in_navbar: boolean;
+  show_in_home: boolean;
   sort_order: number;
   parent?: { id: number; title: string } | null;
   children?: { id: number; title?: string; is_active?: boolean }[];
@@ -113,6 +114,7 @@ export interface ProductCategoryFilters {
   parent_id?: number;
   status?: "active" | "inactive";
   show_in_navbar?: boolean;
+  show_in_home?: boolean;
 }
 
 // Fetcher shape matches usePaginatedList's `Fetcher<T>` contract.
@@ -134,6 +136,7 @@ export const fetchProductCategoryList = async (
   if (filters?.parent_id) params.append("parent_id", String(filters.parent_id));
   if (filters?.status) params.append("status", filters.status);
   if (filters?.show_in_navbar !== undefined) params.append("show_in_navbar", String(filters.show_in_navbar));
+  if (filters?.show_in_home !== undefined) params.append("show_in_home", String(filters.show_in_home));
 
   const response = await apiFetch(`${CATEGORIES_URL}?${params}`);
   return parseEnvelope<ProductCategoryListResponse["data"]>(response);
@@ -192,6 +195,10 @@ export const toggleProductCategoryStatus = (item: { id?: number | string }, isAc
 // Toggles show_in_navbar via the dedicated CMS PATCH route (same pattern as status).
 export const toggleProductCategoryNavbar = (item: { id?: number | string }, showInNavbar: boolean) =>
   updateCmsNavbar("product-categories", item.id!, showInNavbar);
+
+// Toggles show_in_home via the dedicated CMS PATCH route (same pattern as navbar).
+export const toggleProductCategoryHome = (item: { id?: number | string }, showInHome: boolean) =>
+  updateCmsHome("product-categories", item.id!, showInHome);
 
 export const updateProductCategorySortOrder = (item: { id?: number | string }, sortOrder: number) =>
   updateCmsSortOrder("product-categories", item.id!, sortOrder);

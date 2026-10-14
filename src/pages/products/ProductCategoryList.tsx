@@ -32,6 +32,7 @@ import {
   deleteProductCategory,
   toggleProductCategoryStatus,
   toggleProductCategoryNavbar,
+  toggleProductCategoryHome,
   updateProductCategorySortOrder,
   ProductCategoryRecord,
   ProductCategoryOption,
@@ -42,6 +43,7 @@ import {
 type TypeFilter = "all" | "category" | "subcategory";
 type StatusFilter = "all" | "active" | "inactive";
 type NavbarFilter = "all" | "yes" | "no";
+type HomeFilter = "all" | "yes" | "no";
 
 const TYPE_OPTIONS = [
   { value: "all", label: "All levels" },
@@ -61,6 +63,12 @@ const NAVBAR_OPTIONS = [
   { value: "no", label: "Not in navbar" },
 ];
 
+const HOME_OPTIONS = [
+  { value: "all", label: "All home" },
+  { value: "yes", label: "In home" },
+  { value: "no", label: "Not in home" },
+];
+
 export default function ProductCategoryList() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -72,13 +80,14 @@ export default function ProductCategoryList() {
     filters: categoryFilters,
     setFilter: setCategoryFilter,
     reset: resetCategoryFilters,
-  } = useUrlFilters({ type: "all", status: "all", parent_id: "all", navbar: "all" });
+  } = useUrlFilters({ type: "all", status: "all", parent_id: "all", navbar: "all", home: "all" });
   const [parentOptions, setParentOptions] = useState<ProductCategoryOption[]>([]);
 
   const typeFilter = categoryFilters.type as TypeFilter;
   const statusFilter = categoryFilters.status as StatusFilter;
   const parentFilter = categoryFilters.parent_id;
   const navbarFilter = categoryFilters.navbar as NavbarFilter;
+  const homeFilter = categoryFilters.home as HomeFilter;
 
   useEffect(() => {
     fetchActiveProductCategories()
@@ -97,8 +106,9 @@ export default function ProductCategoryList() {
       parent_id: parentFilter === "all" ? undefined : Number(parentFilter),
       status: statusFilter === "all" ? undefined : statusFilter,
       show_in_navbar: navbarFilter === "all" ? undefined : navbarFilter === "yes",
+      show_in_home: homeFilter === "all" ? undefined : homeFilter === "yes",
     }),
-    [typeFilter, parentFilter, statusFilter, navbarFilter],
+    [typeFilter, parentFilter, statusFilter, navbarFilter, homeFilter],
   );
 
   const {
@@ -119,7 +129,7 @@ export default function ProductCategoryList() {
     refetch,
   } = usePaginatedList<ProductCategoryRecord, ProductCategoryFilters>(fetchProductCategoryList, 10, filters);
 
-  const hasActiveFilters = typeFilter !== "all" || statusFilter !== "all" || parentFilter !== "all" || navbarFilter !== "all" || searchInput !== "";
+  const hasActiveFilters = typeFilter !== "all" || statusFilter !== "all" || parentFilter !== "all" || navbarFilter !== "all" || homeFilter !== "all" || searchInput !== "";
 
   const resetAll = () => {
     resetCategoryFilters();
@@ -159,6 +169,33 @@ export default function ProductCategoryList() {
       });
     } finally {
       setNavbarToggleItem(null);
+    }
+  };
+
+  // Home toggle — same confirm→API→toast flow as navbar.
+  const [homeToggleItem, setHomeToggleItem] = useState<{
+    item: ProductCategoryRecord;
+    newValue: boolean;
+  } | null>(null);
+
+  const confirmHomeToggle = async () => {
+    if (!homeToggleItem) return;
+    const { item, newValue } = homeToggleItem;
+    try {
+      await toggleProductCategoryHome(item, newValue);
+      setCategories((prev) => prev.map((c) => (c.id === item.id ? { ...c, show_in_home: newValue } : c)));
+      toast({
+        title: "Success",
+        description: `Category ${newValue ? "added to" : "removed from"} home page successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof ApiError ? error.message : "Failed to update home page visibility",
+        variant: "destructive",
+      });
+    } finally {
+      setHomeToggleItem(null);
     }
   };
 
@@ -235,6 +272,16 @@ export default function ProductCategoryList() {
         <StatusToggleCell
           status={row.original.show_in_navbar}
           onCheckedChange={(checked) => setNavbarToggleItem({ item: row.original, newValue: checked })}
+        />
+      ),
+    },
+    {
+      accessorKey: "show_in_home",
+      header: "Home Visibility",
+      cell: ({ row }) => (
+        <StatusToggleCell
+          status={row.original.show_in_home}
+          onCheckedChange={(checked) => setHomeToggleItem({ item: row.original, newValue: checked })}
         />
       ),
     },
@@ -323,6 +370,15 @@ export default function ProductCategoryList() {
               searchPlaceholder="Search navbar..."
               onChange={(value) => setCategoryFilter("navbar", value)}
             />
+            <Combobox
+              maxVisibleItems={3}
+              autoWidth
+              value={homeFilter}
+              options={HOME_OPTIONS}
+              placeholder="All home"
+              searchPlaceholder="Search home..."
+              onChange={(value) => setCategoryFilter("home", value)}
+            />
             <Button variant="outline" size="sm" onClick={resetAll} disabled={!hasActiveFilters}>
               <RotateCcw className="mr-2 h-4 w-4" />
               Reset
@@ -352,6 +408,8 @@ export default function ProductCategoryList() {
       />
 
       <NavbarChangeDialogue navbarToggleItem={navbarToggleItem} setNavbarToggleItem={setNavbarToggleItem} confirmNavbarToggle={confirmNavbarToggle} />
+
+      <HomeChangeDialogue homeToggleItem={homeToggleItem} setHomeToggleItem={setHomeToggleItem} confirmHomeToggle={confirmHomeToggle} />
     </>
   );
 }
@@ -383,6 +441,40 @@ function NavbarChangeDialogue({ navbarToggleItem, setNavbarToggleItem, confirmNa
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction ref={actionRef} onClick={confirmNavbarToggle}>
             {navbarToggleItem?.newValue ? "Show in Navbar" : "Remove from Navbar"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+// ─── Home page confirmation dialog ────────────────────────────────────────────
+interface HomeChangeDialogueProps {
+  homeToggleItem: { item: ProductCategoryRecord; newValue: boolean } | null;
+  setHomeToggleItem: (val: null) => void;
+  confirmHomeToggle: () => void;
+}
+
+function HomeChangeDialogue({ homeToggleItem, setHomeToggleItem, confirmHomeToggle }: HomeChangeDialogueProps) {
+  const actionRef = useRef<HTMLButtonElement>(null);
+  return (
+    <AlertDialog open={!!homeToggleItem} onOpenChange={() => setHomeToggleItem(null)}>
+      <AlertDialogContent
+        onOpenAutoFocus={(e) => {
+          e.preventDefault();
+          actionRef.current?.focus();
+        }}
+      >
+        <AlertDialogHeader>
+          <AlertDialogTitle>Confirm Home Page Change</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to {homeToggleItem?.newValue ? "show this category on the home page" : "remove this category from the home page"}?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction ref={actionRef} onClick={confirmHomeToggle}>
+            {homeToggleItem?.newValue ? "Show in Home" : "Remove from Home"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
