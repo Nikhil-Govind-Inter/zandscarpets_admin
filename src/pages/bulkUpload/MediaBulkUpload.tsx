@@ -1,13 +1,20 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Upload, Copy, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, Upload, Copy, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { uploadBulkMedia, BulkMediaFileResult, BulkMediaType } from "@/services/bulkUpload/bulkMediaApi";
+import {
+  uploadBulkMedia,
+  listBulkMedia,
+  BulkMediaFileResult,
+  BulkMediaItem,
+  BulkMediaType,
+  BULK_MEDIA_PAGE_SIZE,
+} from "@/services/bulkUpload/bulkMediaApi";
 
 // Bulk image upload for the spreadsheet steps: many files at once, each
 // returned with the stored path to paste into main_image / list_image /
@@ -21,11 +28,66 @@ const TYPE_OPTIONS: { value: BulkMediaType; label: string }[] = [
   { value: "products-variants", label: "Product Variants (media_path)" },
 ];
 
+const formatBytes = (bytes: number) => {
+  if (!bytes) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return `${(bytes / 1024 ** i).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+};
+
 export default function MediaBulkUpload() {
   const { toast } = useToast();
   const [type, setType] = useState<BulkMediaType>("products");
   const [uploading, setUploading] = useState(false);
   const [results, setResults] = useState<BulkMediaFileResult[]>([]);
+  const [existing, setExisting] = useState<BulkMediaItem[]>([]);
+  const [existingTotal, setExistingTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingExisting, setLoadingExisting] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // First page (or a refresh) for the current type — replaces the list.
+  const loadFirstPage = useCallback(
+    async (silent = false) => {
+      setLoadingExisting(true);
+      try {
+        const page = await listBulkMedia(type, { limit: BULK_MEDIA_PAGE_SIZE, offset: 0 });
+        setExisting(page.files);
+        setExistingTotal(page.total);
+        setHasMore(page.hasMore);
+      } catch (error) {
+        if (!silent) {
+          toast({ title: "Could not load existing files", description: (error as Error).message, variant: "destructive" });
+        }
+      } finally {
+        setLoadingExisting(false);
+      }
+    },
+    [type, toast],
+  );
+
+  // Next 25, appended to whatever is already shown.
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const page = await listBulkMedia(type, { limit: BULK_MEDIA_PAGE_SIZE, offset: existing.length });
+      setExisting((prev) => [...prev, ...page.files]);
+      setExistingTotal(page.total);
+      setHasMore(page.hasMore);
+    } catch (error) {
+      toast({ title: "Could not load more files", description: (error as Error).message, variant: "destructive" });
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // Load the first page for the selected type on mount and every time the
+  // type changes — the page used to only ever show files uploaded in the
+  // current session.
+  useEffect(() => {
+    setResults([]);
+    loadFirstPage(true);
+  }, [loadFirstPage]);
 
   const onDrop = useCallback(
     async (accepted: File[]) => {
@@ -39,13 +101,15 @@ export default function MediaBulkUpload() {
           title: "Upload processed",
           description: `${files.length - failedCount} succeeded, ${failedCount} failed.`,
         });
+        // Reflect the freshly stored files in the persistent listing too.
+        loadFirstPage(true);
       } catch (error) {
         toast({ title: "Upload failed", description: (error as Error).message, variant: "destructive" });
       } finally {
         setUploading(false);
       }
     },
-    [type, toast],
+    [type, toast, loadFirstPage],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -62,6 +126,12 @@ export default function MediaBulkUpload() {
 
   const copyAll = () => {
     const paths = results.filter((r) => r.status === "success" && r.storedPath).map((r) => r.storedPath);
+    navigator.clipboard.writeText(paths.join("\n"));
+    toast({ title: "Copied", description: `${paths.length} path(s) copied` });
+  };
+
+  const copyAllExisting = () => {
+    const paths = existing.map((f) => f.storedPath);
     navigator.clipboard.writeText(paths.join("\n"));
     toast({ title: "Copied", description: `${paths.length} path(s) copied` });
   };
@@ -169,6 +239,104 @@ export default function MediaBulkUpload() {
           </CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <div>
+            <CardTitle className="text-base">Existing files ({existingTotal})</CardTitle>
+            <CardDescription>
+              Already stored in{" "}
+              <span className="font-mono">
+                uploads/{type === "products" ? "products" : "product-variants"}
+              </span>{" "}
+              — copy any path into the sheet.
+            </CardDescription>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <Button variant="outline" size="sm" onClick={() => loadFirstPage()} disabled={loadingExisting}>
+              {loadingExisting ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4 mr-2" />
+              )}
+              Refresh
+            </Button>
+            <Button variant="outline" size="sm" onClick={copyAllExisting} disabled={!existing.length}>
+              <Copy className="h-4 w-4 mr-2" /> Copy all paths
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loadingExisting && existing.length === 0 ? (
+            <div className="flex items-center justify-center py-8 text-muted-foreground">
+              <Loader2 className="h-5 w-5 mr-2 animate-spin" /> Loading…
+            </div>
+          ) : existing.length === 0 ? (
+            <div className="py-8 text-center text-muted-foreground">
+              No files stored for this type yet. Upload some above.
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-20">Preview</TableHead>
+                    <TableHead>File</TableHead>
+                    <TableHead>Stored path</TableHead>
+                    <TableHead className="w-20">Size</TableHead>
+                    <TableHead className="w-16" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {existing.map((f) => (
+                    <TableRow key={f.storedPath}>
+                      <TableCell>
+                        <a href={f.previewUrl} target="_blank" rel="noreferrer">
+                          <img
+                            src={f.previewUrl}
+                            alt={f.name}
+                            loading="lazy"
+                            className="h-12 w-12 rounded object-cover border bg-muted"
+                            onError={(e) => {
+                              const img = e.currentTarget;
+                              img.style.visibility = "hidden";
+                            }}
+                          />
+                        </a>
+                      </TableCell>
+                      <TableCell className="text-xs break-all">{f.name}</TableCell>
+                      <TableCell className="font-mono text-xs">{f.storedPath}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{formatBytes(f.sizeBytes)}</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon" onClick={() => copyPath(f.storedPath)}>
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              <div className="flex items-center justify-between mt-4">
+                <span className="text-xs text-muted-foreground">
+                  Showing {existing.length} of {existingTotal}
+                </span>
+                {hasMore && (
+                  <Button variant="outline" size="sm" onClick={loadMore} disabled={loadingMore}>
+                    {loadingMore ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Loading…
+                      </>
+                    ) : (
+                      `Load more (${Math.min(BULK_MEDIA_PAGE_SIZE, existingTotal - existing.length)})`
+                    )}
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import { apiFetch } from "@/lib/apiClient";
 
 // Bulk Upload: download template / validate (dry run) / commit, for each of
-// Categories, Attributes, Attribute Values, Products, Product Variants.
+// Categories, Attributes, Attribute Values, Products, Product Variants,
+// and Product Main (the combined cascading-create sheet).
 // Not built on createCrudApi — this isn't CRUD, it's a 3-call wizard
 // (template/validate/commit) that shares one response envelope with every
 // other service in this app.
@@ -13,7 +14,8 @@ export type BulkUploadEntity =
   | "attributes"
   | "attribute-values"
   | "products"
-  | "product-variants";
+  | "product-variants"
+  | "product-main";
 
 export interface BulkUploadIssue {
   row: number | null;

@@ -8,6 +8,7 @@ export default function CategoriesBulkUpload() {
       description="Create product categories in bulk, including sub-categories at any depth."
       notes={[
         "Slugs are generated automatically from the title — there is no slug column to fill in.",
+        "There are no Arabic (_ar) columns — title_ar/description_ar/material_type_ar are all set to match the English text automatically. Fill in the Arabic text afterward via the edit screen if you need it to differ.",
         "A row updates an existing category instead of creating a new one when its title, industry and parent all match exactly — otherwise it's created as new.",
         "Changing a row's title creates a new category rather than renaming the old one. To rename an existing category, use its edit screen instead.",
         "A parent category must appear in a row above its children in the same file.",

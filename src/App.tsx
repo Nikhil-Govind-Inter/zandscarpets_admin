@@ -207,6 +207,7 @@ const AttributeValuesBulkUpload = React.lazy(() => import("./pages/bulkUpload/At
 const MediaBulkUpload = React.lazy(() => import("./pages/bulkUpload/MediaBulkUpload"));
 const ProductsBulkUpload = React.lazy(() => import("./pages/bulkUpload/ProductsBulkUpload"));
 const ProductVariantsBulkUpload = React.lazy(() => import("./pages/bulkUpload/ProductVariantsBulkUpload"));
+const ProductMainBulkUpload = React.lazy(() => import("./pages/bulkUpload/ProductMainBulkUpload"));
 
 const queryClient = new QueryClient();
 // Protected Route Component
@@ -453,6 +454,7 @@ const App = () => (
               <Route path="/bulk-upload/media" element={<MediaBulkUpload />} />
               <Route path="/bulk-upload/products" element={<ProductsBulkUpload />} />
               <Route path="/bulk-upload/product-variants" element={<ProductVariantsBulkUpload />} />
+              <Route path="/bulk-upload/product-main" element={<ProductMainBulkUpload />} />
 
               {/* Site Settings Route */}
               <Route path="/site-settings" element={<SiteSettingsForm />} />

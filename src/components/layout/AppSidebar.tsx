@@ -116,6 +116,7 @@ const bulkUploadSection = [
   { title: "Media", url: "/bulk-upload/media", icon: Image },
   { title: "Products", url: "/bulk-upload/products", icon: ShoppingBag },
   { title: "Product Variants", url: "/bulk-upload/product-variants", icon: Package },
+  { title: "Product Main", url: "/bulk-upload/product-main", icon: Sparkles },
 ];
 
 const enquiriesSection = [

@@ -48,6 +48,25 @@ export default function BulkUploadHome() {
           </Link>
         ))}
       </div>
+
+      <div>
+        <h2 className="text-lg font-semibold">Or: add products fast</h2>
+        <p className="text-muted-foreground text-sm mt-1">
+          A shortcut for ad-hoc product entry — not a replacement for the steps above.
+        </p>
+      </div>
+      <Link to="/bulk-upload/product-main">
+        <Card className="hover:border-primary transition-colors">
+          <CardHeader>
+            <CardTitle className="text-base">Product Main</CardTitle>
+            <CardDescription>
+              One row creates its category path, attributes and attribute values along the way if they don't
+              already exist, then the product itself — with images and SEO meta data. No separate sheets to
+              pre-fill.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </Link>
     </div>
   );
 }
