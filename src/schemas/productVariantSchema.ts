@@ -4,7 +4,10 @@ import { commonValidations } from "@/utils/formUtils";
 // Mirrors server/modules/admin/http/request/products/variantsRequest.js.
 // `attribute_value_ids` is one value per attribute the product uses; the exact
 // per-attribute rule is re-checked on the server (and by the form UI).
-const optionalFile = z.custom<File | string | null>().optional();
+const requiredFile = z.custom<File | string>().refine(
+  (v) => (typeof v === "string" ? v.trim().length > 0 : v instanceof File),
+  "Image is required",
+);
 
 export const productVariantSchema = z.object({
   attribute_value_ids: z
@@ -12,8 +15,8 @@ export const productVariantSchema = z.object({
     .min(1, "Select a value for each attribute"),
   label: commonValidations.optionalString.or(z.literal("")),
   label_ar: commonValidations.optionalString.or(z.literal("")),
-  sku: commonValidations.optionalString.or(z.literal("")),
-  media_path: optionalFile,
+  sku: commonValidations.requiredString("SKU"),
+  media_path: requiredFile,
   media_alt: commonValidations.optionalString.or(z.literal("")),
   media_alt_ar: commonValidations.optionalString.or(z.literal("")),
   sort_order: commonValidations.sortOrder,

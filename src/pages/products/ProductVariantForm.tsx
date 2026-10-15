@@ -149,6 +149,14 @@ export default function ProductVariantForm() {
   }, [id, isEditing, productId, navigate, form, errorToast]);
 
   const onSubmit = async (data: ProductVariantFormData) => {
+    // Require one value for every attribute before saving.
+    if (attributes.length && (data.attribute_value_ids || []).length < attributes.length) {
+      form.setError("attribute_value_ids", {
+        type: "server",
+        message: "Select a value for each attribute",
+      });
+      return;
+    }
     try {
       setLoading(true);
       const { media_path, sort_order, is_active, ...rest } = data;
@@ -261,6 +269,7 @@ export default function ProductVariantForm() {
                                 options={toComboboxOptions(values)}
                                 value={selectedForThisAttr[0] || ""}
                                 onChange={handleChange}
+                                disabled={isEditing}
                                 placeholder={`Select ${attr.title.toLowerCase()}`}
                                 searchPlaceholder="Search values..."
                               />
