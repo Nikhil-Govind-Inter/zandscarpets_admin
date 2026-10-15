@@ -34,8 +34,7 @@ const TYPE_LABELS: Record<LabelType, string> = {
 const ALL = "all";
 type TypeFilter = LabelType | typeof ALL;
 
-const isLabelType = (value: string | null): value is LabelType =>
-  !!value && (LABEL_TYPES as readonly string[]).includes(value);
+const isLabelType = (value: string | null): value is LabelType => !!value && (LABEL_TYPES as readonly string[]).includes(value);
 
 export default function ProductLabelsList() {
   const navigate = useNavigate();
@@ -46,18 +45,13 @@ export default function ProductLabelsList() {
   // entries (/product-labels?type=tag) apply the filter on load and update it
   // while the page is already mounted.
   const { filters: listFilters, setFilter } = useUrlFilters({ type: ALL });
-  const typeFilter: TypeFilter = isLabelType(listFilters.type)
-    ? listFilters.type
-    : ALL;
+  const typeFilter: TypeFilter = isLabelType(listFilters.type) ? listFilters.type : ALL;
 
   const handleTypeChange = (value: string) => {
     setFilter("type", value || ALL);
   };
 
-  const filters = useMemo(
-    () => (typeFilter === ALL ? undefined : { type: typeFilter }),
-    [typeFilter],
-  );
+  const filters = useMemo(() => (typeFilter === ALL ? undefined : { type: typeFilter }), [typeFilter]);
 
   const {
     items,
@@ -75,11 +69,7 @@ export default function ProductLabelsList() {
     itemsPage,
     itemsLimit,
     refetch,
-  } = usePaginatedList<ProductLabelRecord, { type?: LabelType }>(
-    fetchProductLabelList,
-    10,
-    filters,
-  );
+  } = usePaginatedList<ProductLabelRecord, { type?: LabelType }>(fetchProductLabelList, 10, filters);
 
   const handleSortOrderChange = useSortOrder(items, setItems, updateProductLabelSortOrder);
   const { statusToggleItem, setStatusToggleItem, confirmStatusToggle } = useStatusToggle({
@@ -103,8 +93,7 @@ export default function ProductLabelsList() {
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError ? error.message : "Failed to delete product label",
+        description: error instanceof ApiError ? error.message : "Failed to delete product label",
         variant: "destructive",
       });
     } finally {
@@ -116,23 +105,17 @@ export default function ProductLabelsList() {
     {
       accessorKey: "id",
       header: "ID",
-      cell: ({ row }) => (
-        <div className="font-mono">{(itemsPage - 1) * itemsLimit + row.index + 1}</div>
-      ),
+      cell: ({ row }) => <div className="font-mono">{(itemsPage - 1) * itemsLimit + row.index + 1}</div>,
     },
     {
       accessorKey: "type",
       header: "Type",
-      cell: ({ row }) => (
-        <Badge variant="secondary">{TYPE_LABELS[row.original.type]}</Badge>
-      ),
+      cell: ({ row }) => <Badge variant="secondary">{TYPE_LABELS[row.original.type]}</Badge>,
     },
     {
       accessorKey: "title",
       header: "Title",
-      cell: ({ row }) => (
-        <div className="font-medium max-w-[280px] truncate">{row.getValue("title")}</div>
-      ),
+      cell: ({ row }) => <div className="font-medium max-w-[280px] truncate">{row.getValue("title")}</div>,
     },
     {
       accessorKey: "title_ar",
@@ -144,17 +127,12 @@ export default function ProductLabelsList() {
       ),
     },
     // The badge concept only applies to tags, so only surface it for that type.
-    ...(typeFilter === "tag"
+    ...(typeFilter === "tag" || typeFilter === ALL
       ? ([
           {
             accessorKey: "is_product_badge",
             header: "Badge",
-            cell: ({ row }) =>
-              row.original.is_product_badge ? (
-                <Badge>Badge</Badge>
-              ) : (
-                <span className="text-sm text-muted-foreground">-</span>
-              ),
+            cell: ({ row }) => (row.original.is_product_badge ? <Badge>Badge</Badge> : <span className="text-sm text-muted-foreground">-</span>),
           },
         ] as ColumnDef<ProductLabelRecord>[])
       : []),
@@ -178,14 +156,7 @@ export default function ProductLabelsList() {
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("is_active") as boolean;
-        return (
-          <StatusToggleCell
-            status={status}
-            onCheckedChange={(checked) =>
-              setStatusToggleItem({ item: row.original, newStatus: checked })
-            }
-          />
-        );
+        return <StatusToggleCell status={status} onCheckedChange={(checked) => setStatusToggleItem({ item: row.original, newStatus: checked })} />;
       },
     },
     {
@@ -193,9 +164,7 @@ export default function ProductLabelsList() {
       header: "Created At",
       cell: ({ row }) => (
         <div className="text-sm text-muted-foreground">
-          {row.getValue("createdAt")
-            ? new Date(row.getValue("createdAt")).toLocaleDateString()
-            : "-"}
+          {row.getValue("createdAt") ? new Date(row.getValue("createdAt")).toLocaleDateString() : "-"}
         </div>
       ),
     },
@@ -204,18 +173,12 @@ export default function ProductLabelsList() {
       header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
-        return (
-          <RowActionsMenu
-            onEdit={() => navigate(`/product-labels/${item.id}/edit`)}
-            onDelete={() => setDeleteItemId(item.id)}
-          />
-        );
+        return <RowActionsMenu onEdit={() => navigate(`/product-labels/${item.id}/edit`)} onDelete={() => setDeleteItemId(item.id)} />;
       },
     },
   ];
 
-  const newLabelUrl =
-    typeFilter === ALL ? "/product-labels/new" : `/product-labels/new?type=${typeFilter}`;
+  const newLabelUrl = typeFilter === ALL ? "/product-labels/new" : `/product-labels/new?type=${typeFilter}`;
 
   return (
     <>
@@ -259,12 +222,7 @@ export default function ProductLabelsList() {
         }}
       />
 
-      <DeleteDialogue
-        deleteItemId={deleteItemId}
-        setDeleteItemId={setDeleteItemId}
-        confirmDelete={confirmDelete}
-        itemLabel="Product Label"
-      />
+      <DeleteDialogue deleteItemId={deleteItemId} setDeleteItemId={setDeleteItemId} confirmDelete={confirmDelete} itemLabel="Product Label" />
 
       <StatusChangeDialogue
         statusToggleItem={statusToggleItem}

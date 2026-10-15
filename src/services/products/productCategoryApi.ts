@@ -1,4 +1,5 @@
 import { updateCmsStatus, updateCmsSortOrder, updateCmsNavbar, updateCmsHome } from "@/services/common/cmsOrderStatusApi";
+import type { ProductLabelOption } from "./productLabelsApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Products > Categories — backed by `/api/backend/products/product-category`.
@@ -29,6 +30,8 @@ export interface ProductCategoryRecord {
   show_in_navbar: boolean;
   show_in_home: boolean;
   sort_order: number;
+  badge_label_id: number | null;
+  badge?: ProductLabelOption | null;
   parent?: { id: number; title: string } | null;
   children?: { id: number; title?: string; is_active?: boolean }[];
   highlights?: ProductCategoryHighlightRef[];

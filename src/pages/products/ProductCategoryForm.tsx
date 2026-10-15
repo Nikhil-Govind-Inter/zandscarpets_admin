@@ -37,6 +37,7 @@ import {
   ApiError,
 } from "@/services/products/productCategoryApi";
 import { fetchActiveProductHighlights } from "@/services/products/productHighlightApi";
+import { fetchActiveBadgeLabels } from "@/services/products/productLabelsApi";
 import { buildCategoryPathOptions } from "@/utils/productCategoryTree";
 import {
   productCategorySchema,
@@ -67,6 +68,9 @@ export default function ProductCategoryForm() {
     MultiSelectOption[]
   >([]);
   const [highlightIds, setHighlightIds] = useState<(number | string)[]>([]);
+  const [badgeOptions, setBadgeOptions] = useState<ComboboxOption[]>([]);
+  const [badgeLabelId, setBadgeLabelId] = useState("");
+  const [badgeFallback, setBadgeFallback] = useState<ComboboxOption | null>(null);
 
   const form = useForm<ProductCategoryFormData>({
     resolver: zodResolver(productCategorySchema),
@@ -92,6 +96,14 @@ export default function ProductCategoryForm() {
       description: error instanceof ApiError ? error.message : fallback,
       variant: "destructive",
     });
+
+  useEffect(() => {
+    fetchActiveBadgeLabels()
+      .then((res) =>
+        setBadgeOptions(res.data.map((l) => ({ value: l.id.toString(), label: l.title }))),
+      )
+      .catch((e) => errorToast(e, "Failed to load badges"));
+  }, []);
 
   useEffect(() => {
     fetchActiveProductHighlights()
@@ -132,6 +144,10 @@ export default function ProductCategoryForm() {
       });
 
       setHighlightIds((data.highlights || []).map((h) => h.id));
+      setBadgeLabelId(data.badge_label_id ? data.badge_label_id.toString() : "");
+      setBadgeFallback(
+        data.badge ? { value: data.badge.id.toString(), label: data.badge.title } : null,
+      );
     } catch (error) {
       errorToast(error, "Failed to load category data");
     } finally {
@@ -163,6 +179,7 @@ export default function ProductCategoryForm() {
       }
 
       formData.append("highlight_ids", JSON.stringify(highlightIds));
+      formData.append("badge_label_id", badgeLabelId);
 
       if (isEditing && id) {
         await updateProductCategory(parseInt(id), formData);
@@ -297,6 +314,28 @@ export default function ProductCategoryForm() {
                   accept="image/*"
                   required
                 />
+
+              <div className="space-y-2 md:col-span-2">
+                <Label>Badge</Label>
+                <Combobox
+                  options={[
+                    { value: "", label: "No badge" },
+                    ...badgeOptions,
+                    ...(badgeFallback && !badgeOptions.some((o) => o.value === badgeFallback.value)
+                      ? [badgeFallback]
+                      : []),
+                  ]}
+                  value={badgeLabelId}
+                  onChange={setBadgeLabelId}
+                  placeholder="No badge"
+                  searchPlaceholder="Search badges..."
+                  emptyText="No badge labels available."
+                />
+                <p className="text-xs text-muted-foreground">
+                  The single badge shown on this category. Badges come from labels flagged as a
+                  product badge.
+                </p>
+              </div>
 
               <div className="space-y-2">
                 <Label>Highlights</Label>
