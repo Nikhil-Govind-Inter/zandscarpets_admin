@@ -2,8 +2,8 @@ import { z } from "zod";
 import { commonValidations } from "@/utils/formUtils";
 
 export const projectsSchema = z.object({
-  category_id: z.string().min(1, "Industry is required"),
-  material_id: z.string().min(1, "Material is required"),
+  industry_id: z.string().min(1, "Industry is required"),
+  category_id: z.string().optional(),
   title: commonValidations.requiredString("Title"),
   title_ar: commonValidations.requiredString("Title (Arabic)"),
   location: commonValidations.requiredString("Location"),
@@ -11,8 +11,8 @@ export const projectsSchema = z.object({
   date_of_completion: commonValidations.optionalDate,
   material_type: commonValidations.requiredString("Material Type"),
   material_type_ar: commonValidations.requiredString("Material Type (Arabic)"),
-  thumbnail: commonValidations.requiredFile("Thumbnail"),
-  media_path: commonValidations.requiredFile("project image"),
+  thumbnail: commonValidations.requiredFile("Listing image"),
+  media_path: commonValidations.requiredFile("Project image"),
   description: commonValidations.richText("Description"),
   description_ar: commonValidations.richText("Description (Arabic)"),
   sort_order: commonValidations.sortOrder,

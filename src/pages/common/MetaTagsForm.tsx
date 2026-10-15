@@ -15,6 +15,7 @@ import { fetchMetaTagById, createMetaTag, updateMetaTag, MetaTag } from "@/servi
 import { fetchActiveProducts } from "@/services/products/productsApi";
 import { fetchActiveProductVariants } from "@/services/products/productVariantsApi";
 import { fetchActiveBlogs } from "@/services/common/blogsApi";
+import { fetchActiveProjects } from "@/services/masters/projectsApi";
 import { PAGE_NAMES, pageLabel } from "@/constants/pagenames";
 
 const METATAG_TYPES = [
@@ -22,6 +23,7 @@ const METATAG_TYPES = [
   { value: "product", label: "Product" },
   { value: "product-variant", label: "Product Variant" },
   { value: "blog", label: "Blog" },
+  { value: "project", label: "Project" },
 ];
 
 const metaTagSchema = z
@@ -32,6 +34,7 @@ const metaTagSchema = z
     product_id: z.string().optional().nullable(),
     variant_id: z.string().optional().nullable(),
     blog_id: z.string().optional().nullable(),
+    project_id: z.string().optional().nullable(),
 
     meta_title: z.string().min(1, "Meta title is required").max(60, "Meta title should be under 60 characters"),
 
@@ -62,6 +65,9 @@ const metaTagSchema = z
     if (values.type === "blog" && !values.blog_id) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["blog_id"], message: "Please enter a blog slug" });
     }
+    if (values.type === "project" && !values.project_id) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["project_id"], message: "Please select a project" });
+    }
   });
 
 type MetaTagFormData = z.infer<typeof metaTagSchema>;
@@ -80,12 +86,14 @@ export default function MetaTagsForm() {
   const urlProductId = searchParams.get("product_id") || undefined;
   const urlVariantId = searchParams.get("variant_id") || undefined;
   const urlBlogId = searchParams.get("blog_id") || undefined;
+  const urlProjectId = searchParams.get("project_id") || undefined;
 
   const lockType = isEditing || Boolean(urlType);
   const lockPage = isEditing || (urlType === "page" && Boolean(urlPageName));
   const lockProduct = isEditing || (urlType === "product" && Boolean(urlProductId));
   const lockVariant = isEditing || (urlType === "product-variant" && Boolean(urlVariantId));
   const lockBlog = isEditing || (urlType === "blog" && Boolean(urlBlogId));
+  const lockProject = isEditing || (urlType === "project" && Boolean(urlProjectId));
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
@@ -93,6 +101,7 @@ export default function MetaTagsForm() {
   const [productOptions, setProductOptions] = useState<{ value: string; label: string }[]>([]);
   const [variantOptions, setVariantOptions] = useState<{ value: string; label: string }[]>([]);
   const [blogOptions, setBlogOptions] = useState<{ value: string; label: string }[]>([]);
+  const [projectOptions, setProjectOptions] = useState<{ value: string; label: string }[]>([]);
 
   const form = useForm<MetaTagFormData>({
     resolver: zodResolver(metaTagSchema),
@@ -102,6 +111,7 @@ export default function MetaTagsForm() {
       product_id: urlProductId || "",
       variant_id: urlVariantId || "",
       blog_id: urlBlogId || "",
+      project_id: urlProjectId || "",
       meta_title: "",
       meta_title_ar: "",
       meta_description: "",
@@ -133,6 +143,9 @@ export default function MetaTagsForm() {
     fetchActiveBlogs()
       .then((res) => setBlogOptions(res.data.map((blog) => ({ value: blog.id, label: blog.id }))))
       .catch(() => setBlogOptions([]));
+    fetchActiveProjects()
+      .then((res) => setProjectOptions(res.data.map((project) => ({ value: String(project.id), label: project.title }))))
+      .catch(() => setProjectOptions([]));
   }, []);
 
   useEffect(() => {
@@ -154,6 +167,7 @@ export default function MetaTagsForm() {
           product_id: data.product_id ? String(data.product_id) : "",
           variant_id: data.variant_id ? String(data.variant_id) : "",
           blog_id: data.blog_id || "",
+          project_id: data.project_id ? String(data.project_id) : "",
           meta_title: data.meta_title || "",
           meta_title_ar: data.meta_title_ar || "",
           meta_description: data.meta_description || "",
@@ -180,6 +194,7 @@ export default function MetaTagsForm() {
   const watchedProductId = form.watch("product_id");
   const watchedVariantId = form.watch("variant_id");
   const watchedBlogId = form.watch("blog_id");
+  const watchedProjectId = form.watch("project_id");
 
   const targetCaption = useMemo(() => {
     if (watchedType === "page") {
@@ -194,8 +209,11 @@ export default function MetaTagsForm() {
     if (watchedType === "blog") {
       return blogOptions.find((option) => option.value === watchedBlogId)?.label || watchedBlogId || "";
     }
+    if (watchedType === "project") {
+      return metaTag?.project?.title || watchedProjectId || "";
+    }
     return "";
-  }, [watchedType, watchedPageName, watchedProductId, watchedVariantId, watchedBlogId, blogOptions, metaTag]);
+  }, [watchedType, watchedPageName, watchedProductId, watchedVariantId, watchedBlogId, watchedProjectId, blogOptions, metaTag]);
 
   // Return URL = the query params this form was opened with (deep-links from
   // product/variant screens, or the list's own filter) — NOT the current
@@ -208,17 +226,19 @@ export default function MetaTagsForm() {
     if (urlProductId) params.set("product_id", urlProductId);
     if (urlVariantId) params.set("variant_id", urlVariantId);
     if (urlBlogId) params.set("blog_id", urlBlogId);
+    if (urlProjectId) params.set("project_id", urlProjectId);
     const qs = params.toString();
     return qs ? `?${qs}` : "";
-  }, [urlType, urlPageName, urlProductId, urlVariantId, urlBlogId]);
+  }, [urlType, urlPageName, urlProductId, urlVariantId, urlBlogId, urlProjectId]);
 
   const onSubmit = async (data: MetaTagFormData) => {
     const payload = {
-      type: data.type as "page" | "product" | "product-variant",
+      type: data.type as "page" | "product" | "product-variant" | "blog" | "project",
       page_name: data.type === "page" && data.page_name ? data.page_name : null,
       product_id: data.type === "product" && data.product_id ? Number(data.product_id) : null,
       variant_id: data.type === "product-variant" && data.variant_id ? Number(data.variant_id) : null,
       blog_id: data.type === "blog" && data.blog_id ? data.blog_id.trim() : null,
+      project_id: data.type === "project" && data.project_id ? Number(data.project_id) : null,
       meta_title: data.meta_title,
       meta_title_ar: data.meta_title_ar,
       meta_description: data.meta_description,
@@ -299,6 +319,7 @@ export default function MetaTagsForm() {
                           form.setValue("product_id", "");
                           form.setValue("variant_id", "");
                           form.setValue("blog_id", "");
+                          form.setValue("project_id", "");
                         }}
                         placeholder="Select a type"
                         disabled={lockType}
@@ -409,6 +430,32 @@ export default function MetaTagsForm() {
                       </FormControl>
                       <FormMessage />
                       {lockVariant && <p className="text-xs text-muted-foreground">Locked to this variant.</p>}
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {watchedType === "project" && (
+                <FormField
+                  control={form.control}
+                  name="project_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Project</FormLabel>
+                      <FormControl>
+                        <Combobox
+                          maxVisibleItems={8}
+                          autoWidth
+                          options={projectOptions}
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          placeholder="Select a project"
+                          searchPlaceholder="Search projects..."
+                          disabled={lockProject}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      {lockProject && <p className="text-xs text-muted-foreground">Locked to this project.</p>}
                     </FormItem>
                   )}
                 />

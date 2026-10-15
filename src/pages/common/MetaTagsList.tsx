@@ -18,6 +18,7 @@ const TYPE_OPTIONS = [
   { value: "product", label: "Product" },
   { value: "product-variant", label: "Product Variant" },
   { value: "blog", label: "Blog" },
+  { value: "project", label: "Project" },
 ];
 
 export const MetaTagsList: React.FC = () => {
@@ -33,6 +34,7 @@ export const MetaTagsList: React.FC = () => {
   const productIdParam = searchParams.get("product_id") || undefined;
   const variantIdParam = searchParams.get("variant_id") || undefined;
   const blogIdParam = searchParams.get("blog_id") || undefined;
+  const projectIdParam = searchParams.get("project_id") || undefined;
 
   const filters = useMemo<MetaTagFilters>(
     () => ({
@@ -41,8 +43,9 @@ export const MetaTagsList: React.FC = () => {
       product_id: productIdParam ? Number(productIdParam) : undefined,
       variant_id: variantIdParam ? Number(variantIdParam) : undefined,
       blog_id: blogIdParam,
+      project_id: projectIdParam ? Number(projectIdParam) : undefined,
     }),
-    [typeFilter, pageNameParam, productIdParam, variantIdParam, blogIdParam],
+    [typeFilter, pageNameParam, productIdParam, variantIdParam, blogIdParam, projectIdParam],
   );
 
   const {
@@ -68,6 +71,7 @@ export const MetaTagsList: React.FC = () => {
     if (productIdParam) params.set("product_id", productIdParam);
     if (variantIdParam) params.set("variant_id", variantIdParam);
     if (blogIdParam) params.set("blog_id", blogIdParam);
+    if (projectIdParam) params.set("project_id", projectIdParam);
     const qs = params.toString();
     return qs ? `?${qs}` : "";
   };
@@ -108,6 +112,13 @@ export const MetaTagsList: React.FC = () => {
               <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
                 {item.blog_id || "-"}
               </span>
+            </div>
+          );
+        }
+        if (item.type === "project") {
+          return (
+            <div className="font-medium max-w-[240px] truncate">
+              {item.project?.title || "-"}
             </div>
           );
         }

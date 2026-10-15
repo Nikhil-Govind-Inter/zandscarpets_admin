@@ -220,6 +220,7 @@ export function FormFileUploadField<T extends FieldValues>({
   maxImageSize,
   maxVideoSize,
   preview = true,
+  required,
 }: FormFileUploadFieldProps<T>) {
   return (
     <FormField
@@ -227,7 +228,10 @@ export function FormFileUploadField<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel>
+            {label}
+            {required && <span className="text-destructive"> *</span>}
+          </FormLabel>
           <FormControl>
             <FileUpload
               label={label}

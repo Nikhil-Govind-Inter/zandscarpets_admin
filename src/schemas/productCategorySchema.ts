@@ -10,7 +10,7 @@ export const productCategorySchema = z.object({
   description_ar: commonValidations.optionalString,
   material_type: commonValidations.optionalString,
   material_type_ar: commonValidations.optionalString,
-  media_path: z.custom<File | string>().optional(),
+  media_path: commonValidations.requiredFile("Image"),
   sort_order: commonValidations.sortOrder,
   is_active: commonValidations.booleanStatus,
   show_in_navbar: commonValidations.booleanStatus,

@@ -15,10 +15,18 @@ export interface ProjectRelatedRef {
   thumbnail: string | null;
 }
 
+export interface ProjectMediaItem {
+  id: number;
+  media_type: "image" | "video";
+  media_path: string;
+  thumbnail: string | null;
+  sort_order: number;
+}
+
 export interface ProjectRecord {
   id: number;
-  category_id: number;
-  material_id: number | null;
+  industry_id: number;
+  category_id: number | null;
   thumbnail: string | null;
   title: string;
   title_ar: string;
@@ -30,12 +38,12 @@ export interface ProjectRecord {
   media_path: string | null;
   description: string | null;
   description_ar: string | null;
-  project_media: string[];
+  project_media: ProjectMediaItem[];
   is_active: boolean;
   is_show_in_home: boolean;
   sort_order: number;
+  industry?: { id: number; title: string } | null;
   category?: { id: number; title: string } | null;
-  material?: { id: number; title: string } | null;
   relatedProjects?: ProjectRelatedRef[];
   deleted_at?: string | null;
   createdAt?: string;
@@ -107,11 +115,17 @@ export interface ProjectsListResponse {
   };
 }
 
-// Fetcher shape matches usePaginatedList's `Fetcher<T>` contract.
+export interface ProjectFilters {
+  industry_id?: number;
+  status?: "active" | "inactive";
+}
+
+// Fetcher shape matches usePaginatedList's `Fetcher<T, F>` contract.
 export const fetchProjectsList = async (
   page: number,
   limit: number,
   search?: string,
+  filters?: ProjectFilters,
 ): Promise<ProjectsListResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -121,6 +135,10 @@ export const fetchProjectsList = async (
   if (search) {
     params.append("search", search);
   }
+  if (filters?.industry_id) {
+    params.append("industry_id", String(filters.industry_id));
+  }
+  if (filters?.status) params.append("status", filters.status);
 
   const response = await apiFetch(`${PROJECTS_URL}?${params}`);
   return parseEnvelope<ProjectsListResponse["data"]>(response);

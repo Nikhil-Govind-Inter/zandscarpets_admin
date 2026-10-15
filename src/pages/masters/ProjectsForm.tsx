@@ -6,52 +6,19 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
-import {
-  MultiSelect,
-  Option as MultiSelectOption,
-} from "@/components/ui/multi-select";
-import {
-  FormFileUploadField,
-  FormRichTextField,
-} from "@/components/forms/FormFieldComponents";
-import { Save, ArrowLeft, X } from "lucide-react";
+import { MultiSelect, Option as MultiSelectOption } from "@/components/ui/multi-select";
+import { FormFileUploadField, FormRichTextField } from "@/components/forms/FormFieldComponents";
+import ProjectGalleryField, { GalleryItem, appendGalleryToFormData, projectMediaToGalleryItems } from "@/components/projects/ProjectGalleryField";
+import { Save, ArrowLeft, Tags } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import {
-  fetchProjectById,
-  createProject,
-  updateProject,
-  fetchActiveProjects,
-  ApiError,
-} from "@/services/masters/projectsApi";
+import { fetchProjectById, createProject, updateProject, fetchActiveProjects, ApiError } from "@/services/masters/projectsApi";
 import { fetchActiveIndustries } from "@/services/masters/industryApi";
-import { fetchActiveMaterials } from "@/services/masters/materialsApi";
+import { fetchActiveProductCategories } from "@/services/products/productCategoryApi";
 import { projectsSchema, ProjectsFormData } from "@/schemas/projectsSchema";
-
-const resolveImageUrl = (path: string) => {
-  if (/^https?:\/\//.test(path)) return path;
-  return `${import.meta.env.VITE_IMAGE_URL}/${path}`;
-};
-
-// Gallery accepts the same image + video types the backend's upload
-// middleware allows for project_media (see multerMiddleware.js's fileFilter).
-const GALLERY_ACCEPT =
-  "image/*,video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm";
-const VIDEO_EXTENSIONS = /\.(mp4|mov|avi|mkv|webm)$/i;
-
-const isVideoPath = (path: string) => VIDEO_EXTENSIONS.test(path);
-const isVideoFile = (file: File) =>
-  file.type.startsWith("video/") || isVideoPath(file.name);
 
 export default function ProjectsForm() {
   const { toast } = useToast();
@@ -61,36 +28,21 @@ export default function ProjectsForm() {
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
+  const [industryOptions, setIndustryOptions] = useState<ComboboxOption[]>([]);
   const [categoryOptions, setCategoryOptions] = useState<ComboboxOption[]>([]);
-  const [materialOptions, setMaterialOptions] = useState<ComboboxOption[]>([]);
   const [relatedOptions, setRelatedOptions] = useState<MultiSelectOption[]>([]);
-  const [relatedProjectIds, setRelatedProjectIds] = useState<
-    (number | string)[]
-  >([]);
+  const [relatedProjectIds, setRelatedProjectIds] = useState<(number | string)[]>([]);
 
-  // Gallery (project_media): paths already on the server that should stay,
-  // plus files picked in this session not yet uploaded. Kept outside
-  // react-hook-form since it's a mixed string[]/File[] value, not a single
-  // field — merged into the FormData payload at submit time.
-  const [galleryKept, setGalleryKept] = useState<string[]>([]);
-  const [galleryNewFiles, setGalleryNewFiles] = useState<File[]>([]);
-  const [galleryNewPreviews, setGalleryNewPreviews] = useState<string[]>([]);
-
-  // One object URL per new gallery file, created/revoked as the file list
-  // changes so previews don't leak blob URLs across re-renders.
-  useEffect(() => {
-    const urls = galleryNewFiles.map((file) => URL.createObjectURL(file));
-    setGalleryNewPreviews(urls);
-    return () => {
-      urls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [galleryNewFiles]);
+  // Project gallery items (existing rows kept from the server, plus newly
+  // staged files) — kept outside react-hook-form since it mixes server
+  // records and in-memory Files; serialized into FormData at submit time.
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
 
   const form = useForm<ProjectsFormData>({
     resolver: zodResolver(projectsSchema),
     defaultValues: {
+      industry_id: "",
       category_id: "",
-      material_id: "",
       title: "",
       title_ar: "",
       location: "",
@@ -102,22 +54,38 @@ export default function ProjectsForm() {
       media_path: "",
       description: "",
       description_ar: "",
-      sort_order: "0",
+      sort_order: "1",
       is_active: true,
       is_show_in_home: false,
     },
   });
 
+  const industryId = form.watch("industry_id");
+
   useEffect(() => {
-    loadCategoryOptions();
-    loadMaterialOptions();
+    loadIndustryOptions();
     loadRelatedOptions(id);
   }, [id]);
 
-  const loadCategoryOptions = async () => {
+  // Called from the Industry Combobox's onChange — a genuine user-driven
+  // change, so the previously picked Category (which may not belong to the
+  // new Industry) is cleared. Loading an existing project's Category
+  // options on edit goes through loadCategoryOptions directly instead (see
+  // loadProjectData), so it never clears the value it just set.
+  const handleIndustryChange = (value: string) => {
+    form.setValue("industry_id", value);
+    form.setValue("category_id", "");
+    if (value) {
+      loadCategoryOptions(value);
+    } else {
+      setCategoryOptions([]);
+    }
+  };
+
+  const loadIndustryOptions = async () => {
     try {
       const response = await fetchActiveIndustries();
-      setCategoryOptions(
+      setIndustryOptions(
         response.data.map((industry) => ({
           value: industry.id.toString(),
           label: industry.title,
@@ -126,31 +94,25 @@ export default function ProjectsForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError
-            ? error.message
-            : "Failed to load categories",
+        description: error instanceof ApiError ? error.message : "Failed to load industries",
         variant: "destructive",
       });
     }
   };
 
-  const loadMaterialOptions = async () => {
+  const loadCategoryOptions = async (forIndustryId: string) => {
     try {
-      const response = await fetchActiveMaterials();
-      setMaterialOptions(
-        response.data.map((material) => ({
-          value: material.id.toString(),
-          label: material.title,
+      const response = await fetchActiveProductCategories(undefined, parseInt(forIndustryId, 10));
+      setCategoryOptions(
+        response.data.map((category) => ({
+          value: category.id.toString(),
+          label: category.title,
         })),
       );
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError
-            ? error.message
-            : "Failed to load materials",
+        description: error instanceof ApiError ? error.message : "Failed to load categories",
         variant: "destructive",
       });
     }
@@ -158,9 +120,7 @@ export default function ProjectsForm() {
 
   const loadRelatedOptions = async (currentId?: string) => {
     try {
-      const response = await fetchActiveProjects(
-        currentId ? parseInt(currentId) : undefined,
-      );
+      const response = await fetchActiveProjects(currentId ? parseInt(currentId) : undefined);
       setRelatedOptions(
         response.data.map((project) => ({
           id: project.id,
@@ -170,10 +130,7 @@ export default function ProjectsForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError
-            ? error.message
-            : "Failed to load related projects",
+        description: error instanceof ApiError ? error.message : "Failed to load related projects",
         variant: "destructive",
       });
     }
@@ -192,15 +149,13 @@ export default function ProjectsForm() {
       const data = response.data;
 
       form.reset({
-        category_id: data.category_id.toString(),
-        material_id: data.material_id ? data.material_id.toString() : "",
+        industry_id: data.industry_id.toString(),
+        category_id: data.category_id ? data.category_id.toString() : "",
         title: data.title || "",
         title_ar: data.title_ar || "",
         location: data.location || "",
         location_ar: data.location_ar || "",
-        date_of_completion: data.date_of_completion
-          ? data.date_of_completion.slice(0, 10)
-          : "",
+        date_of_completion: data.date_of_completion ? data.date_of_completion.slice(0, 10) : "",
         material_type: data.material_type || "",
         material_type_ar: data.material_type_ar || "",
         thumbnail: data.thumbnail || "",
@@ -212,15 +167,13 @@ export default function ProjectsForm() {
         is_show_in_home: data.is_show_in_home ?? false,
       });
 
-      setGalleryKept(data.project_media || []);
+      await loadCategoryOptions(data.industry_id.toString());
+      setGalleryItems(projectMediaToGalleryItems(data.project_media || []));
       setRelatedProjectIds((data.relatedProjects || []).map((p) => p.id));
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError
-            ? error.message
-            : "Failed to load project data",
+        description: error instanceof ApiError ? error.message : "Failed to load project data",
         variant: "destructive",
       });
     } finally {
@@ -228,26 +181,13 @@ export default function ProjectsForm() {
     }
   };
 
-  const handleGalleryFilesSelected = (files: FileList | null) => {
-    if (!files || !files.length) return;
-    setGalleryNewFiles((prev) => [...prev, ...Array.from(files)]);
-  };
-
-  const removeKeptGalleryItem = (path: string) => {
-    setGalleryKept((prev) => prev.filter((p) => p !== path));
-  };
-
-  const removeNewGalleryFile = (index: number) => {
-    setGalleryNewFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const onSubmit = async (data: ProjectsFormData) => {
     try {
       setLoading(true);
 
       const formData = new FormData();
-      formData.append("category_id", data.category_id);
-      formData.append("material_id", data.material_id);
+      formData.append("industry_id", data.industry_id);
+      formData.append("category_id", data.category_id || "");
       formData.append("title", data.title);
       formData.append("title_ar", data.title_ar);
       formData.append("location", data.location || "");
@@ -259,10 +199,7 @@ export default function ProjectsForm() {
       formData.append("description_ar", data.description_ar || "");
       formData.append("sort_order", (data.sort_order || "0").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
-      formData.append(
-        "is_show_in_home",
-        (data.is_show_in_home ?? false).toString(),
-      );
+      formData.append("is_show_in_home", (data.is_show_in_home ?? false).toString());
 
       if (data.thumbnail instanceof File) {
         formData.append("thumbnail", data.thumbnail);
@@ -276,8 +213,7 @@ export default function ProjectsForm() {
         formData.append("media_path", data.media_path);
       }
 
-      formData.append("project_media", JSON.stringify(galleryKept));
-      galleryNewFiles.forEach((file) => formData.append("project_media", file));
+      appendGalleryToFormData(formData, galleryItems);
 
       formData.append("related_project_ids", JSON.stringify(relatedProjectIds));
 
@@ -299,10 +235,7 @@ export default function ProjectsForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError
-            ? error.message
-            : `Failed to ${isEditing ? "update" : "create"} project`,
+        description: error instanceof ApiError ? error.message : `Failed to ${isEditing ? "update" : "create"} project`,
         variant: "destructive",
       });
     } finally {
@@ -316,22 +249,22 @@ export default function ProjectsForm() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => navigate("/projects")}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">
-            {isEditing ? "Edit" : "Add"} Project
-          </h1>
-          <p className="text-muted-foreground">
-            {isEditing ? "Update" : "Create a new"} project
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate("/projects")}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Project</h1>
+            <p className="text-muted-foreground">{isEditing ? "Update" : "Create a new"} project</p>
+          </div>
         </div>
+        {isEditing && id && (
+          <Button type="button" variant="outline" onClick={() => navigate(`/meta-tags?type=project&project_id=${id}`)}>
+            <Tags className="mr-2 h-4 w-4" />
+            SEO Meta
+          </Button>
+        )}
       </div>
 
       <Form {...form}>
@@ -344,15 +277,15 @@ export default function ProjectsForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="category_id"
+                  name="industry_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Industry</FormLabel>
                       <FormControl>
                         <Combobox
-                          options={categoryOptions}
+                          options={industryOptions}
                           value={field.value}
-                          onChange={field.onChange}
+                          onChange={handleIndustryChange}
                           placeholder="Select industry"
                           searchPlaceholder="Search industry..."
                         />
@@ -364,24 +297,33 @@ export default function ProjectsForm() {
 
                 <FormField
                   control={form.control}
-                  name="material_id"
+                  name="category_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Material</FormLabel>
+                      <FormLabel>Category</FormLabel>
                       <FormControl>
                         <Combobox
-                          options={materialOptions}
-                          value={field.value}
+                          options={categoryOptions}
+                          value={field.value || ""}
                           onChange={field.onChange}
-                          placeholder="Select material"
-                          searchPlaceholder="Search material..."
+                          placeholder={
+                            industryId
+                              ? categoryOptions.length
+                                ? "Select category"
+                                : "No categories mapped to this industry"
+                              : "Select an industry first"
+                          }
+                          searchPlaceholder="Search category..."
+                          disabled={!industryId || categoryOptions.length === 0}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="title"
@@ -395,6 +337,7 @@ export default function ProjectsForm() {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="title_ar"
@@ -402,12 +345,7 @@ export default function ProjectsForm() {
                     <FormItem>
                       <FormLabel>Title (Arabic)</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="عنوان المشروع"
-                          dir="rtl"
-                          className="text-right"
-                          {...field}
-                        />
+                        <Input placeholder="عنوان المشروع" dir="rtl" className="text-right" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -437,12 +375,7 @@ export default function ProjectsForm() {
                     <FormItem>
                       <FormLabel>Location (Arabic)</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="مثال: دبي، الإمارات العربية المتحدة"
-                          dir="rtl"
-                          className="text-right"
-                          {...field}
-                        />
+                        <Input placeholder="مثال: دبي، الإمارات العربية المتحدة" dir="rtl" className="text-right" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -450,19 +383,21 @@ export default function ProjectsForm() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="date_of_completion"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date of Completion</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="date_of_completion"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date of Completion</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
                 <FormField
@@ -486,12 +421,7 @@ export default function ProjectsForm() {
                     <FormItem>
                       <FormLabel>Material Type (Arabic)</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="مثال: رخام، صوف"
-                          dir="rtl"
-                          className="text-right"
-                          {...field}
-                        />
+                        <Input placeholder="مثال: رخام، صوف" dir="rtl" className="text-right" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -499,104 +429,16 @@ export default function ProjectsForm() {
                 />
               </div>
 
-              <FormRichTextField
-                form={form}
-                name="description"
-                label="Description"
-                placeholder="Enter project description"
-              />
-              <FormRichTextField
-                form={form}
-                name="description_ar"
-                label="Description (Arabic)"
-                placeholder="صف هذا المشروع"
-              />
+              <FormRichTextField form={form} name="description" label="Description" placeholder="Enter project description" />
+              <FormRichTextField form={form} name="description_ar" label="Description (Arabic)" placeholder="صف هذا المشروع" />
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
-                <FormFileUploadField
-                  form={form}
-                  name="thumbnail"
-                  label="Thumbnail"
-                  placeholder="Upload listing thumbnail"
-                  accept="image/*"
-                />
+                <FormFileUploadField form={form} name="thumbnail" label="Listing Image" placeholder="Upload listing thumbnail" accept="image/*" />
 
-                <FormFileUploadField
-                  form={form}
-                  name="media_path"
-                  label="Detail Image"
-                  placeholder="Upload detail/banner image"
-                  accept="image/*"
-                />
+                <FormFileUploadField form={form} name="media_path" label="Detail Image" placeholder="Upload detail/banner image" accept="image/*" />
               </div>
 
-              <div className="space-y-2">
-                <Label>Project Gallery</Label>
-                <div className="flex flex-wrap gap-3">
-                  {galleryKept.map((path) => (
-                    <div key={path} className="relative">
-                      {isVideoPath(path) ? (
-                        <video
-                          src={resolveImageUrl(path)}
-                          className="h-20 w-20 rounded border object-cover"
-                          muted
-                        />
-                      ) : (
-                        <img
-                          src={resolveImageUrl(path)}
-                          alt="Gallery item"
-                          className="h-20 w-20 rounded border object-cover"
-                        />
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => removeKeptGalleryItem(path)}
-                        className="absolute -right-2 -top-2 rounded-full bg-background border p-0.5 hover:bg-muted"
-                        aria-label="Remove item"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                  {galleryNewFiles.map((file, index) => (
-                    <div key={`${file.name}-${index}`} className="relative">
-                      {isVideoFile(file) ? (
-                        <video
-                          src={galleryNewPreviews[index]}
-                          className="h-20 w-20 rounded border object-cover"
-                          muted
-                        />
-                      ) : (
-                        <img
-                          src={galleryNewPreviews[index]}
-                          alt={file.name}
-                          className="h-20 w-20 rounded border object-cover"
-                        />
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => removeNewGalleryFile(index)}
-                        className="absolute -right-2 -top-2 rounded-full bg-background border p-0.5 hover:bg-muted"
-                        aria-label="Remove item"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <Input
-                  type="file"
-                  accept={GALLERY_ACCEPT}
-                  multiple
-                  onChange={(e) => {
-                    handleGalleryFilesSelected(e.target.files);
-                    e.target.value = "";
-                  }}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Images or videos (mp4, mov, avi, mkv, webm), up to 5MB each.
-                </p>
-              </div>
+              <ProjectGalleryField items={galleryItems} onChange={setGalleryItems} />
 
               <div className="space-y-2">
                 <Label>Related Projects</Label>
@@ -623,12 +465,7 @@ export default function ProjectsForm() {
                     <FormItem>
                       <FormLabel>Sort Order</FormLabel>
                       <FormControl>
-                        <Input
-                          type="number"
-                          min={1}
-                          placeholder="1"
-                          {...field}
-                        />
+                        <Input type="number" min={1} placeholder="1" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -641,48 +478,35 @@ export default function ProjectsForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Status</FormLabel>
-                        <p className="text-sm text-muted-foreground">
-                          Enable or disable this item.
-                        </p>
+                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
                       </div>
                       <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
                     </FormItem>
                   )}
                 />
 
-              <FormField
-                control={form.control}
-                name="is_show_in_home"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Show on Home</FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="is_show_in_home"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Show on Home</FormLabel>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
               </div>
-            
             </CardContent>
           </Card>
 
           <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate("/projects")}
-            >
+            <Button type="button" variant="outline" onClick={() => navigate("/projects")}>
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>

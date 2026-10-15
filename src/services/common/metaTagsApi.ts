@@ -2,13 +2,15 @@ import { apiFetch } from "@/lib/apiClient";
 
 export interface MetaTag {
   id: number;
-  type: "page" | "product" | "product-variant" | "blog";
+  type: "page" | "product" | "product-variant" | "blog" | "project";
   page_name?: string | null;
   product_id?: number | null;
   variant_id?: number | null;
   blog_id?: string | null;
+  project_id?: number | null;
   product?: { id: number; title: string } | null;
   variant?: { id: number; label: string } | null;
+  project?: { id: number; title: string } | null;
   meta_title: string;
   meta_title_ar?: string | null;
   meta_description: string;
@@ -53,14 +55,16 @@ export interface MetaTagFilters {
   product_id?: number;
   variant_id?: number;
   blog_id?: string;
+  project_id?: number;
 }
 
 export interface MetaTagPayload {
-  type: "page" | "product" | "product-variant" | "blog";
+  type: "page" | "product" | "product-variant" | "blog" | "project";
   page_name?: string | null;
   product_id?: number | null;
   variant_id?: number | null;
   blog_id?: string | null;
+  project_id?: number | null;
   meta_title: string;
   meta_title_ar?: string;
   meta_description: string;
@@ -160,6 +164,9 @@ export const fetchMetaTagsList = async (
   }
   if (filters?.blog_id) {
     params.append("blog_id", filters.blog_id);
+  }
+  if (filters?.project_id) {
+    params.append("project_id", String(filters.project_id));
   }
 
   const response = await apiFetch(

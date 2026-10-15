@@ -295,6 +295,7 @@ export default function ProductCategoryForm() {
                   label="Image"
                   placeholder="Upload category image"
                   accept="image/*"
+                  required
                 />
 
               <div className="space-y-2">

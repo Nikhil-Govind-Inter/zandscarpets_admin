@@ -151,10 +151,16 @@ export const fetchProductCategoryById = async (
 
 // Parent-category picker source. Pass the category being edited so it and its
 // whole subtree are excluded (a category can't be moved under itself).
+// Pass `industryId` to scope the list to categories mapped to that industry
+// (e.g. the Projects form's dependent Category dropdown).
 export const fetchActiveProductCategories = async (
   excludeId?: number,
+  industryId?: number,
 ): Promise<{ data: ProductCategoryOption[] }> => {
-  const query = excludeId ? `?excludeId=${excludeId}` : "";
+  const params = new URLSearchParams();
+  if (excludeId) params.append("excludeId", String(excludeId));
+  if (industryId) params.append("industry_id", String(industryId));
+  const query = params.toString() ? `?${params}` : "";
   const response = await apiFetch(`${CATEGORIES_URL}/active${query}`);
   return parseEnvelope<ProductCategoryOption[]>(response);
 };
