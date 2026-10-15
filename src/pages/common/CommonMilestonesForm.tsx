@@ -6,30 +6,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  FormFileUploadField,
-  FormTextareaField,
-} from "@/components/forms/FormFieldComponents";
+import { FormFileUploadField, FormTextareaField } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import {
-  fetchHomeMilestoneById,
-  createHomeMilestone,
-  updateHomeMilestone,
-  ApiError,
-} from "@/services/home/homeMilestonesApi";
-import { homeMilestoneSchema, HomeMilestoneFormData } from "@/schemas/homeMilestonesSchema";
+import { fetchCommonMilestoneById, createCommonMilestone, updateCommonMilestone, ApiError } from "@/services/common/commonMilestonesApi";
+import { commonMilestoneSchema, CommonMilestoneFormData } from "@/schemas/commonMilestonesSchema";
 
-export default function HomeMilestoneForm() {
+export default function CommonMilestoneForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -38,8 +23,8 @@ export default function HomeMilestoneForm() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
 
-  const form = useForm<HomeMilestoneFormData>({
-    resolver: zodResolver(homeMilestoneSchema),
+  const form = useForm<CommonMilestoneFormData>({
+    resolver: zodResolver(commonMilestoneSchema),
     defaultValues: {
       value: "",
       value_ar: "",
@@ -50,22 +35,20 @@ export default function HomeMilestoneForm() {
       media_alt_ar: "",
       sort_order: "1",
       is_active: true,
+      show_in_home: true,
     },
   });
 
-
-
-
   useEffect(() => {
     if (isEditing && id) {
-      loadHomeMilestoneData(parseInt(id));
+      loadCommonMilestoneData(parseInt(id));
     }
   }, [id, isEditing]);
 
-  const loadHomeMilestoneData = async (itemId: number) => {
+  const loadCommonMilestoneData = async (itemId: number) => {
     try {
       setInitialLoading(true);
-      const response = await fetchHomeMilestoneById(itemId);
+      const response = await fetchCommonMilestoneById(itemId);
       const data = response.data;
 
       if (data) {
@@ -79,6 +62,7 @@ export default function HomeMilestoneForm() {
           media_alt_ar: data.media_alt_ar || "",
           sort_order: (data.sort_order ?? 1).toString(),
           is_active: data.is_active ?? true,
+          show_in_home: data.show_in_home ?? true,
         });
       }
     } catch (error) {
@@ -92,7 +76,7 @@ export default function HomeMilestoneForm() {
     }
   };
 
-  const onSubmit = async (data: HomeMilestoneFormData) => {
+  const onSubmit = async (data: CommonMilestoneFormData) => {
     try {
       setLoading(true);
 
@@ -105,7 +89,7 @@ export default function HomeMilestoneForm() {
       formData.append("media_alt_ar", data.media_alt_ar || "");
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
-
+      formData.append("show_in_home", (data.show_in_home ?? true).toString());
       if (data.media_path instanceof File) {
         formData.append("media_path", data.media_path);
       } else if (typeof data.media_path === "string" && data.media_path) {
@@ -113,21 +97,18 @@ export default function HomeMilestoneForm() {
       }
 
       if (isEditing && id) {
-        await updateHomeMilestone(parseInt(id), formData);
-        toast({ title: "Success", description: "Home milestone updated successfully" });
+        await updateCommonMilestone(parseInt(id), formData);
+        toast({ title: "Success", description: "Milestone updated successfully" });
       } else {
-        await createHomeMilestone(formData);
-        toast({ title: "Success", description: "Home milestone created successfully" });
+        await createCommonMilestone(formData);
+        toast({ title: "Success", description: "Milestone created successfully" });
       }
 
-      navigate("/home-milestones");
+      navigate("/milestones");
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof ApiError
-            ? error.message
-            : `Failed to ${isEditing ? "update" : "create"} home milestone`,
+        description: error instanceof ApiError ? error.message : `Failed to ${isEditing ? "update" : "create"} milestone`,
         variant: "destructive",
       });
     } finally {
@@ -142,14 +123,12 @@ export default function HomeMilestoneForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/home-milestones")}>
+        <Button variant="outline" size="icon" onClick={() => navigate("/milestones")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Home Milestone</h1>
-          <p className="text-muted-foreground">
-            {isEditing ? "Update" : "Create a new"} home milestone
-          </p>
+          <h1 className="text-2xl font-bold">{isEditing ? "Edit" : "Add"} Milestone</h1>
+          <p className="text-muted-foreground">{isEditing ? "Update" : "Create a new"} milestone</p>
         </div>
       </div>
 
@@ -189,27 +168,14 @@ export default function HomeMilestoneForm() {
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormTextareaField
-                  form={form}
-                  name="label"
-                  label="Label"
-                  placeholder="Milestone label"
-                />
-                <FormTextareaField
-                  form={form}
-                  name="label_ar"
-                  label="Label (Arabic)"
-                  placeholder="وصف الإنجاز"
-                />
+                <FormTextareaField form={form} name="label" label="Label" placeholder="Milestone label" />
+                <FormTextareaField form={form} name="label_ar" label="Label (Arabic)" placeholder="وصف الإنجاز" />
               </div>
 
-              <FormFileUploadField
-                form={form}
-                name="media_path"
-                label="Image"
-                placeholder="Upload milestone image"
-                accept="image/*"
-              />
+              <FormFileUploadField form={form} name="media_path" label="Image" placeholder="Upload milestone image" accept="image/*" />
+              <p className="text-sm text-muted-foreground">
+                Optional. This image is only shown in the Home page section.
+              </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
@@ -239,7 +205,6 @@ export default function HomeMilestoneForm() {
                   )}
                 />
               </div>
-
             </CardContent>
           </Card>
 
@@ -262,35 +227,42 @@ export default function HomeMilestoneForm() {
                     </FormItem>
                   )}
                 />
-              <FormField
-                control={form.control}
-                name="is_active"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Status</FormLabel>
-                      <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
-                      
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
+                <FormField
+                  control={form.control}
+                  name="is_active"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Status</FormLabel>
+                        <p className="text-sm text-muted-foreground">Enable or disable this item.</p>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </FormItem>
+                  )}
                 />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="show_in_home"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Show in Home</FormLabel>
+                        <p className="text-sm text-muted-foreground">Display this item on the home page.</p>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 
           <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate("/home-milestones")}
-            >
+            <Button type="button" variant="outline" onClick={() => navigate("/milestones")}>
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>

@@ -98,6 +98,17 @@ export const commonValidations = {
       { message: `${fieldName} is required` }
     ),
 
+  optionalFile: z
+    .custom<File | string>(
+      (val) =>
+        val == null ||
+        val === "" ||
+        val instanceof File ||
+        (typeof val === "string" && val.trim().length > 0),
+      { message: "Invalid file" }
+    )
+    .optional(),
+
   // URL validations
   optionalUrl: z.string().regex(/^\/.*/, "Must start with /").optional().or(z.literal("")),
   

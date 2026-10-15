@@ -151,14 +151,6 @@ const HomeTestimonialsForm = React.lazy(() => import("./pages/home/HomeTestimoni
 const HomeBannerList = React.lazy(() => import("./pages/home/HomeBannerList"));
 const HomeBannerForm = React.lazy(() => import("./pages/home/HomeBannerForm"));
 
-// Home - Milestones
-const HomeMilestonesList = React.lazy(
-  () => import("./pages/home/HomeMilestonesList"),
-);
-const HomeMilestonesForm = React.lazy(
-  () => import("./pages/home/HomeMilestonesForm"),
-);
-
 // Home - Brands
 const HomeBrandsList = React.lazy(() => import("./pages/home/HomeBrandsList"));
 const HomeBrandsForm = React.lazy(() => import("./pages/home/HomeBrandsForm"));
@@ -182,9 +174,13 @@ const AboutIndustriesForm = React.lazy(() => import("./pages/about/AboutIndustri
 const MessagesList = React.lazy(() => import("./pages/about/MessagesList"));
 const MessagesForm = React.lazy(() => import("./pages/about/MessagesForm"));
 
-// About — Milestones
-const MilestonesList = React.lazy(() => import("./pages/about/MilestonesList"));
-const MilestonesForm = React.lazy(() => import("./pages/about/MilestonesForm"));
+// Common Items — Milestones
+const CommonMilestonesList = React.lazy(
+  () => import("./pages/common/CommonMilestonesList"),
+);
+const CommonMilestonesForm = React.lazy(
+  () => import("./pages/common/CommonMilestonesForm"),
+);
 
 // Contact — CMS
 const ContactCmsForm = React.lazy(() => import("./pages/contact/ContactCmsForm"));
@@ -270,20 +266,6 @@ const App = () => (
                 element={<HomeBannerForm />}
               />
 
-              {/* HOme milestones */}
-              <Route
-                path="/home-milestones"
-                element={<HomeMilestonesList />}
-              />
-              <Route
-                path="/home-milestones/new"
-                element={<HomeMilestonesForm />}
-              />
-              <Route
-                path="/home-milestones/:id/edit"
-                element={<HomeMilestonesForm />}
-              />
-
               {/* Home Brands */}
               <Route path="/home-brands" element={<HomeBrandsList />} />
               <Route path="/home-brands/new" element={<HomeBrandsForm />} />
@@ -320,10 +302,10 @@ const App = () => (
               <Route path="/about-messages/new" element={<MessagesForm />} />
               <Route path="/about-messages/:id/edit" element={<MessagesForm />} />
 
-              {/* About Milestones */}
-              <Route path="/about-milestones" element={<MilestonesList />} />
-              <Route path="/about-milestones/new" element={<MilestonesForm />} />
-              <Route path="/about-milestones/:id/edit" element={<MilestonesForm />} />
+              {/* Common Items — Milestones */}
+              <Route path="/milestones" element={<CommonMilestonesList />} />
+              <Route path="/milestones/new" element={<CommonMilestonesForm />} />
+              <Route path="/milestones/:id/edit" element={<CommonMilestonesForm />} />
 
               {/* Contact CMS */}
               <Route path="/contact-cms" element={<ContactCmsForm />} />

@@ -10,7 +10,6 @@ import {
   Home,
   Tags,
   Monitor,
-  Target,
   MapPin,
   Compass,
   Smartphone,
@@ -43,6 +42,7 @@ import {
   LayoutList,
   UploadCloud,
   FileText,
+  Layers,
 } from "lucide-react";
 
 import {
@@ -69,7 +69,6 @@ const mainNavItems = [{ title: "Dashboard", url: "/", icon: LayoutDashboard }];
 const homeSection = [
   { title: "CMS", url: "/home-cms", icon: Home },
   { title: "Banner", url: "/home-banner", icon: Image },
-  { title: "Milestone", url: "/home-milestones", icon: Monitor },
   { title: "Brands", url: "/home-brands", icon: RadioTower },
   { title: "Testimonials", url: "/home-testimonials", icon: Monitor },
 ];
@@ -80,7 +79,6 @@ const aboutSection = [
   { title: "History", url: "/about-history", icon: Clock },
   { title: "Industries", url: "/about-industries", icon: Factory },
   { title: "Messages", url: "/about-messages", icon: MessageSquare },
-  { title: "Milestones", url: "/about-milestones", icon: Target },
 ];
 
 const contactSection = [
@@ -154,6 +152,9 @@ const servicesSection = [
   { title: "CMS", url: "/service-cms", icon: Info },
   { title: "Process Steps", url: "/process-steps", icon: ListChecks },
 ];
+const commonItemsSection = [
+  { title: "Milestones", url: "/milestones", icon: Layers },
+];
 const adminSection = [{ title: "Users", url: "/users", icon: Users }];
 
 const CMS_SECTIONS = ["home", "about", "contact", "services", "common"];
@@ -216,6 +217,10 @@ export function AppSidebar() {
     // Contact section
     else if (path.includes("/contact-")) {
       setOpenSection("contact");
+    }
+    // Common Items section
+    else if (path.startsWith("/milestones")) {
+      setOpenSection("common-items");
     }
     // Common sections
     else if (
@@ -395,6 +400,17 @@ export function AppSidebar() {
               Section={commonSection}
             />
         </GetLayout>
+
+        {/* Common Items */}
+        <GetLayout
+          Icon={Layers}
+          title="Common Items"
+          isCollapsed={isCollapsed}
+          open={openSection === "common-items"}
+          onOpenChange={(isOpen) => setOpenSection(isOpen ? "common-items" : null)}
+          location={location}
+          Section={commonItemsSection}
+        />
 
         <GetLayout
           Icon={Compass}

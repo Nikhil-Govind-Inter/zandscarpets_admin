@@ -2,29 +2,28 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
-import RowActionsMenu from "@/components/common/RowActionsMenu";
-import StatusToggleCell from "@/components/common/StatusToggleCell";
+import MediaThumbnail from "@/components/common/MediaThumbnail";
 import SortOrderCell from "@/components/common/SortOrderCell";
-import DeleteDialogue from "@/components/common/DeleteDialogue";
-import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
+import StatusToggleCell from "@/components/common/StatusToggleCell";
+import RowActionsMenu from "@/components/common/RowActionsMenu";
+import {
+  fetchCommonMilestoneList,
+  deleteCommonMilestone,
+  toggleCommonMilestoneStatus,
+  updateCommonMilestoneSortOrder,
+  CommonMilestonesRecord,
+  ApiError,
+} from "@/services/common/commonMilestonesApi";
 import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
 import { useStatusToggle } from "@/hooks/useStatusToggle";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
-import {
-  fetchMilestonesList,
-  deleteMilestones,
-  toggleMilestonesStatus,
-  updateMilestonesSortOrder,
-  MilestonesRecord,
-  ApiError,
-} from "@/services/about/milestonesApi";
+import DeleteDialogue from "@/components/common/DeleteDialogue";
+import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
 
-export default function MilestonesList() {
+export default function CommonMilestoneList() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
-
   const {
     items: milestones,
     setItems: setMilestones,
@@ -32,23 +31,23 @@ export default function MilestonesList() {
     setPage,
     limit,
     setLimit,
+    itemsPage,
+    itemsLimit,
     searchInput,
     setSearchInput,
     totalCount,
     totalPages,
     loading,
     searching,
-    itemsPage,
-    itemsLimit,
     refetch,
-  } = usePaginatedList<MilestonesRecord>(fetchMilestonesList);
+  } = usePaginatedList<CommonMilestonesRecord>(fetchCommonMilestoneList);
+  const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
 
-
-  const handleSortOrderChange = useSortOrder(milestones, setMilestones, updateMilestonesSortOrder);
+  const handleSortOrderChange = useSortOrder(milestones, setMilestones, updateCommonMilestoneSortOrder);
   const { statusToggleItem, setStatusToggleItem, confirmStatusToggle } = useStatusToggle({
     setItems: setMilestones,
     refetch,
-    toggleStatus: toggleMilestonesStatus,
+    toggleStatus: toggleCommonMilestoneStatus,
     label: "Milestone",
   });
 
@@ -56,13 +55,16 @@ export default function MilestonesList() {
     if (!deleteItemId) return;
 
     try {
-      await deleteMilestones(deleteItemId);
+      await deleteCommonMilestone(deleteItemId);
       if (milestones.length === 1 && page > 1) {
         setPage(page - 1);
       } else {
         refetch();
       }
-      toast({ title: "Success", description: "Milestone deleted successfully" });
+      toast({
+        title: "Success",
+        description: "Milestone deleted successfully",
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -75,30 +77,41 @@ export default function MilestonesList() {
     }
   };
 
-  const columns: ColumnDef<MilestonesRecord>[] = [
+  const columns: ColumnDef<CommonMilestonesRecord>[] = [
     {
-      accessorKey: "id",
+      id: "id",
       header: "ID",
       cell: ({ row }) => (
-        <div className="font-mono">
+        <div className="font-mono text-sm">
           {(itemsPage - 1) * itemsLimit + row.index + 1}
         </div>
+      ),
+    },
+    {
+      accessorKey: "media_path",
+      header: "Image",
+      cell: ({ row }) => (
+        <MediaThumbnail
+          path={row.getValue("media_path")}
+          alt={row.original.media_alt}
+        />
       ),
     },
     {
       accessorKey: "value",
       header: "Value",
       cell: ({ row }) => (
-        <div className="font-medium">{row.getValue("value")}</div>
+        <div className="font-medium">{row.getValue("value") || "-"}</div>
       ),
     },
     {
       accessorKey: "label",
       header: "Label",
       cell: ({ row }) => (
-        <div className="font-medium">{row.getValue("label")}</div>
+        <div className="font-medium">{row.getValue("label") || "-"}</div>
       ),
     },
+
     {
       accessorKey: "sort_order",
       header: "Sort Order",
@@ -123,7 +136,10 @@ export default function MilestonesList() {
           <StatusToggleCell
             status={status}
             onCheckedChange={(checked) =>
-              setStatusToggleItem({ item: row.original, newStatus: checked })
+              setStatusToggleItem({
+                item: row.original,
+                newStatus: checked,
+              })
             }
           />
         );
@@ -145,9 +161,10 @@ export default function MilestonesList() {
       header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
+
         return (
           <RowActionsMenu
-            onEdit={() => navigate(`/about-milestones/${item.id}/edit`)}
+            onEdit={() => navigate(`/milestones/${item.id}/edit`)}
             onDelete={() => setDeleteItemId(item.id)}
           />
         );
@@ -160,9 +177,9 @@ export default function MilestonesList() {
       <DataTable
         columns={columns}
         data={milestones}
-        title="Milestones"
+        title="Milestone"
         searchPlaceholder="Search milestones..."
-        onAdd={() => navigate("/about-milestones/new")}
+        onAdd={() => navigate("/milestones/new")}
         addButtonText="Add Milestone"
         loading={loading}
         searching={searching}

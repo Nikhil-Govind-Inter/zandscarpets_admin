@@ -1,20 +1,26 @@
 import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
-// About > Milestones — backed by `/api/backend/about/milestones`. No media fields, so this
-// mirrors historyApi.ts's plain-JSON shape exactly (year/title/description -> label/value).
+// Common Items > Milestones — backed by `/api/backend/common/milestones`. File upload via
+// FormData, following the same media-path round-trip rules as
+// homeMilestonesApi.ts; envelope parsing follows the apiFetch + ApiError
+// convention from pagesApi.ts.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const MILESTONES_URL = `${API_BASE_URL}/about/milestones`;
+const COMMON_MILESTONES_URL = `${API_BASE_URL}/common/milestones`;
 
-export interface MilestonesRecord {
+export interface CommonMilestonesRecord {
   id: number;
-  label: string;
-  label_ar: string;
+  media_path: string | null;
+  media_alt: string | null;
+  media_alt_ar: string | null;
   value: string;
   value_ar: string;
+  label: string;
+  label_ar: string;
   sort_order: number;
   is_active: boolean;
+  show_in_home: boolean;
   deleted_at?: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -72,9 +78,9 @@ const parseEnvelope = async <T>(
   return body;
 };
 
-export interface MilestonesListResponse {
+export interface CommonMilestonesListResponse {
   data: {
-    data: MilestonesRecord[];
+    data: CommonMilestonesRecord[];
     pagination: {
       totalCount: number;
       totalPages: number;
@@ -85,21 +91,12 @@ export interface MilestonesListResponse {
   };
 }
 
-export interface MilestonesPayload {
-  label: string;
-  label_ar: string;
-  value: string;
-  value_ar: string;
-  sort_order: number;
-  is_active: boolean;
-}
-
 // Fetcher shape matches usePaginatedList's `Fetcher<T>` contract.
-export const fetchMilestonesList = async (
+export const fetchCommonMilestoneList = async (
   page: number,
   limit: number,
   search?: string,
-): Promise<MilestonesListResponse> => {
+): Promise<CommonMilestonesListResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
@@ -109,52 +106,49 @@ export const fetchMilestonesList = async (
     params.append("search", search);
   }
 
-  const response = await apiFetch(`${MILESTONES_URL}?${params}`);
-  return parseEnvelope<MilestonesListResponse["data"]>(response);
+  const response = await apiFetch(`${COMMON_MILESTONES_URL}?${params}`);
+  return parseEnvelope<CommonMilestonesListResponse["data"]>(response);
 };
 
-export const fetchMilestonesById = async (
+export const fetchCommonMilestoneById = async (
   id: number,
-): Promise<{ data: MilestonesRecord }> => {
-  const response = await apiFetch(`${MILESTONES_URL}/${id}`);
-  return parseEnvelope<MilestonesRecord>(response);
+): Promise<{ data: CommonMilestonesRecord }> => {
+  const response = await apiFetch(`${COMMON_MILESTONES_URL}/${id}`);
+  return parseEnvelope<CommonMilestonesRecord>(response);
 };
 
-export const createMilestones = async (
-  payload: MilestonesPayload,
-): Promise<{ data: MilestonesRecord }> => {
-  const response = await apiFetch(MILESTONES_URL, {
+export const createCommonMilestone = async (
+  formData: FormData,
+): Promise<{ data: CommonMilestonesRecord }> => {
+  const response = await apiFetch(COMMON_MILESTONES_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: formData,
   });
-  return parseEnvelope<MilestonesRecord>(response);
+  return parseEnvelope<CommonMilestonesRecord>(response);
 };
 
-export const updateMilestones = async (
+export const updateCommonMilestone = async (
   id: number,
-  payload: MilestonesPayload,
-): Promise<{ data: MilestonesRecord }> => {
-  const response = await apiFetch(`${MILESTONES_URL}/${id}`, {
+  formData: FormData,
+): Promise<{ data: CommonMilestonesRecord }> => {
+  const response = await apiFetch(`${COMMON_MILESTONES_URL}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: formData,
   });
-  return parseEnvelope<MilestonesRecord>(response);
+  return parseEnvelope<CommonMilestonesRecord>(response);
 };
 
-export const deleteMilestones = async (
+export const deleteCommonMilestone = async (
   id: number,
 ): Promise<{ data: { id: number } }> => {
-  const response = await apiFetch(`${MILESTONES_URL}/${id}`, {
+  const response = await apiFetch(`${COMMON_MILESTONES_URL}/${id}`, {
     method: "DELETE",
   });
   return parseEnvelope<{ id: number }>(response);
 };
 
-// Quick status toggle / sort-order change via the shared single-field CMS endpoints.
-export const toggleMilestonesStatus = (item: { id?: number | string }, isActive: boolean) =>
-  updateCmsStatus("milestones", item.id!, isActive);
+export const toggleCommonMilestoneStatus = (item: { id?: number | string }, isActive: boolean) =>
+  updateCmsStatus("common-milestones", item.id!, isActive);
 
-export const updateMilestonesSortOrder = (item: { id?: number | string }, sortOrder: number) =>
-  updateCmsSortOrder("milestones", item.id!, sortOrder);
+export const updateCommonMilestoneSortOrder = (item: { id?: number | string }, sortOrder: number) =>
+  updateCmsSortOrder("common-milestones", item.id!, sortOrder);

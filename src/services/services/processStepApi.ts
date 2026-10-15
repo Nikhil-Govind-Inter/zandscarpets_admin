@@ -3,7 +3,7 @@ import { apiFetch } from "@/lib/apiClient";
 
 // Services > Process Steps — backed by `/api/backend/services/process-steps`. File
 // upload via FormData, following the same media-path round-trip rules as
-// homeMilestonesApi.ts; envelope parsing follows the apiFetch + ApiError convention
+// commonMilestonesApi.ts; envelope parsing follows the apiFetch + ApiError convention
 // from pagesApi.ts.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 

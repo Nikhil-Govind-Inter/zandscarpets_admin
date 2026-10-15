@@ -1,7 +1,7 @@
 import { apiFetch } from "@/lib/apiClient";
 
 // About > CMS — backed by `/api/backend/about/about-cms`. Singleton resource with 3 media
-// pairs, so writes go through FormData (like siteSettingsApi.ts/homeMilestonesApi.ts) while
+// pairs, so writes go through FormData (like siteSettingsApi.ts/commonMilestonesApi.ts) while
 // reads use the envelope-parsing + ApiError convention from homeCmsApi.ts.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
