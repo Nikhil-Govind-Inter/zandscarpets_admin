@@ -51,6 +51,8 @@ export const fetchProductLabelList = (
 export const fetchProductLabelById = (id: number) => api.getById(id);
 export const fetchActiveProductLabels = (type?: LabelType) =>
   api.active(type ? `?type=${type}` : "");
+// Badge-capable labels only (master labels flagged `is_product_badge`).
+export const fetchActiveBadgeLabels = () => api.active("?badge=true");
 export const createProductLabel = (payload: ProductLabelPayload) => api.create(payload);
 export const updateProductLabel = (id: number, payload: ProductLabelPayload) =>
   api.update(id, payload);

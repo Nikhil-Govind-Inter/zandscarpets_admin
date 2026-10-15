@@ -31,6 +31,8 @@ export interface ProductRecord {
   list_media_alt: string | null;
   list_media_alt_ar: string | null;
   price: string | number | null;
+  badge_label_id: number | null;
+  badge?: ProductLabelOption | null;
   list_in_navbar: boolean;
   sort_order: number;
   is_active: boolean;

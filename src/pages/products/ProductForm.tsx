@@ -37,7 +37,7 @@ import {
   ApiError,
 } from "@/services/products/productsApi";
 import { fetchActiveProductCategories } from "@/services/products/productCategoryApi";
-import { fetchActiveProductLabels } from "@/services/products/productLabelsApi";
+import { fetchActiveProductLabels, fetchActiveBadgeLabels } from "@/services/products/productLabelsApi";
 import { fetchActiveAttributes, AttributeOption } from "@/services/products/attributesApi";
 import { fetchActiveAttributeValues, AttributeValueOption } from "@/services/products/attributeValuesApi";
 import { fetchProductVariantList, generateProductVariants } from "@/services/products/productVariantsApi";
@@ -71,6 +71,13 @@ export default function ProductForm() {
   const [featureOptions, setFeatureOptions] = useState<MultiSelectOption[]>([]);
   const [tagOptions, setTagOptions] = useState<MultiSelectOption[]>([]);
   const [specificationOptions, setSpecificationOptions] = useState<MultiSelectOption[]>([]);
+  const [badgeOptions, setBadgeOptions] = useState<ComboboxOption[]>([]);
+  // The product's single badge, kept separate from the label multi-selects.
+  // Kept as a string to match the Combobox; "" means "no badge".
+  const [badgeLabelId, setBadgeLabelId] = useState("");
+  // Allows prefilling a badge whose label is no longer active (so it stops
+  // being listed by fetchActiveBadgeLabels but is still attached to the product).
+  const [badgeFallback, setBadgeFallback] = useState<ComboboxOption | null>(null);
   const [attributeRecords, setAttributeRecords] = useState<AttributeOption[]>([]);
   const [relatedOptions, setRelatedOptions] = useState<MultiSelectOption[]>([]);
   const [featureIds, setFeatureIds] = useState<(number | string)[]>([]);
@@ -84,6 +91,14 @@ export default function ProductForm() {
   const valuesByAttribute = groupValuesByAttribute(attributeValueRecords, attributeRecords);
 
   const attributeOptions: MultiSelectOption[] = attributeRecords.map((a) => ({ id: a.id, name: a.title }));
+  // Include the inactive fallback only if it isn't already in the active list.
+  const badgeComboboxOptions: ComboboxOption[] = [
+    { value: "", label: "No badge" },
+    ...badgeOptions,
+    ...(badgeFallback && !badgeOptions.some((o) => o.value === badgeFallback.value)
+      ? [badgeFallback]
+      : []),
+  ];
   const selectedAttributes = attributeRecords.filter((a) => attributeIds.includes(a.id));
   const attributesLocked = isEditing && existingVariantCount > 0;
 
@@ -144,6 +159,12 @@ export default function ProductForm() {
       .then((res) => setSpecificationOptions(toOptions(res.data)))
       .catch((e) => errorToast(e, "Failed to load specifications"));
 
+    fetchActiveBadgeLabels()
+      .then((res) =>
+        setBadgeOptions(res.data.map((l) => ({ value: l.id.toString(), label: l.title }))),
+      )
+      .catch((e) => errorToast(e, "Failed to load badges"));
+
     fetchActiveAttributes()
       .then((res) => setAttributeRecords(res.data))
       .catch((e) => errorToast(e, "Failed to load attributes"));
@@ -194,6 +215,10 @@ export default function ProductForm() {
       );
       setAttributeIds((data.attributes || []).map((a) => a.id));
       setRelatedIds((data.relatedProducts || []).map((p) => p.id));
+      setBadgeLabelId(data.badge_label_id ? data.badge_label_id.toString() : "");
+      setBadgeFallback(
+        data.badge ? { value: data.badge.id.toString(), label: data.badge.title } : null,
+      );
 
       const variantsRes = await fetchProductVariantList(1, 1, undefined, { product_id: itemId });
       setExistingVariantCount(variantsRes.data.pagination.totalCount);
@@ -240,6 +265,8 @@ export default function ProductForm() {
     formData.append("label_ids", JSON.stringify([...featureIds, ...tagIds, ...specificationIds]));
     formData.append("attribute_ids", JSON.stringify(attributeIds));
     formData.append("related_product_ids", JSON.stringify(relatedIds));
+    // "" clears the badge; the server also attaches the badge label to the product.
+    formData.append("badge_label_id", badgeLabelId);
 
     return formData;
   };
@@ -460,6 +487,21 @@ export default function ProductForm() {
               <CardTitle>Features, Tags & Specifications</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2 md:col-span-2">
+                <Label>Badge</Label>
+                <Combobox
+                  options={badgeComboboxOptions}
+                  value={badgeLabelId}
+                  onChange={setBadgeLabelId}
+                  placeholder="No badge"
+                  searchPlaceholder="Search badges..."
+                  emptyText="No badge labels available."
+                />
+                <p className="text-xs text-muted-foreground">
+                  The single badge shown on this product. Badges come from labels flagged as a
+                  product badge; the chosen label is also added to the product's tags.
+                </p>
+              </div>
               {[
                 { label: "Features", options: featureOptions, selected: featureIds, onChange: setFeatureIds },
                 { label: "Tags", options: tagOptions, selected: tagIds, onChange: setTagIds },
