@@ -249,7 +249,7 @@ export default function ProductsList() {
                   Variants
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => navigate(`/products/${item.id}/faqs`, returnState)}
+                  onClick={() => navigate(`/faqs?product_id=${item.id}`, returnState)}
                 >
                   <HelpCircle className="mr-2 h-4 w-4" />
                   FAQs

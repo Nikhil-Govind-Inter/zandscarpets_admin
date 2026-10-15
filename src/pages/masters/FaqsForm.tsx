@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Combobox } from "@/components/ui/combobox";
 import {
   Form,
   FormControl,
@@ -16,7 +17,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormTextField,
-  FormRichTextField,
+  FormTextareaField,
 } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -27,19 +28,29 @@ import {
   ApiError,
 } from "@/services/masters/faqsApi";
 import { faqsSchema, FaqsFormData } from "@/schemas/faqsSchema";
+import { fetchActiveProducts, ProductOption } from "@/services/products/productsApi";
 
 export default function FaqsForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { id } = useParams();
   const isEditing = Boolean(id);
 
+  // Deep-link from a product context fixes the FAQ to that product.
+  const urlProductId = searchParams.get("product_id") || "";
+  const lockProduct = Boolean(urlProductId);
+
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
+  const [productOptions, setProductOptions] = useState<{ value: string; label: string }[]>([
+    { value: "", label: "Global (all products)" },
+  ]);
 
   const form = useForm<FaqsFormData>({
     resolver: zodResolver(faqsSchema),
     defaultValues: {
+      product_id: urlProductId,
       question: "",
       question_ar: "",
       answer: "",
@@ -48,6 +59,19 @@ export default function FaqsForm() {
       is_active: true,
     },
   });
+
+  useEffect(() => {
+    fetchActiveProducts()
+      .then((res: { data: ProductOption[] }) =>
+        setProductOptions([
+          { value: "", label: "Global (all products)" },
+          ...res.data.map((p) => ({ value: String(p.id), label: p.title })),
+        ]),
+      )
+      .catch(() => {
+        /* picker is a convenience; the rest of the form still works */
+      });
+  }, []);
 
   useEffect(() => {
     if (isEditing && id) {
@@ -62,6 +86,7 @@ export default function FaqsForm() {
       const data = response.data;
 
       form.reset({
+        product_id: data.product_id ? String(data.product_id) : "",
         question: data.question || "",
         question_ar: data.question_ar || "",
         answer: data.answer || "",
@@ -86,6 +111,7 @@ export default function FaqsForm() {
       setLoading(true);
 
       const payload = {
+        product_id: data.product_id ? parseInt(data.product_id) : null,
         question: data.question,
         question_ar: data.question_ar,
         answer: data.answer,
@@ -148,6 +174,34 @@ export default function FaqsForm() {
               <CardTitle>FAQ Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="product_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product</FormLabel>
+                    <FormControl>
+                      <Combobox
+                        maxVisibleItems={8}
+                        autoWidth
+                        options={productOptions}
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        placeholder="Global (all products)"
+                        searchPlaceholder="Search products..."
+                        disabled={lockProduct}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                    <p className="text-xs text-muted-foreground">
+                      {lockProduct
+                        ? "Locked to this product."
+                        : "Leave as Global for a common FAQ shown across the site."}
+                    </p>
+                  </FormItem>
+                )}
+              />
+
               <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
                 <FormTextField
                   form={form}
@@ -165,14 +219,14 @@ export default function FaqsForm() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
-                <FormRichTextField
+                <FormTextareaField
                   form={form}
                   name="answer"
                   label="Answer"
                   placeholder="Answer to the question"
                 />
 
-                <FormRichTextField
+                <FormTextareaField
                   form={form}
                   name="answer_ar"
                   label="Answer (Arabic)"

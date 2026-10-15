@@ -2,10 +2,11 @@ import { z } from "zod";
 import { commonValidations } from "@/utils/formUtils";
 
 export const faqsSchema = z.object({
+  product_id: commonValidations.optionalString,
   question: commonValidations.requiredString("Question"),
   question_ar: commonValidations.requiredString("Question (Arabic)"),
-  answer: commonValidations.richText("Answer"),
-  answer_ar: commonValidations.richText("Answer (Arabic)"),
+  answer: commonValidations.requiredString("Answer"),
+  answer_ar: commonValidations.requiredString("Answer (Arabic)"),
   sort_order: commonValidations.sortOrder,
   is_active: commonValidations.booleanStatus,
 });

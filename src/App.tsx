@@ -99,8 +99,6 @@ const ProductHighlightList = React.lazy(() => import("./pages/products/ProductHi
 const ProductHighlightForm = React.lazy(() => import("./pages/products/ProductHighlightForm"));
 const ProductsList = React.lazy(() => import("./pages/products/ProductsList"));
 const ProductForm = React.lazy(() => import("./pages/products/ProductForm"));
-const ProductFaqList = React.lazy(() => import("./pages/products/ProductFaqList"));
-const ProductFaqForm = React.lazy(() => import("./pages/products/ProductFaqForm"));
 const ProductMediaList = React.lazy(() => import("./pages/products/ProductMediaList"));
 const ProductMediaForm = React.lazy(() => import("./pages/products/ProductMediaForm"));
 const AttributesList = React.lazy(() => import("./pages/products/AttributesList"));
@@ -387,9 +385,6 @@ const App = () => (
               <Route path="/products" element={<ProductsList />} />
               <Route path="/products/new" element={<ProductForm />} />
               <Route path="/products/:id/edit" element={<ProductForm />} />
-              <Route path="/products/:productId/faqs" element={<ProductFaqList />} />
-              <Route path="/products/:productId/faqs/new" element={<ProductFaqForm />} />
-              <Route path="/products/:productId/faqs/:id/edit" element={<ProductFaqForm />} />
               <Route path="/products/:productId/media" element={<ProductMediaList />} />
               <Route path="/products/:productId/media/new" element={<ProductMediaForm />} />
               <Route path="/products/:productId/media/:id/edit" element={<ProductMediaForm />} />

@@ -8,8 +8,15 @@ const API_BASE_URL =
 
 const FAQS_URL = `${API_BASE_URL}/masters/faqs`;
 
+export interface FaqProduct {
+  id: number;
+  title: string;
+}
+
 export interface FaqRecord {
   id: number;
+  product_id?: number | null;
+  product?: FaqProduct | null;
   question: string;
   question_ar?: string;
   answer: string;
@@ -19,6 +26,10 @@ export interface FaqRecord {
   deleted_at?: string | null;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface FaqFilters {
+  product_id?: number | "global";
 }
 
 interface ApiEnvelope<T> {
@@ -87,6 +98,7 @@ export interface FaqsListResponse {
 }
 
 export interface FaqPayload {
+  product_id?: number | null;
   question: string;
   answer: string;
   sort_order: number;
@@ -98,6 +110,7 @@ export const fetchFaqsList = async (
   page: number,
   limit: number,
   search?: string,
+  filters?: FaqFilters,
 ): Promise<FaqsListResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -106,6 +119,10 @@ export const fetchFaqsList = async (
 
   if (search) {
     params.append("search", search);
+  }
+
+  if (filters?.product_id !== undefined) {
+    params.append("product_id", String(filters.product_id));
   }
 
   const response = await apiFetch(`${FAQS_URL}?${params}`);

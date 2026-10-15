@@ -1,7 +1,6 @@
 import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
 import { PRODUCTS_API_URL, createCrudApi } from "./productsApiClient";
 import type { ProductLabelOption } from "./productLabelsApi";
-import type { ProductFaqRecord } from "./productFaqApi";
 import type { ProductMediaRecord } from "./productMediaApi";
 import type { AttributeOption } from "./attributesApi";
 
@@ -40,7 +39,6 @@ export interface ProductRecord {
   attributes?: ProductAttributeOption[];
   variant_count?: number;
   relatedProducts?: ProductOption[];
-  productFaq?: ProductFaqRecord[];
   productMedia?: ProductMediaRecord[];
   createdAt?: string;
   updatedAt?: string;

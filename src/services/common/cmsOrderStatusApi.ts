@@ -32,7 +32,6 @@ export type CmsResource =
   | "product-highlights"
   | "product-labels"
   | "products"
-  | "product-faq"
   | "product-media"
   | "product-variants"
   | "attributes"
