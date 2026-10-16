@@ -4,8 +4,8 @@ import { commonValidations } from "@/utils/formUtils";
 export const homeBannerSchema = z
   .object({
   industry_id: z.string().min(1, "Industry is required"),
-  title: commonValidations.requiredString("Title"),
-  title_ar: commonValidations.requiredString("Title (Arabic)"),
+  title: commonValidations.richText("Title"),
+  title_ar: commonValidations.richText("Title (Arabic)"),
   description: commonValidations.richText("Description"),
   description_ar: commonValidations.richText("Description (Arabic)"),
   media_type: z.enum(["image", "video"]),

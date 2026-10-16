@@ -279,31 +279,17 @@ export default function HomeBannerForm() {
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
+                <FormRichTextField
+                  form={form}
                   name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Banner title" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Title"
+                  placeholder="Banner title"
                 />
-                <FormField
-                  control={form.control}
+                <FormRichTextField
+                  form={form}
                   name="title_ar"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title (Arabic)</FormLabel>
-                      <FormControl>
-                        <Input dir="rtl" className="text-right" placeholder="عنوان البانر" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Title (Arabic)"
+                  placeholder="عنوان البانر"
                 />
               </div>
 
