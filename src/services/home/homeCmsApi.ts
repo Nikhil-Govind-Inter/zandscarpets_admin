@@ -2,7 +2,7 @@ import { apiFetch } from "@/lib/apiClient";
 
 // Home > CMS — backed by `/api/backend/home/home-cms` (authMiddleware-gated). Singleton resource,
 // mirrors siteSettingsApi.ts's findOne/update-in-place shape but uses the ApiError + envelope-parsing
-// convention from usersApi.ts/pagesApi.ts since there are no file fields to send as FormData.
+// convention from usersApi.ts/pagesApi.ts The CTA image means the save is sent as multipart FormData.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const HOME_CMS_URL = `${API_BASE_URL}/home/home-cms`;
@@ -13,24 +13,15 @@ export interface HomeCms {
   discover_title_ar?: string;
   residential_title: string;
   residential_title_ar?: string;
-  home_space_title: string;
-  home_space_title_ar?: string;
   project_title: string;
   project_title_ar?: string;
-  features_title: string;
-  features_title_ar?: string;
-  features_subtitle: string;
-  features_subtitle_ar?: string;
-  features_description: string;
-  features_description_ar?: string;
-  work_title: string;
-  work_title_ar?: string;
   testimonial_title: string;
   testimonial_title_ar?: string;
   brand_title: string;
   brand_title_ar?: string;
   cta_title: string;
   cta_title_ar?: string;
+  cta_media_path?: string | null;
   cta_description: string;
   cta_description_ar?: string;
   faq_title: string;
@@ -104,13 +95,12 @@ export const fetchHomeCms = async (): Promise<ApiEnvelope<HomeCms | null>> => {
 // Create or update the Home CMS singleton row. `id` defaults to 1, mirroring
 // siteSettingsApi.ts's `PUT .../1` — the backend ignores the id and does a findOne().
 export const saveHomeCms = async (
-  data: Omit<HomeCms, "id" | "createdAt" | "updatedAt">,
+  data: FormData,
   id: number = 1,
 ): Promise<ApiEnvelope<HomeCms>> => {
   const response = await apiFetch(`${HOME_CMS_URL}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: data,
   });
   return parseEnvelope<HomeCms>(response);
 };

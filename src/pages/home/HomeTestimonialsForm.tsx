@@ -17,7 +17,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormFileUploadField,
-  FormRichTextField,
+  FormTextareaField,
 } from "@/components/forms/FormFieldComponents";
 import { Save, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -238,8 +238,8 @@ export default function HomeTestimonialsForm() {
               />
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormRichTextField form={form} name="message" label="Message" placeholder="Testimonial message" height="300px" />
-                <FormRichTextField form={form} name="message_ar" label="Message (Arabic)" placeholder="رسالة التدشين" height="300px" />
+                <FormTextareaField form={form} name="message" label="Message" placeholder="Testimonial message" rows={8} />
+                <FormTextareaField form={form} name="message_ar" label="Message (Arabic)" placeholder="رسالة التدشين" rows={8} />
               </div>
             </CardContent>
           </Card>

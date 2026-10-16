@@ -15,12 +15,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
 import {
   FormFileUploadField,
   FormRichTextField,
 } from "@/components/forms/FormFieldComponents";
-import { Save, ArrowLeft } from "lucide-react";
+import { Save, ArrowLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   fetchHomeBannerById,
@@ -30,6 +37,7 @@ import {
   ApiError,
 } from "@/services/home/homeBannerApi";
 import { fetchActiveIndustries } from "@/services/masters/industryApi";
+import { captureVideoThumbnail } from "@/utils/videoThumbnail";
 import { homeBannerSchema, HomeBannerFormData } from "@/schemas/homeBannerSchema";
 
 export default function HomeBannerForm() {
@@ -41,7 +49,6 @@ export default function HomeBannerForm() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditing);
   const [industryOptions, setIndustryOptions] = useState<ComboboxOption[]>([]);
-
   const form = useForm<HomeBannerFormData>({
     resolver: zodResolver(homeBannerSchema),
     defaultValues: {
@@ -50,13 +57,45 @@ export default function HomeBannerForm() {
       title_ar: "",
       description: "",
       description_ar: "",
+      media_type: "image",
       media_path: "",
+      thumbnail: "",
       media_alt: "",
       media_alt_ar: "",
       sort_order: "1",
       is_active: true,
     },
   });
+
+  const [generatingThumbnail, setGeneratingThumbnail] = useState(false);
+
+  const mediaType = form.watch("media_type");
+  const mediaValue = form.watch("media_path");
+
+  // Auto-generate a thumbnail whenever a new video file is picked; the user
+  // can still replace it through the thumbnail upload below.
+  useEffect(() => {
+    if (mediaType !== "video" || !(mediaValue instanceof File)) return;
+    let cancelled = false;
+    setGeneratingThumbnail(true);
+    captureVideoThumbnail(mediaValue)
+      .then((thumb) => {
+        if (!cancelled) form.setValue("thumbnail", thumb, { shouldValidate: true });
+      })
+      .catch(() => {
+        toast({
+          title: "Thumbnail",
+          description: "Couldn't auto-generate a thumbnail. Please upload one.",
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        if (!cancelled) setGeneratingThumbnail(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mediaType, mediaValue, form, toast]);
 
   // Industries already assigned to another banner are excluded from the
   // picker (one banner per industry, enforced here rather than in the DB —
@@ -108,7 +147,9 @@ export default function HomeBannerForm() {
             title_ar: data.title_ar || "",
             description: data.description || "",
             description_ar: data.description_ar || "",
+            media_type: data.media_type || "image",
             media_path: data.media_path || "",
+            thumbnail: data.thumbnail || "",
             media_alt: data.media_alt || "",
             media_alt_ar: data.media_alt_ar || "",
             sort_order: (data.sort_order ?? 1).toString(),
@@ -153,10 +194,20 @@ export default function HomeBannerForm() {
       formData.append("sort_order", (data.sort_order || "1").toString());
       formData.append("is_active", (data.is_active ?? true).toString());
 
+      formData.append("media_type", data.media_type);
+
       if (data.media_path instanceof File) {
         formData.append("media_path", data.media_path);
       } else if (typeof data.media_path === "string" && data.media_path) {
         formData.append("media_path", data.media_path);
+      }
+
+      if (data.media_type === "video") {
+        if (data.thumbnail instanceof File) {
+          formData.append("thumbnail", data.thumbnail);
+        } else if (typeof data.thumbnail === "string" && data.thumbnail) {
+          formData.append("thumbnail", data.thumbnail);
+        }
       }
 
       if (isEditing && id) {
@@ -271,13 +322,73 @@ export default function HomeBannerForm() {
                 />
               </div>
 
-              <FormFileUploadField
-                form={form}
-                name="media_path"
-                label="Image"
-                placeholder="Upload banner image"
-                accept="image/*"
+              <FormField
+                control={form.control}
+                name="media_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Media Type</FormLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        // Existing file belongs to the previous type; force a re-upload.
+                        form.setValue("media_path", "");
+                        form.setValue("thumbnail", "");
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select media type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="image">Image</SelectItem>
+                        <SelectItem value="video">Video</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
+
+              {mediaType === "video" ? (
+                <>
+                  <FormFileUploadField
+                    key="video"
+                    form={form}
+                    name="media_path"
+                    label="Video"
+                    placeholder="Upload banner video"
+                    accept="video/mp4,video/quicktime,video/webm"
+                    maxVideoSize={10 * 1024 * 1024}
+                  />
+                  <div className="space-y-2">
+                    {generatingThumbnail && (
+                      <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" /> Generating thumbnail...
+                      </p>
+                    )}
+                    <FormFileUploadField
+                      key="thumbnail"
+                      form={form}
+                      name="thumbnail"
+                      label="Thumbnail"
+                      placeholder="Auto-generated from the video — upload to replace"
+                      accept="image/*"
+                    />
+                  </div>
+                </>
+              ) : (
+                <FormFileUploadField
+                  key="image"
+                  form={form}
+                  name="media_path"
+                  label="Image"
+                  placeholder="Upload banner image"
+                  accept="image/*"
+                />
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
@@ -285,7 +396,7 @@ export default function HomeBannerForm() {
                   name="media_alt"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Image Alt Text</FormLabel>
+                      <FormLabel>Media Alt Text</FormLabel>
                       <FormControl>
                         <Input placeholder="Describe the banner media" {...field} />
                       </FormControl>
@@ -298,7 +409,7 @@ export default function HomeBannerForm() {
                   name="media_alt_ar"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Image Alt Text (Arabic)</FormLabel>
+                      <FormLabel>Media Alt Text (Arabic)</FormLabel>
                       <FormControl>
                         <Input dir="rtl" className="text-right" placeholder="وصف صورة البانر" {...field} />
                       </FormControl>

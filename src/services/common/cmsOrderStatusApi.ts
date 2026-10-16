@@ -25,6 +25,8 @@ export type CmsResource =
   | "about-industries"
   | "messages"
   | "common-milestones"
+  | "common-features"
+  | "common-how-it-works"
   | "connections"
   | "projects"
   | "services"

@@ -7,7 +7,7 @@ import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { FormTextField, FormRichTextField } from "@/components/forms/FormFieldComponents";
+import { FormTextField, FormRichTextField, FormFileUploadField } from "@/components/forms/FormFieldComponents";
 import { homeCmsSchema, HomeCmsFormData } from "@/schemas/homeCmsSchema";
 import { fetchHomeCms, saveHomeCms } from "@/services/home/homeCmsApi";
 
@@ -16,24 +16,15 @@ const defaultValues: HomeCmsFormData = {
   discover_title_ar: "",
   residential_title: "",
   residential_title_ar: "",
-  home_space_title: "",
-  home_space_title_ar: "",
   project_title: "",
   project_title_ar: "",
-  features_title: "",
-  features_title_ar: "",
-  features_subtitle: "",
-  features_subtitle_ar: "",
-  features_description: "",
-  features_description_ar: "",
-  work_title: "",
-  work_title_ar: "",
   testimonial_title: "",
   testimonial_title_ar: "",
   brand_title: "",
   brand_title_ar: "",
   cta_title: "",
   cta_title_ar: "",
+  cta_media_path: "",
   cta_description: "",
   cta_description_ar: "",
   faq_title: "",
@@ -72,24 +63,15 @@ export default function HomeCmsForm() {
           discover_title_ar: data.discover_title_ar || "",
           residential_title: data.residential_title || "",
           residential_title_ar: data.residential_title_ar || "",
-          home_space_title: data.home_space_title || "",
-          home_space_title_ar: data.home_space_title_ar || "",
           project_title: data.project_title || "",
           project_title_ar: data.project_title_ar || "",
-          features_title: data.features_title || "",
-          features_title_ar: data.features_title_ar || "",
-          features_subtitle: data.features_subtitle || "",
-          features_subtitle_ar: data.features_subtitle_ar || "",
-          features_description: data.features_description || "",
-          features_description_ar: data.features_description_ar || "",
-          work_title: data.work_title || "",
-          work_title_ar: data.work_title_ar || "",
           testimonial_title: data.testimonial_title || "",
           testimonial_title_ar: data.testimonial_title_ar || "",
           brand_title: data.brand_title || "",
           brand_title_ar: data.brand_title_ar || "",
           cta_title: data.cta_title || "",
           cta_title_ar: data.cta_title_ar || "",
+          cta_media_path: data.cta_media_path || "",
           cta_description: data.cta_description || "",
           cta_description_ar: data.cta_description_ar || "",
           faq_title: data.faq_title || "",
@@ -110,37 +92,13 @@ export default function HomeCmsForm() {
   const onSubmit = async (data: HomeCmsFormData) => {
     try {
       setLoading(true);
-      const payload = {
-        discover_title: data.discover_title,
-        discover_title_ar: data.discover_title_ar,
-        residential_title: data.residential_title,
-        residential_title_ar: data.residential_title_ar,
-        home_space_title: data.home_space_title,
-        home_space_title_ar: data.home_space_title_ar,
-        project_title: data.project_title,
-        project_title_ar: data.project_title_ar,
-        features_title: data.features_title,
-        features_title_ar: data.features_title_ar,
-        features_subtitle: data.features_subtitle,
-        features_subtitle_ar: data.features_subtitle_ar,
-        features_description: data.features_description,
-        features_description_ar: data.features_description_ar,
-        work_title: data.work_title,
-        work_title_ar: data.work_title_ar,
-        testimonial_title: data.testimonial_title,
-        testimonial_title_ar: data.testimonial_title_ar,
-        brand_title: data.brand_title,
-        brand_title_ar: data.brand_title_ar,
-        cta_title: data.cta_title,
-        cta_title_ar: data.cta_title_ar,
-        cta_description: data.cta_description,
-        cta_description_ar: data.cta_description_ar,
-        faq_title: data.faq_title,
-        faq_title_ar: data.faq_title_ar,
-        premium_title: data.premium_title,
-        premium_title_ar: data.premium_title_ar,
-        premium_description: data.premium_description,
-        premium_description_ar: data.premium_description_ar,
+      const payload = new FormData();
+      const { cta_media_path, ...textFields } = data;
+      Object.entries(textFields).forEach(([key, value]) => payload.append(key, value ?? ""));
+      if (cta_media_path instanceof File) {
+        payload.append("cta_media_path", cta_media_path);
+      } else if (typeof cta_media_path === "string" && cta_media_path) {
+        payload.append("cta_media_path", cta_media_path);
       }
       const response = await saveHomeCms(payload, recordId ?? 1);
       if (response.data?.id) {
@@ -221,28 +179,6 @@ export default function HomeCmsForm() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Home Space Section</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormTextField
-                  form={form}
-                  name="home_space_title"
-                  label="Home Space Title"
-                  placeholder="Enter home space title"
-                />
-                <FormTextField
-                  form={form}
-                  name="home_space_title_ar"
-                  label="Home Space Title (Arabic)"
-                  placeholder="أدخل عنوان مساحة المنزل"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
               <CardTitle>Projects Section</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -258,68 +194,6 @@ export default function HomeCmsForm() {
                   name="project_title_ar"
                   label="Project Title (Arabic)"
                   placeholder="أدخل عنوان المشروع"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Features Section</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormTextField
-                  form={form}
-                  name="features_title"
-                  label="Features Title"
-                  placeholder="Enter features title"
-                />
-                <FormTextField
-                  form={form}
-                  name="features_title_ar"
-                  label="Features Title (Arabic)"
-                  placeholder="أدخل عنوان المميزات"
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormTextField
-                  form={form}
-                  name="features_subtitle"
-                  label="Features Subtitle"
-                  placeholder="Enter features subtitle"
-                />
-                <FormTextField
-                  form={form}
-                  name="features_subtitle_ar"
-                  label="Features Subtitle (Arabic)"
-                  placeholder="أدخل العنوان الفرعي للمميزات"
-                />
-              </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormRichTextField form={form} name="features_description" label="Features Description" placeholder="Enter features description" />
-                <FormRichTextField form={form} name="features_description_ar" label="Features Description (Arabic)" placeholder="أدخل وصف المميزات" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Work Section</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormTextField
-                  form={form}
-                  name="work_title"
-                  label="Work Title"
-                  placeholder="Enter work title"
-                />
-                <FormTextField
-                  form={form}
-                  name="work_title_ar"
-                  label="Work Title (Arabic)"
-                  placeholder="أدخل عنوان العمل"
                 />
               </div>
             </CardContent>
@@ -388,6 +262,14 @@ export default function HomeCmsForm() {
                   placeholder="أدخل عنوان CTA"
                 />
               </div>
+              <FormFileUploadField
+                form={form}
+                name="cta_media_path"
+                label="CTA Image"
+                required
+                placeholder="Upload CTA image"
+                accept="image/*"
+              />
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormRichTextField form={form} name="cta_description" label="CTA Description" placeholder="Enter CTA description" />
                 <FormRichTextField form={form} name="cta_description_ar" label="CTA Description (Arabic)" placeholder="أدخل وصف CTA" />

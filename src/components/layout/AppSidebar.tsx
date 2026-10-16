@@ -154,6 +154,9 @@ const servicesSection = [
   { title: "Process Steps", url: "/process-steps", icon: ListChecks },
 ];
 const commonItemsSection = [
+  { title: "Content", url: "/common-content", icon: FileText },
+  { title: "Our Features", url: "/common-features", icon: Sparkles },
+  { title: "How It Works", url: "/common-how-it-works", icon: ListChecks },
   { title: "Milestones", url: "/milestones", icon: Layers },
 ];
 const adminSection = [{ title: "Users", url: "/users", icon: Users }];
@@ -220,7 +223,11 @@ export function AppSidebar() {
       setOpenSection("contact");
     }
     // Common Items section
-    else if (path.startsWith("/milestones")) {
+    else if (
+      ["/milestones", "/common-content", "/common-features", "/common-how-it-works"].some(
+        (route) => path.startsWith(route),
+      )
+    ) {
       setOpenSection("common-items");
     }
     // Common sections

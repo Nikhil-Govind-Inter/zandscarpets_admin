@@ -17,7 +17,9 @@ export interface HomeBannerRecord {
   title_ar: string;
   description: string;
   description_ar: string;
+  media_type: "image" | "video";
   media_path: string | null;
+  thumbnail: string | null;
   media_alt: string | null;
   media_alt_ar: string | null;
   sort_order: number;

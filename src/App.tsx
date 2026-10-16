@@ -176,6 +176,13 @@ const AboutIndustriesForm = React.lazy(() => import("./pages/about/AboutIndustri
 const MessagesList = React.lazy(() => import("./pages/about/MessagesList"));
 const MessagesForm = React.lazy(() => import("./pages/about/MessagesForm"));
 
+// Common Items — Content, Our Features, How It Works
+const CommonContentForm = React.lazy(() => import("./pages/common/CommonContentForm"));
+const CommonFeaturesList = React.lazy(() => import("./pages/common/CommonFeaturesList"));
+const CommonFeaturesForm = React.lazy(() => import("./pages/common/CommonFeaturesForm"));
+const CommonHowItWorksList = React.lazy(() => import("./pages/common/CommonHowItWorksList"));
+const CommonHowItWorksForm = React.lazy(() => import("./pages/common/CommonHowItWorksForm"));
+
 // Common Items — Milestones
 const CommonMilestonesList = React.lazy(
   () => import("./pages/common/CommonMilestonesList"),
@@ -308,6 +315,19 @@ const App = () => (
               <Route path="/about-messages" element={<MessagesList />} />
               <Route path="/about-messages/new" element={<MessagesForm />} />
               <Route path="/about-messages/:id/edit" element={<MessagesForm />} />
+
+              {/* Common Items — Content */}
+              <Route path="/common-content" element={<CommonContentForm />} />
+
+              {/* Common Items — Our Features */}
+              <Route path="/common-features" element={<CommonFeaturesList />} />
+              <Route path="/common-features/new" element={<CommonFeaturesForm />} />
+              <Route path="/common-features/:id/edit" element={<CommonFeaturesForm />} />
+
+              {/* Common Items — How It Works */}
+              <Route path="/common-how-it-works" element={<CommonHowItWorksList />} />
+              <Route path="/common-how-it-works/new" element={<CommonHowItWorksForm />} />
+              <Route path="/common-how-it-works/:id/edit" element={<CommonHowItWorksForm />} />
 
               {/* Common Items — Milestones */}
               <Route path="/milestones" element={<CommonMilestonesList />} />

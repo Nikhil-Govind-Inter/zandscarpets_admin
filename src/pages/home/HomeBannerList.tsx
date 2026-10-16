@@ -90,10 +90,14 @@ export default function HomeBannerList() {
     },
     {
       accessorKey: "media_path",
-      header: "Image",
+      header: "Media",
       cell: ({ row }) => (
         <MediaThumbnail
-          path={row.getValue("media_path")}
+          path={
+            row.original.media_type === "video"
+              ? row.original.thumbnail
+              : row.original.media_path
+          }
           alt={row.original.media_alt}
         />
       ),

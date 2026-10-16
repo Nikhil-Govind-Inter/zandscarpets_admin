@@ -1,4 +1,4 @@
-import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
+import { updateCmsStatus, updateCmsSortOrder, updateCmsHome } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Common Items > Milestones — backed by `/api/backend/common/milestones`. File upload via
@@ -152,3 +152,7 @@ export const toggleCommonMilestoneStatus = (item: { id?: number | string }, isAc
 
 export const updateCommonMilestoneSortOrder = (item: { id?: number | string }, sortOrder: number) =>
   updateCmsSortOrder("common-milestones", item.id!, sortOrder);
+
+// Toggles show_in_home via the dedicated CMS PATCH route (same pattern as status).
+export const toggleCommonMilestoneHome = (item: { id?: number | string }, showInHome: boolean) =>
+  updateCmsHome("common-milestones", item.id!, showInHome);
