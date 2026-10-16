@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
@@ -8,6 +8,16 @@ import SortOrderCell from "@/components/common/SortOrderCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
 import MediaThumbnail from "@/components/common/MediaThumbnail";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -22,6 +32,7 @@ import {
   fetchProductList,
   deleteProduct,
   toggleProductStatus,
+  toggleProductHome,
   updateProductSortOrder,
   ProductRecord,
   ProductFilters,
@@ -39,6 +50,14 @@ const STATUS_OPTIONS = [
   { value: "inactive", label: "Inactive" },
 ];
 
+type HomeFilter = "all" | "yes" | "no";
+
+const HOME_OPTIONS = [
+  { value: "all", label: "All home" },
+  { value: "yes", label: "In home" },
+  { value: "no", label: "Not in home" },
+];
+
 export default function ProductsList() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,9 +68,11 @@ export default function ProductsList() {
   const { filters: listFilters, setFilter, reset: resetListFilters } = useUrlFilters({
     product_category_id: ALL,
     status: ALL,
+    home: ALL,
   });
   const categoryFilter = listFilters.product_category_id;
   const statusFilter = listFilters.status as StatusFilter;
+  const homeFilter = listFilters.home as HomeFilter;
   const [categoryOptions, setCategoryOptions] = useState<ComboboxOption[]>([]);
 
   useEffect(() => {
@@ -66,8 +87,9 @@ export default function ProductsList() {
     () => ({
       product_category_id: categoryFilter === ALL ? undefined : Number(categoryFilter),
       status: statusFilter === "all" ? undefined : statusFilter,
+      show_in_home: homeFilter === ALL ? undefined : homeFilter === "yes",
     }),
-    [categoryFilter, statusFilter],
+    [categoryFilter, statusFilter, homeFilter],
   );
 
   const {
@@ -89,7 +111,7 @@ export default function ProductsList() {
   } = usePaginatedList<ProductRecord, ProductFilters>(fetchProductList, 10, filters);
 
   const hasActiveFilters =
-    categoryFilter !== ALL || statusFilter !== "all" || searchInput !== "";
+    categoryFilter !== ALL || statusFilter !== "all" || homeFilter !== ALL || searchInput !== "";
 
   const resetAll = () => {
     resetListFilters();
@@ -104,6 +126,35 @@ export default function ProductsList() {
     toggleStatus: toggleProductStatus,
     label: "Product",
   });
+
+  // Home toggle — confirm -> API -> optimistic row update -> toast.
+  const [homeToggleItem, setHomeToggleItem] = useState<{
+    item: ProductRecord;
+    newValue: boolean;
+  } | null>(null);
+  const homeActionRef = useRef<HTMLButtonElement>(null);
+
+  const confirmHomeToggle = async () => {
+    if (!homeToggleItem) return;
+    const { item, newValue } = homeToggleItem;
+    try {
+      await toggleProductHome(item, newValue);
+      setItems((prev) => prev.map((p) => (p.id === item.id ? { ...p, show_in_home: newValue } : p)));
+      toast({
+        title: "Success",
+        description: `Product ${newValue ? "added to" : "removed from"} home page successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof ApiError ? error.message : "Failed to update home page visibility",
+        variant: "destructive",
+      });
+    } finally {
+      setHomeToggleItem(null);
+    }
+  };
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;
@@ -222,6 +273,18 @@ export default function ProductsList() {
       },
     },
     {
+      accessorKey: "show_in_home",
+      header: "Home Visibility",
+      cell: ({ row }) => (
+        <StatusToggleCell
+          status={!!row.original.show_in_home}
+          onCheckedChange={(checked) =>
+            setHomeToggleItem({ item: row.original, newValue: checked })
+          }
+        />
+      ),
+    },
+    {
       id: "variants",
       header: "Variants",
       cell: ({ row }) => {
@@ -315,6 +378,15 @@ export default function ProductsList() {
               searchPlaceholder="Search status..."
               onChange={(value) => setFilter("status", value)}
             />
+            <Combobox
+              maxVisibleItems={3}
+              autoWidth
+              value={homeFilter}
+              options={HOME_OPTIONS}
+              placeholder="All home"
+              searchPlaceholder="Search home..."
+              onChange={(value) => setFilter("home", value || ALL)}
+            />
             <Button
               variant="outline"
               size="sm"
@@ -345,6 +417,32 @@ export default function ProductsList() {
         confirmDelete={confirmDelete}
         itemLabel="Product"
       />
+
+      <AlertDialog open={!!homeToggleItem} onOpenChange={() => setHomeToggleItem(null)}>
+        <AlertDialogContent
+          onOpenAutoFocus={(e) => {
+            e.preventDefault();
+            homeActionRef.current?.focus();
+          }}
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Home Page Change</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to{" "}
+              {homeToggleItem?.newValue
+                ? "show this product on the home page"
+                : "remove this product from the home page"}
+              ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction ref={homeActionRef} onClick={confirmHomeToggle}>
+              {homeToggleItem?.newValue ? "Show in Home" : "Remove from Home"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <StatusChangeDialogue
         statusToggleItem={statusToggleItem}

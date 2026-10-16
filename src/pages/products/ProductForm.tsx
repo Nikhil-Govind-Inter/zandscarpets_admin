@@ -132,6 +132,7 @@ export default function ProductForm() {
       sort_order: "1",
       is_active: true,
       list_in_navbar: true,
+      show_in_home: false,
     },
   });
 
@@ -205,6 +206,7 @@ export default function ProductForm() {
         sort_order: (data.sort_order ?? 1).toString(),
         is_active: data.is_active ?? true,
         list_in_navbar: data.list_in_navbar ?? true,
+        show_in_home: data.show_in_home ?? false,
       });
 
       const labels = data.labels || [];
@@ -241,7 +243,7 @@ export default function ProductForm() {
   };
 
   const buildFormData = (data: ProductFormData) => {
-    const { main_media_path, list_media_path, price, sort_order, is_active, list_in_navbar, ...text } =
+    const { main_media_path, list_media_path, price, sort_order, is_active, list_in_navbar, show_in_home, ...text } =
       data;
 
     const formData = new FormData();
@@ -251,6 +253,7 @@ export default function ProductForm() {
     formData.append("sort_order", (sort_order || "1").toString());
     formData.append("is_active", (is_active ?? true).toString());
     formData.append("list_in_navbar", (list_in_navbar ?? true).toString());
+    formData.append("show_in_home", (show_in_home ?? false).toString());
 
     // A File uploads a new file; a string sends back the existing path unchanged.
     [
@@ -644,6 +647,23 @@ export default function ProductForm() {
                         <FormLabel className="text-base">List in Navbar</FormLabel>
                         <p className="text-sm text-muted-foreground">
                           Show this product in the site navigation.
+                        </p>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="show_in_home"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Show in Home Page</FormLabel>
+                        <p className="text-sm text-muted-foreground">
+                          Show this product on the home page.
                         </p>
                       </div>
                       <FormControl>

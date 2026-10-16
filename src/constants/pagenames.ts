@@ -7,6 +7,7 @@ export interface PageName {
 }
 
 export const PAGE_NAMES: PageName[] = [
+  { label: "Home", slug: "home" },
   { label: "About", slug: "about" },
   { label: "Services", slug: "services" },
   { label: "Contact", slug: "contact" },
