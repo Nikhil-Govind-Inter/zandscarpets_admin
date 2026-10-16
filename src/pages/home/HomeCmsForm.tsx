@@ -29,6 +29,8 @@ const defaultValues: HomeCmsFormData = {
   cta_description_ar: "",
   faq_title: "",
   faq_title_ar: "",
+  space_section_title: "",
+  space_section_title_ar: "",
   premium_title: "",
   premium_title_ar: "",
   premium_description: "",
@@ -76,6 +78,8 @@ export default function HomeCmsForm() {
           cta_description_ar: data.cta_description_ar || "",
           faq_title: data.faq_title || "",
           faq_title_ar: data.faq_title_ar || "",
+          space_section_title: data.space_section_title || "",
+          space_section_title_ar: data.space_section_title_ar || "",
           premium_title: data.premium_title || "",
           premium_title_ar: data.premium_title_ar || "",
           premium_description: data.premium_description || "",
@@ -249,13 +253,13 @@ export default function HomeCmsForm() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormTextField
+                <FormRichTextField
                   form={form}
                   name="cta_title"
                   label="CTA Title"
                   placeholder="Enter CTA title"
                 />
-                <FormTextField
+                <FormRichTextField
                   form={form}
                   name="cta_title_ar"
                   label="CTA Title (Arabic)"
@@ -294,6 +298,28 @@ export default function HomeCmsForm() {
                   name="faq_title_ar"
                   label="FAQ Title (Arabic)"
                   placeholder="أدخل عنوان الأسئلة الشائعة"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Space Section</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormTextField
+                  form={form}
+                  name="space_section_title"
+                  label="Space Section Title"
+                  placeholder="Enter space section title"
+                />
+                <FormTextField
+                  form={form}
+                  name="space_section_title_ar"
+                  label="Space Section Title (Arabic)"
+                  placeholder="أدخل عنوان قسم المساحات"
                 />
               </div>
             </CardContent>

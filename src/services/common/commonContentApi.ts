@@ -1,6 +1,6 @@
 import { apiFetch } from "@/lib/apiClient";
 
-// Common Items > Content — backed by `/api/backend/common/content`. Singleton resource (findOne/update-in-place), JSON body.
+// Common Items > Content — backed by `/api/backend/common/content`. Singleton resource (findOne/update-in-place), multipart FormData body (media uploads).
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const COMMON_CONTENT_URL = `${API_BASE_URL}/common/content`;
@@ -18,6 +18,11 @@ export interface CommonContent {
   button_link: string;
   how_section_title: string;
   how_section_title_ar: string;
+  how_section_bg_title?: string | null;
+  how_section_bg_title_ar?: string | null;
+  how_section_media_type: "image" | "video";
+  how_section_media_path: string | null;
+  how_section_thumbnail: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -83,13 +88,12 @@ export const fetchCommonContent = async (): Promise<ApiEnvelope<CommonContent | 
 // Create or update the Common content singleton row. `id` defaults to 1, mirroring
 // siteSettingsApi.ts's `PUT .../1` — the backend ignores the id and does a findOne().
 export const saveCommonContent = async (
-  data: Omit<CommonContent, "id" | "createdAt" | "updatedAt">,
+  data: FormData,
   id: number = 1,
 ): Promise<ApiEnvelope<CommonContent>> => {
   const response = await apiFetch(`${COMMON_CONTENT_URL}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: data,
   });
   return parseEnvelope<CommonContent>(response);
 };

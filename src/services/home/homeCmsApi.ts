@@ -26,6 +26,8 @@ export interface HomeCms {
   cta_description_ar?: string;
   faq_title: string;
   faq_title_ar?: string;
+  space_section_title: string;
+  space_section_title_ar?: string;
   premium_title: string;
   premium_title_ar?: string;
   premium_description: string;

@@ -5,11 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save } from "lucide-react";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Save, Loader2 } from "lucide-react";
+import { captureVideoThumbnail } from "@/utils/videoThumbnail";
 import { useToast } from "@/hooks/use-toast";
-import { FormTextField, FormTextareaField } from "@/components/forms/FormFieldComponents";
+import { FormTextField, FormTextareaField, FormFileUploadField } from "@/components/forms/FormFieldComponents";
 import { commonContentSchema, CommonContentFormData } from "@/schemas/commonContentSchema";
-import { fetchCommonContent, saveCommonContent, CommonContent } from "@/services/common/commonContentApi";
+import { fetchCommonContent, saveCommonContent } from "@/services/common/commonContentApi";
 
 const defaultValues: CommonContentFormData = {
   why_choose_title: "",
@@ -23,6 +26,11 @@ const defaultValues: CommonContentFormData = {
   button_link: "",
   how_section_title: "",
   how_section_title_ar: "",
+  how_section_bg_title: "",
+  how_section_bg_title_ar: "",
+  how_section_media_type: "image",
+  how_section_media_path: "",
+  how_section_thumbnail: "",
 };
 
 export default function CommonContentForm() {
@@ -35,6 +43,35 @@ export default function CommonContentForm() {
     resolver: zodResolver(commonContentSchema),
     defaultValues,
   });
+
+  const [generatingThumbnail, setGeneratingThumbnail] = useState(false);
+  const mediaType = form.watch("how_section_media_type");
+  const mediaValue = form.watch("how_section_media_path");
+
+  // Auto-generate a thumbnail whenever a new video file is picked; the user
+  // can still replace it through the thumbnail upload.
+  useEffect(() => {
+    if (mediaType !== "video" || !(mediaValue instanceof File)) return;
+    let cancelled = false;
+    setGeneratingThumbnail(true);
+    captureVideoThumbnail(mediaValue)
+      .then((thumb) => {
+        if (!cancelled) form.setValue("how_section_thumbnail", thumb, { shouldValidate: true });
+      })
+      .catch(() => {
+        toast({
+          title: "Thumbnail",
+          description: "Couldn't auto-generate a thumbnail. Please upload one.",
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        if (!cancelled) setGeneratingThumbnail(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mediaType, mediaValue, form, toast]);
 
   useEffect(() => {
     const load = async () => {
@@ -55,6 +92,11 @@ export default function CommonContentForm() {
             button_link: data.button_link || "",
             how_section_title: data.how_section_title || "",
             how_section_title_ar: data.how_section_title_ar || "",
+            how_section_bg_title: data.how_section_bg_title || "",
+            how_section_bg_title_ar: data.how_section_bg_title_ar || "",
+            how_section_media_type: data.how_section_media_type || "image",
+            how_section_media_path: data.how_section_media_path || "",
+            how_section_thumbnail: data.how_section_thumbnail || "",
           });
         }
       } catch {
@@ -70,7 +112,24 @@ export default function CommonContentForm() {
   const onSubmit = async (data: CommonContentFormData) => {
     try {
       setLoading(true);
-      const response = await saveCommonContent(data as Omit<CommonContent, "id" | "createdAt" | "updatedAt">, recordId ?? 1);
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === "how_section_media_path" || key === "how_section_thumbnail") return;
+        formData.append(key, value as string);
+      });
+      if (data.how_section_media_path instanceof File) {
+        formData.append("how_section_media_path", data.how_section_media_path);
+      } else if (data.how_section_media_path) {
+        formData.append("how_section_media_path", data.how_section_media_path);
+      }
+      if (data.how_section_media_type === "video") {
+        if (data.how_section_thumbnail instanceof File) {
+          formData.append("how_section_thumbnail", data.how_section_thumbnail);
+        } else if (data.how_section_thumbnail) {
+          formData.append("how_section_thumbnail", data.how_section_thumbnail);
+        }
+      }
+      const response = await saveCommonContent(formData, recordId ?? 1);
       if (response.data?.id) setRecordId(response.data.id);
       toast({ title: "Success", description: "Content saved successfully" });
     } catch (error) {
@@ -137,6 +196,78 @@ export default function CommonContentForm() {
                 <FormTextField form={form} name="how_section_title" label="How Section Title" placeholder="Enter how section title" />
                 <FormTextField form={form} name="how_section_title_ar" label="How Section Title (Arabic)" placeholder="أدخل عنوان قسم كيف يعمل" />
               </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormTextField form={form} name="how_section_bg_title" label="How Section Background Title" placeholder="e.g. OUR PROCESS (faint text behind the heading)" />
+                <FormTextField form={form} name="how_section_bg_title_ar" label="How Section Background Title (Arabic)" placeholder="مثال: عمليتنا" />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="how_section_media_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Media Type</FormLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        // Existing file belongs to the previous type; force a re-upload.
+                        form.setValue("how_section_media_path", "");
+                        form.setValue("how_section_thumbnail", "");
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select media type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="image">Image</SelectItem>
+                        <SelectItem value="video">Video</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {mediaType === "video" ? (
+                <>
+                  <FormFileUploadField
+                    key="video"
+                    form={form}
+                    name="how_section_media_path"
+                    label="Video"
+                    placeholder="Upload video"
+                    accept="video/mp4,video/quicktime,video/webm"
+                    maxVideoSize={10 * 1024 * 1024}
+                  />
+                  <div className="space-y-2">
+                    {generatingThumbnail && (
+                      <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" /> Generating thumbnail...
+                      </p>
+                    )}
+                    <FormFileUploadField
+                      key="thumbnail"
+                      form={form}
+                      name="how_section_thumbnail"
+                      label="Thumbnail"
+                      placeholder="Auto-generated from the video — upload to replace"
+                      accept="image/*"
+                    />
+                  </div>
+                </>
+              ) : (
+                <FormFileUploadField
+                  key="image"
+                  form={form}
+                  name="how_section_media_path"
+                  label="Image"
+                  placeholder="Upload image"
+                  accept="image/*"
+                />
+              )}
             </CardContent>
           </Card>
 
