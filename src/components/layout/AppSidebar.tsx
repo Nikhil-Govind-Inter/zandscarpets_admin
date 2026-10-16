@@ -71,6 +71,7 @@ const homeSection = [
   { title: "Banner", url: "/home-banner", icon: Image },
   { title: "Brands", url: "/home-brands", icon: RadioTower },
   { title: "Testimonials", url: "/home-testimonials", icon: Monitor },
+  { title: "Side Images", url: "/home-side-images", icon: SlidersHorizontal },
 ];
 
 const aboutSection = [

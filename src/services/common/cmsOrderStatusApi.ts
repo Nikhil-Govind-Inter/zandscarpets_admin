@@ -19,6 +19,7 @@ export type CmsResource =
   | "home-banner"
   | "home-brands"
   | "home-testimonials"
+  | "home-side-images"
   | "core-values"
   | "history"
   | "about-industries"

@@ -145,6 +145,10 @@ const HomeCmsForm = React.lazy(() => import("./pages/home/HomeCmsForm"));
 const HomeTestimonialsList = React.lazy(() => import("./pages/home/HomeTestimonialsList"));
 const HomeTestimonialsForm = React.lazy(() => import("./pages/home/HomeTestimonialsForm"));
 
+// Home - Side Images
+const HomeSideImagesList = React.lazy(() => import("./pages/home/HomeSideImagesList"));
+const HomeSideImagesForm = React.lazy(() => import("./pages/home/HomeSideImagesForm"));
+
 // Home — Banner
 const HomeBannerList = React.lazy(() => import("./pages/home/HomeBannerList"));
 const HomeBannerForm = React.lazy(() => import("./pages/home/HomeBannerForm"));
@@ -273,6 +277,11 @@ const App = () => (
               <Route path="/home-testimonials" element={<HomeTestimonialsList />} />
               <Route path="/home-testimonials/new" element={<HomeTestimonialsForm />} />
               <Route path="/home-testimonials/:id/edit" element={<HomeTestimonialsForm />} />
+
+              {/* Home Side Images */}
+              <Route path="/home-side-images" element={<HomeSideImagesList />} />
+              <Route path="/home-side-images/new" element={<HomeSideImagesForm />} />
+              <Route path="/home-side-images/:id/edit" element={<HomeSideImagesForm />} />
 
               {/* About CMS */}
               <Route path="/about-cms" element={<AboutCmsForm />} />
