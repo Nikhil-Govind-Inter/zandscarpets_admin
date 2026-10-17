@@ -250,6 +250,7 @@ export default function MessagesForm() {
                 name="media_path"
                 label="Profile"
                 placeholder="Upload profile"
+                description="Better to upload an image with no background (a cut-out / transparent PNG)."
                 accept="image/*"
               />
 

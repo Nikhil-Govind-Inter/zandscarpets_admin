@@ -223,6 +223,7 @@ export function FormFileUploadField<T extends FieldValues>({
   maxVideoSize,
   preview = true,
   required,
+  description,
   recommendedDimensions,
   validateImage,
 }: FormFileUploadFieldProps<T>) {
@@ -250,6 +251,9 @@ export function FormFileUploadField<T extends FieldValues>({
               validateImage={validateImage}
             />
           </FormControl>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
           <FormMessage />
         </FormItem>
       )}
