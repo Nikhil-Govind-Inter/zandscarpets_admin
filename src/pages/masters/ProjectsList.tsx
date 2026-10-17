@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
@@ -10,6 +10,16 @@ import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Tags, RotateCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
@@ -20,6 +30,7 @@ import {
   fetchProjectsList,
   deleteProject,
   toggleProjectStatus,
+  toggleProjectHome,
   updateProjectSortOrder,
   ProjectRecord,
   ProjectFilters,
@@ -30,6 +41,14 @@ import MediaThumbnail from "@/components/common/MediaThumbnail";
 import { STATUS_OPTIONS, StatusFilter } from "@/constants/filterOptions";
 
 const ALL = "all";
+
+type HomeFilter = "all" | "yes" | "no";
+
+const HOME_OPTIONS = [
+  { value: "all", label: "All home" },
+  { value: "yes", label: "In home" },
+  { value: "no", label: "Not in home" },
+];
 
 export default function ProjectsList() {
   const navigate = useNavigate();
@@ -44,9 +63,11 @@ export default function ProjectsList() {
   } = useUrlFilters({
     industry_id: ALL,
     status: ALL,
+    home: ALL,
   });
   const industryFilter = listFilters.industry_id;
   const statusFilter = listFilters.status as StatusFilter;
+  const homeFilter = listFilters.home as HomeFilter;
 
   useEffect(() => {
     fetchActiveIndustries()
@@ -58,8 +79,9 @@ export default function ProjectsList() {
     () => ({
       industry_id: industryFilter === ALL ? undefined : Number(industryFilter),
       status: statusFilter === ALL ? undefined : statusFilter,
+      show_in_home: homeFilter === ALL ? undefined : homeFilter === "yes",
     }),
-    [industryFilter, statusFilter],
+    [industryFilter, statusFilter, homeFilter],
   );
 
   const {
@@ -80,7 +102,7 @@ export default function ProjectsList() {
     refetch,
   } = usePaginatedList<ProjectRecord, ProjectFilters>(fetchProjectsList, 10, filters);
 
-  const hasActiveFilters = industryFilter !== ALL || statusFilter !== ALL || searchInput !== "";
+  const hasActiveFilters = industryFilter !== ALL || statusFilter !== ALL || homeFilter !== ALL || searchInput !== "";
 
   const resetAll = () => {
     resetListFilters();
@@ -95,6 +117,34 @@ export default function ProjectsList() {
     toggleStatus: toggleProjectStatus,
     label: "Project",
   });
+
+  // Home toggle — confirm -> API -> optimistic row update -> toast.
+  const [homeToggleItem, setHomeToggleItem] = useState<{
+    item: ProjectRecord;
+    newValue: boolean;
+  } | null>(null);
+  const homeActionRef = useRef<HTMLButtonElement>(null);
+
+  const confirmHomeToggle = async () => {
+    if (!homeToggleItem) return;
+    const { item, newValue } = homeToggleItem;
+    try {
+      await toggleProjectHome(item, newValue);
+      setProjects((prev) => prev.map((p) => (p.id === item.id ? { ...p, is_show_in_home: newValue } : p)));
+      toast({
+        title: "Success",
+        description: `Project ${newValue ? "added to" : "removed from"} home page successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof ApiError ? error.message : "Failed to update home page visibility",
+        variant: "destructive",
+      });
+    } finally {
+      setHomeToggleItem(null);
+    }
+  };
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;
@@ -173,6 +223,16 @@ export default function ProjectsList() {
       },
     },
     {
+      accessorKey: "is_show_in_home",
+      header: "Home Visibility",
+      cell: ({ row }) => (
+        <StatusToggleCell
+          status={!!row.original.is_show_in_home}
+          onCheckedChange={(checked) => setHomeToggleItem({ item: row.original, newValue: checked })}
+        />
+      ),
+    },
+    {
       accessorKey: "createdAt",
       header: "Created At",
       cell: ({ row }) => (
@@ -235,6 +295,15 @@ export default function ProjectsList() {
               searchPlaceholder="Search status..."
               onChange={(value) => setFilter("status", value)}
             />
+            <Combobox
+              maxVisibleItems={3}
+              autoWidth
+              value={homeFilter}
+              options={HOME_OPTIONS}
+              placeholder="All home"
+              searchPlaceholder="Search home..."
+              onChange={(value) => setFilter("home", value || ALL)}
+            />
             <Button variant="outline" size="sm" onClick={resetAll} disabled={!hasActiveFilters}>
               <RotateCcw className="mr-2 h-4 w-4" />
               Reset
@@ -255,6 +324,32 @@ export default function ProjectsList() {
       />
 
       <DeleteDialogue deleteItemId={deleteItemId} setDeleteItemId={setDeleteItemId} confirmDelete={confirmDelete} />
+
+      <AlertDialog open={!!homeToggleItem} onOpenChange={() => setHomeToggleItem(null)}>
+        <AlertDialogContent
+          onOpenAutoFocus={(e) => {
+            e.preventDefault();
+            homeActionRef.current?.focus();
+          }}
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Home Page Change</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to{" "}
+              {homeToggleItem?.newValue
+                ? "show this project on the home page"
+                : "remove this project from the home page"}
+              ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction ref={homeActionRef} onClick={confirmHomeToggle}>
+              {homeToggleItem?.newValue ? "Show in Home" : "Remove from Home"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <StatusChangeDialogue
         statusToggleItem={statusToggleItem}

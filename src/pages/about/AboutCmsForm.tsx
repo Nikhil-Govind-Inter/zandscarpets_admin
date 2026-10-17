@@ -45,24 +45,13 @@ const defaultValues: AboutCmsFormData = {
   message_title_ar: "",
   message_subtitle: "",
   message_subtitle_ar: "",
-  work_title: "",
-  work_title_ar: "",
-  work_media_path: "",
-  work_media_alt: "",
-  work_media_alt_ar: "",
   about_core_title: "",
   about_core_title_ar: "",
   about_core_description: "",
   about_core_description_ar: "",
-  about_code_media_path: "",
-  about_code_media_alt: "",
-  about_code_media_alt_ar: "",
-  features_title: "",
-  features_title_ar: "",
-  features_sub_title: "",
-  features_sub_title_ar: "",
-  features_description: "",
-  features_description_ar: "",
+  about_core_media_path: "",
+  about_core_media_alt: "",
+  about_core_media_alt_ar: "",
   industry_title: "",
   industry_title_ar: "",
   industry_description: "",
@@ -121,24 +110,13 @@ export default function AboutCmsForm() {
           message_title_ar: data.message_title_ar || "",
           message_subtitle: data.message_subtitle || "",
           message_subtitle_ar: data.message_subtitle_ar || "",
-          work_title: data.work_title || "",
-          work_title_ar: data.work_title_ar || "",
-          work_media_path: data.work_media_path || "",
-          work_media_alt: data.work_media_alt || "",
-          work_media_alt_ar: data.work_media_alt_ar || "",
           about_core_title: data.about_core_title || "",
           about_core_title_ar: data.about_core_title_ar || "",
           about_core_description: data.about_core_description || "",
           about_core_description_ar: data.about_core_description_ar || "",
-          about_code_media_path: data.about_code_media_path || "",
-          about_code_media_alt: data.about_code_media_alt || "",
-          about_code_media_alt_ar: data.about_code_media_alt_ar || "",
-          features_title: data.features_title || "",
-          features_title_ar: data.features_title_ar || "",
-          features_sub_title: data.features_sub_title || "",
-          features_sub_title_ar: data.features_sub_title_ar || "",
-          features_description: data.features_description || "",
-          features_description_ar: data.features_description_ar || "",
+          about_core_media_path: data.about_core_media_path || "",
+          about_core_media_alt: data.about_core_media_alt || "",
+          about_core_media_alt_ar: data.about_core_media_alt_ar || "",
           industry_title: data.industry_title || "",
           industry_title_ar: data.industry_title_ar || "",
           industry_description: data.industry_description || "",
@@ -198,10 +176,6 @@ export default function AboutCmsForm() {
       formData.append("message_title_ar", data.message_title_ar || "");
       formData.append("message_subtitle", data.message_subtitle);
       formData.append("message_subtitle_ar", data.message_subtitle_ar || "");
-      formData.append("work_title", data.work_title);
-      formData.append("work_title_ar", data.work_title_ar || "");
-      formData.append("work_media_alt", data.work_media_alt || "");
-      formData.append("work_media_alt_ar", data.work_media_alt_ar || "");
       formData.append("about_core_title", data.about_core_title);
       formData.append("about_core_title_ar", data.about_core_title_ar || "");
       formData.append("about_core_description", data.about_core_description);
@@ -209,22 +183,10 @@ export default function AboutCmsForm() {
         "about_core_description_ar",
         data.about_core_description_ar || "",
       );
-      formData.append("about_code_media_alt", data.about_code_media_alt || "");
+      formData.append("about_core_media_alt", data.about_core_media_alt || "");
       formData.append(
-        "about_code_media_alt_ar",
-        data.about_code_media_alt_ar || "",
-      );
-      formData.append("features_title", data.features_title);
-      formData.append("features_title_ar", data.features_title_ar || "");
-      formData.append("features_sub_title", data.features_sub_title);
-      formData.append(
-        "features_sub_title_ar",
-        data.features_sub_title_ar || "",
-      );
-      formData.append("features_description", data.features_description);
-      formData.append(
-        "features_description_ar",
-        data.features_description_ar || "",
+        "about_core_media_alt_ar",
+        data.about_core_media_alt_ar || "",
       );
       formData.append("industry_title", data.industry_title);
       formData.append("industry_title_ar", data.industry_title_ar || "");
@@ -240,8 +202,7 @@ export default function AboutCmsForm() {
       );
 
       appendFile(formData, "media_path", data.media_path);
-      appendFile(formData, "work_media_path", data.work_media_path);
-      appendFile(formData, "about_code_media_path", data.about_code_media_path);
+      appendFile(formData, "about_core_media_path", data.about_core_media_path);
       appendFile(formData, "industry_media_path", data.industry_media_path);
 
       const response = await saveAboutCms(formData, recordId ?? 1);
@@ -485,51 +446,6 @@ export default function AboutCmsForm() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Work Section</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
-                <FormTextField
-                  form={form}
-                  name="work_title"
-                  label="Work Title"
-                  placeholder="Enter work title"
-                />
-                <FormTextField
-                  form={form}
-                  name="work_title_ar"
-                  label="Work Title (Arabic)"
-                  placeholder="أدخل عنوان الأعمال"
-                />
-
-                <FormTextField
-                  form={form}
-                  name="work_media_alt"
-                  label="Video Alt Text"
-                  placeholder="Describe the media"
-                />
-                <FormTextField
-                  form={form}
-                  name="work_media_alt_ar"
-                  label="Video Alt Text (Arabic)"
-                  placeholder="وصف الفيديو"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <FormFileUploadField
-                  form={form}
-                  name="work_media_path"
-                  label="Video"
-                  placeholder="Upload video"
-                  accept="video/*"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
               <CardTitle>Core Values Section</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -562,13 +478,13 @@ export default function AboutCmsForm() {
 
                 <FormTextField
                   form={form}
-                  name="about_code_media_alt"
+                  name="about_core_media_alt"
                   label="Image Alt Text"
                   placeholder="Describe the media"
                 />
                 <FormTextField
                   form={form}
-                  name="about_code_media_alt_ar"
+                  name="about_core_media_alt_ar"
                   label="Image Alt Text (Arabic)"
                   placeholder="وصف الصورة"
                 />
@@ -577,58 +493,12 @@ export default function AboutCmsForm() {
               <div className="md:col-span-2">
                 <FormFileUploadField
                   form={form}
-                  name="about_code_media_path"
+                  name="about_core_media_path"
                   label="Image"
                   placeholder="Upload image"
                   accept="image/*"
                 />
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Features Section</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
-                <FormTextField
-                  form={form}
-                  name="features_title"
-                  label="Features Title"
-                  placeholder="Enter features title"
-                />
-                <FormTextField
-                  form={form}
-                  name="features_title_ar"
-                  label="Features Title (Arabic)"
-                  placeholder="أدخل عنوان المزايا"
-                />
-                <FormTextField
-                  form={form}
-                  name="features_sub_title"
-                  label="Features Subtitle"
-                  placeholder="Enter features subtitle"
-                />
-                <FormTextField
-                  form={form}
-                  name="features_sub_title_ar"
-                  label="Features Subtitle (Arabic)"
-                  placeholder="أدخل العنوان الفرعي للمزايا"
-                />
-              </div>
-              <FormRichTextField
-                form={form}
-                name="features_description"
-                label="Features Description"
-                placeholder="Enter features description"
-              />
-              <FormRichTextField
-                form={form}
-                name="features_description_ar"
-                label="Features Description (Arabic)"
-                placeholder="أدخل وصف المزايا"
-              />
             </CardContent>
           </Card>
 

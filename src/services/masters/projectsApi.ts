@@ -1,4 +1,4 @@
-import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
+import { updateCmsStatus, updateCmsSortOrder, updateCmsHome } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Masters > Projects — backed by `/api/backend/masters/projects`. File upload
@@ -118,6 +118,7 @@ export interface ProjectsListResponse {
 export interface ProjectFilters {
   industry_id?: number;
   status?: "active" | "inactive";
+  show_in_home?: boolean;
 }
 
 // Fetcher shape matches usePaginatedList's `Fetcher<T, F>` contract.
@@ -139,6 +140,7 @@ export const fetchProjectsList = async (
     params.append("industry_id", String(filters.industry_id));
   }
   if (filters?.status) params.append("status", filters.status);
+  if (filters?.show_in_home !== undefined) params.append("show_in_home", String(filters.show_in_home));
 
   const response = await apiFetch(`${PROJECTS_URL}?${params}`);
   return parseEnvelope<ProjectsListResponse["data"]>(response);
@@ -199,3 +201,6 @@ export const toggleProjectStatus = (item: { id?: number | string }, isActive: bo
 
 export const updateProjectSortOrder = (item: { id?: number | string }, sortOrder: number) =>
   updateCmsSortOrder("projects", item.id!, sortOrder);
+
+export const toggleProjectHome = (item: { id?: number | string }, showInHome: boolean) =>
+  updateCmsHome("projects", item.id!, showInHome);
