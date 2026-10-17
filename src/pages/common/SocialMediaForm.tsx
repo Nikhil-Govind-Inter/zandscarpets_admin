@@ -28,6 +28,12 @@ import {
   updateSocialMedia,
 } from "@/services/common/socialMediaApi";
 import {
+  SOCIAL_ICON_ACCEPT,
+  SOCIAL_ICON_MAX_BYTES,
+  SOCIAL_ICON_RECOMMENDED,
+  validateSocialIcon,
+} from "@/utils/socialIconValidation";
+import {
   socialMediaSchema,
   SocialMediaFormData,
 } from "@/schemas/commonSchemas";
@@ -197,14 +203,20 @@ export default function SocialMediaForm() {
                   name="media_path"
                   label="Icon"
                   placeholder="Upload social media icon"
-                  accept="image/*"
+                  accept={SOCIAL_ICON_ACCEPT}
+                  maxImageSize={SOCIAL_ICON_MAX_BYTES}
+                  recommendedDimensions={SOCIAL_ICON_RECOMMENDED}
+                  validateImage={(file) => validateSocialIcon(file)}
                 />
                 <FormFileUploadField
                   form={form}
                   name="footer_media_path"
                   label="Footer Icon"
                   placeholder="Upload footer social media icon"
-                  accept="image/*"
+                  accept={SOCIAL_ICON_ACCEPT}
+                  maxImageSize={SOCIAL_ICON_MAX_BYTES}
+                  recommendedDimensions={`${SOCIAL_ICON_RECOMMENDED}. White icon works best (footer background is dark).`}
+                  validateImage={(file) => validateSocialIcon(file)}
                 />
               </div>
             </CardContent>

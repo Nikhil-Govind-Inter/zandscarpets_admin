@@ -42,6 +42,7 @@ export const productSchema = z.object({
   is_active: commonValidations.booleanStatus,
   list_in_navbar: z.boolean(),
   show_in_home: z.boolean(),
+  show_in_footer: z.boolean(),
 });
 
 export type ProductFormData = z.infer<typeof productSchema>;

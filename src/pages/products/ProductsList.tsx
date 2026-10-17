@@ -7,6 +7,8 @@ import StatusToggleCell from "@/components/common/StatusToggleCell";
 import SortOrderCell from "@/components/common/SortOrderCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
+import FooterChangeDialogue from "@/components/common/FooterChangeDialogue";
+import { useFooterToggle } from "@/hooks/useFooterToggle";
 import MediaThumbnail from "@/components/common/MediaThumbnail";
 import {
   AlertDialog,
@@ -23,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { HelpCircle, Images, Layers, RotateCcw, LayoutList, Tags } from "lucide-react";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
+import FilterField from "@/components/common/FilterField";
 import { useToast } from "@/hooks/use-toast";
 import { useSortOrder } from "@/hooks/useSortOrder";
 import { useStatusToggle } from "@/hooks/useStatusToggle";
@@ -33,6 +36,7 @@ import {
   deleteProduct,
   toggleProductStatus,
   toggleProductHome,
+  toggleProductFooter,
   updateProductSortOrder,
   ProductRecord,
   ProductFilters,
@@ -45,7 +49,7 @@ const ALL = "all";
 type StatusFilter = "all" | "active" | "inactive";
 
 const STATUS_OPTIONS = [
-  { value: "all", label: "All statuses" },
+  { value: "all", label: "All" },
   { value: "active", label: "Active" },
   { value: "inactive", label: "Inactive" },
 ];
@@ -53,9 +57,15 @@ const STATUS_OPTIONS = [
 type HomeFilter = "all" | "yes" | "no";
 
 const HOME_OPTIONS = [
-  { value: "all", label: "All home" },
+  { value: "all", label: "All" },
   { value: "yes", label: "In home" },
   { value: "no", label: "Not in home" },
+];
+
+const FOOTER_OPTIONS = [
+  { value: "all", label: "All" },
+  { value: "yes", label: "In footer" },
+  { value: "no", label: "Not in footer" },
 ];
 
 export default function ProductsList() {
@@ -69,10 +79,12 @@ export default function ProductsList() {
     product_category_id: ALL,
     status: ALL,
     home: ALL,
+    footer: ALL,
   });
   const categoryFilter = listFilters.product_category_id;
   const statusFilter = listFilters.status as StatusFilter;
   const homeFilter = listFilters.home as HomeFilter;
+  const footerFilter = listFilters.footer as HomeFilter;
   const [categoryOptions, setCategoryOptions] = useState<ComboboxOption[]>([]);
 
   useEffect(() => {
@@ -88,8 +100,9 @@ export default function ProductsList() {
       product_category_id: categoryFilter === ALL ? undefined : Number(categoryFilter),
       status: statusFilter === "all" ? undefined : statusFilter,
       show_in_home: homeFilter === ALL ? undefined : homeFilter === "yes",
+      show_in_footer: footerFilter === ALL ? undefined : footerFilter === "yes",
     }),
-    [categoryFilter, statusFilter, homeFilter],
+    [categoryFilter, statusFilter, homeFilter, footerFilter],
   );
 
   const {
@@ -111,7 +124,7 @@ export default function ProductsList() {
   } = usePaginatedList<ProductRecord, ProductFilters>(fetchProductList, 10, filters);
 
   const hasActiveFilters =
-    categoryFilter !== ALL || statusFilter !== "all" || homeFilter !== ALL || searchInput !== "";
+    categoryFilter !== ALL || statusFilter !== "all" || homeFilter !== ALL || footerFilter !== ALL || searchInput !== "";
 
   const resetAll = () => {
     resetListFilters();
@@ -124,6 +137,12 @@ export default function ProductsList() {
     setItems,
     refetch,
     toggleStatus: toggleProductStatus,
+    label: "Product",
+  });
+
+  const { footerToggleItem, setFooterToggleItem, confirmFooterToggle } = useFooterToggle<ProductRecord>({
+    setItems,
+    toggleFooter: toggleProductFooter,
     label: "Product",
   });
 
@@ -285,6 +304,18 @@ export default function ProductsList() {
       ),
     },
     {
+      accessorKey: "show_in_footer",
+      header: "Footer Visibility",
+      cell: ({ row }) => (
+        <StatusToggleCell
+          status={!!row.original.show_in_footer}
+          onCheckedChange={(checked) =>
+            setFooterToggleItem({ item: row.original, newValue: checked })
+          }
+        />
+      ),
+    },
+    {
       id: "variants",
       header: "Variants",
       cell: ({ row }) => {
@@ -360,33 +391,50 @@ export default function ProductsList() {
         onSearchChange={setSearchInput}
         headerExtra={
           <>
-            <Combobox
-              maxVisibleItems={5}
-              autoWidth
-              value={categoryFilter}
-              options={[{ value: ALL, label: "All categories" }, ...categoryOptions]}
-              placeholder="All categories"
-              searchPlaceholder="Search category..."
-              onChange={(v) => setFilter("product_category_id", v || ALL)}
-            />
-            <Combobox
-              maxVisibleItems={3}
-              autoWidth
-              value={statusFilter}
-              options={STATUS_OPTIONS}
-              placeholder="All statuses"
-              searchPlaceholder="Search status..."
-              onChange={(value) => setFilter("status", value)}
-            />
-            <Combobox
-              maxVisibleItems={3}
-              autoWidth
-              value={homeFilter}
-              options={HOME_OPTIONS}
-              placeholder="All home"
-              searchPlaceholder="Search home..."
-              onChange={(value) => setFilter("home", value || ALL)}
-            />
+            <FilterField label="Category">
+              <Combobox
+                maxVisibleItems={5}
+                autoWidth
+                value={categoryFilter}
+                options={[{ value: ALL, label: "All" }, ...categoryOptions]}
+                placeholder="All"
+                searchPlaceholder="Search category..."
+                onChange={(v) => setFilter("product_category_id", v || ALL)}
+              />
+            </FilterField>
+            <FilterField label="Status">
+              <Combobox
+                maxVisibleItems={3}
+                autoWidth
+                value={statusFilter}
+                options={STATUS_OPTIONS}
+                placeholder="All"
+                searchPlaceholder="Search status..."
+                onChange={(value) => setFilter("status", value)}
+              />
+            </FilterField>
+            <FilterField label="Home">
+              <Combobox
+                maxVisibleItems={3}
+                autoWidth
+                value={homeFilter}
+                options={HOME_OPTIONS}
+                placeholder="All"
+                searchPlaceholder="Search home..."
+                onChange={(value) => setFilter("home", value || ALL)}
+              />
+            </FilterField>
+            <FilterField label="Footer">
+              <Combobox
+                maxVisibleItems={3}
+                autoWidth
+                value={footerFilter}
+                options={FOOTER_OPTIONS}
+                placeholder="All"
+                searchPlaceholder="Search footer..."
+                onChange={(value) => setFilter("footer", value || ALL)}
+              />
+            </FilterField>
             <Button
               variant="outline"
               size="sm"
@@ -443,6 +491,13 @@ export default function ProductsList() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <FooterChangeDialogue
+        footerToggleItem={footerToggleItem}
+        setFooterToggleItem={setFooterToggleItem}
+        confirmFooterToggle={confirmFooterToggle}
+        itemLabel="product"
+      />
 
       <StatusChangeDialogue
         statusToggleItem={statusToggleItem}

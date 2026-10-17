@@ -209,6 +209,8 @@ interface FormFileUploadFieldProps<T extends FieldValues> extends BaseFormFieldP
   maxImageSize?: number;
   maxVideoSize?: number;
   preview?: boolean;
+  recommendedDimensions?: string;
+  validateImage?: (file: File) => Promise<string | null>;
 }
 
 export function FormFileUploadField<T extends FieldValues>({
@@ -221,6 +223,8 @@ export function FormFileUploadField<T extends FieldValues>({
   maxVideoSize,
   preview = true,
   required,
+  recommendedDimensions,
+  validateImage,
 }: FormFileUploadFieldProps<T>) {
   return (
     <FormField
@@ -242,6 +246,8 @@ export function FormFileUploadField<T extends FieldValues>({
               maxVideoSize={maxVideoSize}
               placeholder={placeholder}
               preview={preview}
+              recommendedDimensions={recommendedDimensions}
+              validateImage={validateImage}
             />
           </FormControl>
           <FormMessage />

@@ -23,6 +23,8 @@ interface FileUploadProps {
   className?: string;
   recommendedDimensions?: string; // e.g., "1440×900px"
   dimensionNote?: string; // Additional context about dimensions
+  // Extra async check run after the built-in size checks; return an error message or null.
+  validateImage?: (file: File) => Promise<string | null>;
 }
 
 export function FileUpload({
@@ -40,6 +42,7 @@ export function FileUpload({
   className,
   recommendedDimensions,
   dimensionNote,
+  validateImage,
 }: FileUploadProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [customError, setCustomError] = useState<string | null>(null);
@@ -99,7 +102,7 @@ export function FileUpload({
   );
 
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: File[]) => {
       setCustomError(null); // Clear previous errors
 
       const file = acceptedFiles[0];
@@ -109,6 +112,14 @@ export function FileUpload({
         if (customValidation) {
           setCustomError(customValidation.message);
           return;
+        }
+
+        if (validateImage) {
+          const message = await validateImage(file);
+          if (message) {
+            setCustomError(message);
+            return;
+          }
         }
 
         const isImage = file.type.startsWith("image/");
@@ -121,7 +132,7 @@ export function FileUpload({
         }
       }
     },
-    [onChange, preview, validateFile]
+    [onChange, preview, validateFile, validateImage]
   );
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } =

@@ -1,4 +1,4 @@
-import { updateCmsStatus, updateCmsSortOrder } from "@/services/common/cmsOrderStatusApi";
+import { updateCmsStatus, updateCmsSortOrder, updateCmsFooter } from "@/services/common/cmsOrderStatusApi";
 import { apiFetch } from "@/lib/apiClient";
 
 // Services > Service — backed by `/api/backend/services/service`. Uses the
@@ -15,6 +15,7 @@ export interface ServiceRecord {
   description_ar?: string;
   sort_order: number;
   is_active: boolean;
+  show_in_footer: boolean;
   deleted_at?: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -85,6 +86,11 @@ export interface ServiceListResponse {
   };
 }
 
+export interface ServiceFilters {
+  status?: "active" | "inactive";
+  show_in_footer?: boolean;
+}
+
 export interface ServicePayload {
   title: string;
   title_ar?: string;
@@ -92,6 +98,7 @@ export interface ServicePayload {
   description_ar?: string;
   sort_order: number;
   is_active: boolean;
+  show_in_footer: boolean;
 }
 
 // Fetcher shape matches usePaginatedList's `Fetcher<T>` contract.
@@ -99,6 +106,7 @@ export const fetchServiceList = async (
   page: number,
   limit: number,
   search?: string,
+  filters?: ServiceFilters,
 ): Promise<ServiceListResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -107,6 +115,12 @@ export const fetchServiceList = async (
 
   if (search) {
     params.append("search", search);
+  }
+  if (filters?.status) {
+    params.append("status", filters.status);
+  }
+  if (filters?.show_in_footer !== undefined) {
+    params.append("show_in_footer", String(filters.show_in_footer));
   }
 
   const response = await apiFetch(`${SERVICE_URL}?${params}`);
@@ -163,6 +177,9 @@ export const deleteService = async (
 // Quick status toggle / sort-order change via the shared single-field CMS endpoints.
 export const toggleServiceStatus = (item: { id?: number | string }, isActive: boolean) =>
   updateCmsStatus("services", item.id!, isActive);
+
+export const toggleServiceFooter = (item: { id?: number | string }, showInFooter: boolean) =>
+  updateCmsFooter("services", item.id!, showInFooter);
 
 export const updateServiceSortOrder = (item: { id?: number | string }, sortOrder: number) =>
   updateCmsSortOrder("services", item.id!, sortOrder);

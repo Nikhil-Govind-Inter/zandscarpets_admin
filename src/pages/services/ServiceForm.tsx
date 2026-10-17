@@ -47,6 +47,7 @@ export default function ServiceForm() {
       description_ar: "",
       sort_order: "1",
       is_active: true,
+      show_in_footer: false,
     },
   });
 
@@ -69,6 +70,7 @@ export default function ServiceForm() {
         description_ar: data.description_ar || "",
         sort_order: (data.sort_order ?? 1).toString(),
         is_active: data.is_active ?? true,
+        show_in_footer: data.show_in_footer ?? false,
       });
     } catch (error) {
       toast({
@@ -95,6 +97,7 @@ export default function ServiceForm() {
         description_ar: data.description_ar,
         sort_order: parseInt(data.sort_order || "1"),
         is_active: data.is_active,
+        show_in_footer: data.show_in_footer,
       };
 
       if (isEditing && id) {
@@ -240,6 +243,26 @@ export default function ServiceForm() {
                         <FormLabel className="text-base">Status</FormLabel>
                         <p className="text-sm text-muted-foreground">
                           Enable or disable this item.
+                        </p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="show_in_footer"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Show in Footer</FormLabel>
+                        <p className="text-sm text-muted-foreground">
+                          Show this service in the site footer links.
                         </p>
                       </div>
                       <FormControl>
