@@ -17,6 +17,8 @@ export interface ServiceCms {
   service_title_ar?: string;
   process_steps_title: string;
   process_steps_title_ar?: string;
+  process_steps_bg_title?: string | null;
+  process_steps_bg_title_ar?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }

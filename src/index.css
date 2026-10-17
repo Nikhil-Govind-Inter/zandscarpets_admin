@@ -122,3 +122,22 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+/* Rich text editor: bullet points shown as check-circle icons (matches the storefront) */
+.rte-check-list ul {
+  list-style: none;
+  padding-inline-start: 0;
+}
+.rte-check-list ul > li {
+  position: relative;
+  padding-inline-start: 1.75rem;
+  margin: 0.5rem 0;
+}
+.rte-check-list ul > li::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.2em;
+  width: 1rem;
+  height: 1rem;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23037EDA' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E") center / contain no-repeat;
+}

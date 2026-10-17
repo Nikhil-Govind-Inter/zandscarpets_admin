@@ -46,6 +46,8 @@ interface RichTextEditorProps {
   maxLength?: number;
   height?: string;
   dir?: "ltr" | "rtl";
+  // bullet points show a check-circle icon (the storefront renders them the same way)
+  checkList?: boolean;
 }
 
 export function RichTextEditor({
@@ -58,6 +60,7 @@ export function RichTextEditor({
   maxLength,
   height,
   dir,
+  checkList = false,
 }: RichTextEditorProps) {
   const [showIconSelector, setShowIconSelector] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -112,7 +115,8 @@ export function RichTextEditor({
           "prose-blockquote:text-muted-foreground prose-blockquote:border-border",
           "prose-a:text-primary prose-a:underline",
           "prose-img:rounded-md prose-img:border"
-          , dir === "rtl" && "text-right"
+          , dir === "rtl" && "text-right",
+          checkList && "rte-check-list"
         ),
       },
       handleKeyDown: (view, event) => {

@@ -265,6 +265,7 @@ export function FormFileUploadField<T extends FieldValues>({
 interface FormRichTextFieldProps<T extends FieldValues> extends BaseFormFieldProps<T> {
   // height?: string;
   maxLength?: number;
+  checkList?: boolean;
 }
 
 export function FormRichTextField<T extends FieldValues>({
@@ -274,6 +275,7 @@ export function FormRichTextField<T extends FieldValues>({
   placeholder,
   height,
   maxLength,
+  checkList,
 }: FormRichTextFieldProps<T>) {
   const isArabic = name.endsWith("_ar");
   return (
@@ -290,6 +292,7 @@ export function FormRichTextField<T extends FieldValues>({
               placeholder={placeholder}
               height={height}
               maxLength={maxLength}
+              checkList={checkList}
               dir={isArabic ? "rtl" : undefined}
             />
           </FormControl>

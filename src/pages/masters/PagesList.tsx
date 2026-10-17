@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/common/DataTable";
 import RowActionsMenu from "@/components/common/RowActionsMenu";
+import SortOrderCell from "@/components/common/SortOrderCell";
 import StatusToggleCell from "@/components/common/StatusToggleCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { useSortOrder } from "@/hooks/useSortOrder";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import {
   fetchPagesList,
@@ -44,6 +46,23 @@ export default function PagesList() {
     itemsLimit,
     refetch,
   } = usePaginatedList<PageRecord>(fetchPagesList);
+
+  // The backend's PUT requires the full record, so resend it with the new sort order.
+  const handleSortOrderChange = useSortOrder(
+    pages,
+    setPages,
+    (item: PageRecord, sortOrder: number) =>
+      updatePage(item.id, {
+        page: item.page,
+        page_slug: item.page_slug,
+        page_ar: item.page_ar ?? null,
+        link: item.link ?? null,
+        show_in_nav: item.show_in_nav,
+        show_in_footer: item.show_in_footer,
+        sort_order: sortOrder,
+        is_active: item.is_active,
+      }),
+  );
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;
@@ -193,6 +212,20 @@ export default function PagesList() {
           }
         />
       ),
+    },
+    {
+      accessorKey: "sort_order",
+      header: "Sort Order",
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <SortOrderCell
+            sortOrder={item.sort_order ?? 1}
+            onIncrement={() => handleSortOrderChange(item, 1)}
+            onDecrement={() => handleSortOrderChange(item, -1)}
+          />
+        );
+      },
     },
     {
       accessorKey: "is_active",

@@ -29,6 +29,8 @@ const defaultValues: ServiceCmsFormData = {
   service_title_ar: "",
   process_steps_title: "",
   process_steps_title_ar: "",
+  process_steps_bg_title: "",
+  process_steps_bg_title_ar: "",
 };
 
 export default function ServiceCmsForm() {
@@ -63,6 +65,8 @@ export default function ServiceCmsForm() {
           service_title_ar: data.service_title_ar || "",
           process_steps_title: data.process_steps_title || "",
           process_steps_title_ar: data.process_steps_title_ar || "",
+          process_steps_bg_title: data.process_steps_bg_title || "",
+          process_steps_bg_title_ar: data.process_steps_bg_title_ar || "",
         });
       }
     } catch (error) {
@@ -84,6 +88,8 @@ export default function ServiceCmsForm() {
         service_title_ar: data.service_title_ar,
         process_steps_title: data.process_steps_title,
         process_steps_title_ar: data.process_steps_title_ar,
+        process_steps_bg_title: data.process_steps_bg_title,
+        process_steps_bg_title_ar: data.process_steps_bg_title_ar,
       };
       const response = await saveServiceCms(payload, recordId ?? 1);
       if (response.data?.id) {
@@ -128,14 +134,14 @@ export default function ServiceCmsForm() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
-                <FormTextField
+                <FormRichTextField
                   form={form}
                   name="title"
                   label="Title"
                   placeholder="Enter section title"
                 />
 
-                <FormTextField
+                <FormRichTextField
                   form={form}
                   name="title_ar"
                   label="Title (Arabic)"
@@ -158,14 +164,14 @@ export default function ServiceCmsForm() {
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
-                <FormTextField
+                <FormRichTextField
                   form={form}
                   name="service_title"
                   label="Services List Title"
                   placeholder="Enter services list heading"
                 />
 
-                <FormTextField
+                <FormRichTextField
                   form={form}
                   name="service_title_ar"
                   label="Services List Title (Arabic)"
@@ -185,6 +191,21 @@ export default function ServiceCmsForm() {
                   name="process_steps_title_ar"
                   label="Process Steps Title (Arabic)"
                   placeholder="أدخل عنوان خطوات العملية"
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-2">
+                <FormTextField
+                  form={form}
+                  name="process_steps_bg_title"
+                  label="Process Steps Background Title"
+                  placeholder="e.g. OUR PROCESS (faint text behind the heading)"
+                />
+
+                <FormTextField
+                  form={form}
+                  name="process_steps_bg_title_ar"
+                  label="Process Steps Background Title (Arabic)"
+                  placeholder="مثال: عمليتنا"
                 />
               </div>
             </CardContent>

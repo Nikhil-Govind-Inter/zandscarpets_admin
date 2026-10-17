@@ -198,6 +198,7 @@ export default function ServiceForm() {
                   name="description"
                   label="Description"
                   placeholder="Describe this service"
+                  checkList
                 />
 
                 <FormRichTextField
@@ -205,6 +206,7 @@ export default function ServiceForm() {
                   name="description_ar"
                   label="Arabic Description"
                   placeholder="وصف هذا الخدمة"
+                  checkList
                 />
               </div>
             </CardContent>
