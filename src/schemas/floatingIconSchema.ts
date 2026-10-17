@@ -2,7 +2,7 @@ import { z } from "zod";
 import { commonValidations } from "@/utils/formUtils";
 
 export const floatingIconSchema = z.object({
-  media_path: commonValidations.requiredFile("Icon"),
+  media_path: commonValidations.requiredSvgFile("Icon"),
   media_alt: commonValidations.requiredString("Alt text"),
   media_alt_ar: commonValidations.requiredString("Alt text (Arabic)"),
   link: commonValidations.requiredString("Link"),

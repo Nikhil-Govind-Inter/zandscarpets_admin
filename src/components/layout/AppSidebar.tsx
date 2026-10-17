@@ -135,12 +135,12 @@ const commonSection = [
   { title: "Meta Tags", url: "/meta-tags", icon: Tags },
   { title: "Banners", url: "/banners", icon: Image },
   { title: "Footer Media", url: "/footer-media", icon: Image },
+  { title: "Pages", url: "/pages", icon: Compass },
 ];
 const policiesSection = [
   { title: "Privacy Policy", url: "/privacy-policy", icon: ShieldCheck },
 ];
 const mastersSection = [
-  { title: "Pages", url: "/pages", icon: Compass },
   { title: "Faqs", url: "/faqs", icon: HelpCircle },
   { title: "Industry", url: "/industry", icon: MapPin },
   { title: "Materials", url: "/materials", icon: Package },
@@ -240,6 +240,7 @@ export function AppSidebar() {
         "/common-faq",
         "/banners",
         "/footer-media",
+        "/pages",
       ].some((route) => path.includes(route))
     ) {
       setOpenSection("common");
@@ -271,7 +272,6 @@ export function AppSidebar() {
     // Masters section
     else if (
       [
-        "/pages",
         "/faqs",
         "/industry",
         "/materials",

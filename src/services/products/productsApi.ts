@@ -1,4 +1,4 @@
-import { updateCmsStatus, updateCmsSortOrder, updateCmsHome, updateCmsFooter } from "@/services/common/cmsOrderStatusApi";
+import { updateCmsStatus, updateCmsSortOrder, updateCmsHome, updateCmsFooter, updateCmsNavbar } from "@/services/common/cmsOrderStatusApi";
 import { PRODUCTS_API_URL, createCrudApi } from "./productsApiClient";
 import type { ProductLabelOption } from "./productLabelsApi";
 import type { ProductMediaRecord } from "./productMediaApi";
@@ -58,6 +58,7 @@ export interface ProductFilters {
   status?: "active" | "inactive";
   show_in_home?: boolean;
   show_in_footer?: boolean;
+  list_in_navbar?: boolean;
 }
 
 const api = createCrudApi<ProductRecord, ProductOption>(`${PRODUCTS_API_URL}/products`);
@@ -74,6 +75,7 @@ export const fetchProductList = (
     status: filters?.status,
     show_in_home: filters?.show_in_home,
     show_in_footer: filters?.show_in_footer,
+    list_in_navbar: filters?.list_in_navbar,
   });
 export const fetchProductById = (id: number) => api.getById(id);
 // Related-products picker source; pass the product being edited to exclude it.
@@ -88,6 +90,9 @@ export const toggleProductStatus = (item: { id?: number | string }, isActive: bo
 
 export const toggleProductHome = (item: { id?: number | string }, showInHome: boolean) =>
   updateCmsHome("products", item.id!, showInHome);
+
+export const toggleProductNavbar = (item: { id?: number | string }, showInNavbar: boolean) =>
+  updateCmsNavbar("products", item.id!, showInNavbar);
 
 export const toggleProductFooter = (item: { id?: number | string }, showInFooter: boolean) =>
   updateCmsFooter("products", item.id!, showInFooter);

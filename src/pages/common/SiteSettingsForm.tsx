@@ -15,7 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormFileUploadField,
-  FormTextareaField,
+  FormRichTextField,
   FormTextField,
 } from "@/components/forms/FormFieldComponents";
 import { Save } from "lucide-react";
@@ -144,14 +144,14 @@ export default function SiteSettingsForm() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormTextareaField
+                <FormRichTextField
                   form={form}
                   name="address"
                   label="Address"
                   placeholder="Enter address"
                 />
 
-                <FormTextareaField
+                <FormRichTextField
                   form={form}
                   name="address_ar"
                   label="Arabic Address"

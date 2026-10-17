@@ -13,6 +13,11 @@ export interface PageRecord {
   id: number;
   page: string;
   page_slug: string;
+  page_ar?: string | null;
+  link?: string | null;
+  show_in_nav: boolean;
+  show_in_footer: boolean;
+  sort_order: number;
   is_active: boolean;
   deleted_at?: string | null;
   createdAt?: string;
@@ -87,6 +92,11 @@ export interface PagesListResponse {
 export interface PagePayload {
   page: string;
   page_slug: string;
+  page_ar?: string | null;
+  link?: string | null;
+  show_in_nav: boolean;
+  show_in_footer: boolean;
+  sort_order: number;
   is_active: boolean;
 }
 

@@ -188,8 +188,9 @@ export default function FloatingIconForm() {
                 form={form}
                 name="media_path"
                 label="Icon"
-                placeholder="Upload floating icon"
-                accept="image/*"
+                placeholder="Upload floating icon (SVG only)"
+                accept="image/svg+xml"
+                required
               />
             </CardContent>
           </Card>

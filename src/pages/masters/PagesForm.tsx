@@ -43,6 +43,11 @@ export default function PagesForm() {
     defaultValues: {
       page: "",
       page_slug: "",
+      page_ar: "",
+      link: "",
+      show_in_nav: false,
+      show_in_footer: false,
+      sort_order: 0,
       is_active: true,
     },
   });
@@ -56,6 +61,9 @@ export default function PagesForm() {
   }, [id, isEditing]);
 
   useEffect(() => {
+    // Slugs are referenced elsewhere (banners, meta tags), so never
+    // regenerate them from the name when editing an existing page.
+    if (isEditing) return;
     if (skipNextSlugSync.current) {
       skipNextSlugSync.current = false;
       return;
@@ -75,6 +83,11 @@ export default function PagesForm() {
       form.reset({
         page: data.page || "",
         page_slug: data.page_slug || "",
+        page_ar: data.page_ar || "",
+        link: data.link || "",
+        show_in_nav: data.show_in_nav ?? false,
+        show_in_footer: data.show_in_footer ?? false,
+        sort_order: data.sort_order ?? 0,
         is_active: data.is_active ?? true,
       });
       skipNextSlugSync.current = true;
@@ -96,6 +109,11 @@ export default function PagesForm() {
       const payload = {
         page: data.page,
         page_slug: data.page_slug,
+        page_ar: data.page_ar || null,
+        link: data.link || null,
+        show_in_nav: data.show_in_nav,
+        show_in_footer: data.show_in_footer,
+        sort_order: data.sort_order,
         is_active: data.is_active,
       };
 
@@ -154,7 +172,10 @@ export default function PagesForm() {
                   <FormItem>
                     <FormLabel>Page Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Home, About, Products" {...field} />
+                      <Input
+                        placeholder="e.g., Home, About, Products"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -168,9 +189,97 @@ export default function PagesForm() {
                   <FormItem>
                     <FormLabel>Page Slug</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., home, about, products" {...field} />
+                      <Input
+                        placeholder="e.g., home, about, products"
+                        readOnly={isEditing}
+                        className={isEditing ? "bg-muted cursor-not-allowed" : undefined}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="page_ar"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Page Name (Arabic)</FormLabel>
+                    <FormControl>
+                      <Input
+                        dir="rtl"
+                        placeholder="اسم الصفحة"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="link"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Link</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., /about or https://example.com"
+                        readOnly={isEditing}
+                        className={isEditing ? "bg-muted cursor-not-allowed" : undefined}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="sort_order"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sort Order</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={0} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="show_in_nav"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Show in Nav</FormLabel>
+                      <p className="text-sm text-muted-foreground">Display this page in the website navigation.</p>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="show_in_footer"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Show in Footer</FormLabel>
+                      <p className="text-sm text-muted-foreground">Display this page in the website footer.</p>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
                   </FormItem>
                 )}
               />

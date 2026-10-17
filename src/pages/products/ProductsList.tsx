@@ -37,6 +37,7 @@ import {
   toggleProductStatus,
   toggleProductHome,
   toggleProductFooter,
+  toggleProductNavbar,
   updateProductSortOrder,
   ProductRecord,
   ProductFilters,
@@ -62,6 +63,12 @@ const HOME_OPTIONS = [
   { value: "no", label: "Not in home" },
 ];
 
+const NAVBAR_OPTIONS = [
+  { value: "all", label: "All" },
+  { value: "yes", label: "In navbar" },
+  { value: "no", label: "Not in navbar" },
+];
+
 const FOOTER_OPTIONS = [
   { value: "all", label: "All" },
   { value: "yes", label: "In footer" },
@@ -80,11 +87,13 @@ export default function ProductsList() {
     status: ALL,
     home: ALL,
     footer: ALL,
+    navbar: ALL,
   });
   const categoryFilter = listFilters.product_category_id;
   const statusFilter = listFilters.status as StatusFilter;
   const homeFilter = listFilters.home as HomeFilter;
   const footerFilter = listFilters.footer as HomeFilter;
+  const navbarFilter = listFilters.navbar as HomeFilter;
   const [categoryOptions, setCategoryOptions] = useState<ComboboxOption[]>([]);
 
   useEffect(() => {
@@ -101,8 +110,9 @@ export default function ProductsList() {
       status: statusFilter === "all" ? undefined : statusFilter,
       show_in_home: homeFilter === ALL ? undefined : homeFilter === "yes",
       show_in_footer: footerFilter === ALL ? undefined : footerFilter === "yes",
+      list_in_navbar: navbarFilter === ALL ? undefined : navbarFilter === "yes",
     }),
-    [categoryFilter, statusFilter, homeFilter, footerFilter],
+    [categoryFilter, statusFilter, homeFilter, footerFilter, navbarFilter],
   );
 
   const {
@@ -124,7 +134,7 @@ export default function ProductsList() {
   } = usePaginatedList<ProductRecord, ProductFilters>(fetchProductList, 10, filters);
 
   const hasActiveFilters =
-    categoryFilter !== ALL || statusFilter !== "all" || homeFilter !== ALL || footerFilter !== ALL || searchInput !== "";
+    categoryFilter !== ALL || statusFilter !== "all" || homeFilter !== ALL || footerFilter !== ALL || navbarFilter !== ALL || searchInput !== "";
 
   const resetAll = () => {
     resetListFilters();
@@ -139,6 +149,35 @@ export default function ProductsList() {
     toggleStatus: toggleProductStatus,
     label: "Product",
   });
+
+  // Navbar toggle — confirm -> API -> optimistic row update -> toast.
+  const [navbarToggleItem, setNavbarToggleItem] = useState<{
+    item: ProductRecord;
+    newValue: boolean;
+  } | null>(null);
+  const navbarActionRef = useRef<HTMLButtonElement>(null);
+
+  const confirmNavbarToggle = async () => {
+    if (!navbarToggleItem) return;
+    const { item, newValue } = navbarToggleItem;
+    try {
+      await toggleProductNavbar(item, newValue);
+      setItems((prev) => prev.map((p) => (p.id === item.id ? { ...p, list_in_navbar: newValue } : p)));
+      toast({
+        title: "Success",
+        description: `Product ${newValue ? "added to" : "removed from"} navbar successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof ApiError ? error.message : "Failed to update navbar visibility",
+        variant: "destructive",
+      });
+    } finally {
+      setNavbarToggleItem(null);
+    }
+  };
 
   const { footerToggleItem, setFooterToggleItem, confirmFooterToggle } = useFooterToggle<ProductRecord>({
     setItems,
@@ -304,6 +343,18 @@ export default function ProductsList() {
       ),
     },
     {
+      accessorKey: "list_in_navbar",
+      header: "Navbar Visibility",
+      cell: ({ row }) => (
+        <StatusToggleCell
+          status={!!row.original.list_in_navbar}
+          onCheckedChange={(checked) =>
+            setNavbarToggleItem({ item: row.original, newValue: checked })
+          }
+        />
+      ),
+    },
+    {
       accessorKey: "show_in_footer",
       header: "Footer Visibility",
       cell: ({ row }) => (
@@ -424,6 +475,17 @@ export default function ProductsList() {
                 onChange={(value) => setFilter("home", value || ALL)}
               />
             </FilterField>
+            <FilterField label="Navbar">
+              <Combobox
+                maxVisibleItems={3}
+                autoWidth
+                value={navbarFilter}
+                options={NAVBAR_OPTIONS}
+                placeholder="All"
+                searchPlaceholder="Search navbar..."
+                onChange={(value) => setFilter("navbar", value || ALL)}
+              />
+            </FilterField>
             <FilterField label="Footer">
               <Combobox
                 maxVisibleItems={3}
@@ -487,6 +549,32 @@ export default function ProductsList() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction ref={homeActionRef} onClick={confirmHomeToggle}>
               {homeToggleItem?.newValue ? "Show in Home" : "Remove from Home"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!navbarToggleItem} onOpenChange={() => setNavbarToggleItem(null)}>
+        <AlertDialogContent
+          onOpenAutoFocus={(e) => {
+            e.preventDefault();
+            navbarActionRef.current?.focus();
+          }}
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Navbar Change</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to{" "}
+              {navbarToggleItem?.newValue
+                ? "show this product in the navbar"
+                : "remove this product from the navbar"}
+              ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction ref={navbarActionRef} onClick={confirmNavbarToggle}>
+              {navbarToggleItem?.newValue ? "Show in Navbar" : "Remove from Navbar"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

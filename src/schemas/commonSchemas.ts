@@ -21,8 +21,8 @@ export const footerMediaSchema = z.object({
 });
 
 export const siteSettingsSchema = z.object({
-  address: commonValidations.requiredText("Address"),
-  address_ar: commonValidations.requiredText("Address (Arabic)"),
+  address: commonValidations.richText("Address"),
+  address_ar: commonValidations.richText("Address (Arabic)"),
   email: commonValidations.requiredEmail,
   admin_email: commonValidations.requiredEmail,
   phone_number: commonValidations.requiredString("Phone Number"),

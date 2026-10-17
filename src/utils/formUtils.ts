@@ -98,6 +98,21 @@ export const commonValidations = {
       { message: `${fieldName} is required` }
     ),
 
+  // Required upload that must be an SVG: a new File, or an existing saved path ending in .svg.
+  requiredSvgFile: (fieldName: string) =>
+    z
+      .custom<File | string>(
+        (val) => val instanceof File || (typeof val === "string" && val.trim().length > 0),
+        { message: `${fieldName} is required` }
+      )
+      .refine(
+        (val) =>
+          val instanceof File
+            ? val.type === "image/svg+xml" || val.name.toLowerCase().endsWith(".svg")
+            : typeof val !== "string" || !val.trim() || /\.svg(\?.*)?$/i.test(val.trim()),
+        { message: `${fieldName} must be an SVG file` }
+      ),
+
   optionalFile: z
     .custom<File | string>(
       (val) =>

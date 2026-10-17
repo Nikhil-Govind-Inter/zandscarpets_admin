@@ -6,12 +6,14 @@ import RowActionsMenu from "@/components/common/RowActionsMenu";
 import StatusToggleCell from "@/components/common/StatusToggleCell";
 import DeleteDialogue from "@/components/common/DeleteDialogue";
 import StatusChangeDialogue from "@/components/common/StatusChangeDialogue";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import {
   fetchPagesList,
   deletePage,
   togglePageStatus,
+  updatePage,
   PageRecord,
   ApiError,
 } from "@/services/masters/pagesApi";
@@ -98,6 +100,41 @@ export default function PagesList() {
     }
   };
 
+  // The backend's PUT requires the full record, so resend it with one flag changed.
+  const toggleFlag = async (
+    item: PageRecord,
+    key: "show_in_nav" | "show_in_footer",
+    value: boolean,
+  ) => {
+    setPages((prev) =>
+      prev.map((i) => (i.id === item.id ? { ...i, [key]: value } : i)),
+    );
+    try {
+      await updatePage(item.id, {
+        page: item.page,
+        page_slug: item.page_slug,
+        page_ar: item.page_ar ?? null,
+        link: item.link ?? null,
+        show_in_nav: item.show_in_nav,
+        show_in_footer: item.show_in_footer,
+        sort_order: item.sort_order ?? 0,
+        is_active: item.is_active,
+        [key]: value,
+      });
+      toast({ title: "Success", description: "Page updated successfully" });
+    } catch (error) {
+      setPages((prev) =>
+        prev.map((i) => (i.id === item.id ? { ...i, [key]: !value } : i)),
+      );
+      toast({
+        title: "Error",
+        description:
+          error instanceof ApiError ? error.message : "Failed to update page",
+        variant: "destructive",
+      });
+    }
+  };
+
   const columns: ColumnDef<PageRecord>[] = [
     {
       accessorKey: "id",
@@ -122,6 +159,39 @@ export default function PagesList() {
         <div className="font-mono text-sm text-muted-foreground">
           {row.getValue("page_slug")}
         </div>
+      ),
+    },
+    {
+      accessorKey: "link",
+      header: "Link",
+      cell: ({ row }) => (
+        <div className="font-mono text-sm text-muted-foreground">
+          {(row.getValue("link") as string) || "-"}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "show_in_nav",
+      header: "Nav",
+      cell: ({ row }) => (
+        <Switch
+          checked={row.original.show_in_nav}
+          onCheckedChange={(checked) =>
+            toggleFlag(row.original, "show_in_nav", checked)
+          }
+        />
+      ),
+    },
+    {
+      accessorKey: "show_in_footer",
+      header: "Footer",
+      cell: ({ row }) => (
+        <Switch
+          checked={row.original.show_in_footer}
+          onCheckedChange={(checked) =>
+            toggleFlag(row.original, "show_in_footer", checked)
+          }
+        />
       ),
     },
     {
